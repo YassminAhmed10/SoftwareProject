@@ -5,6 +5,7 @@ import Layout from './components/Layout/Layout';
 import Dashboard from './pages/Dashboard';
 import OrderDetails from './pages/OrderDetails';
 import MyStore from './pages/MyStore';
+import Checkout from './pages/Checkout';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -37,6 +38,14 @@ function App() {
               </Layout>
             } 
           />
+          <Route 
+          path="/checkout" 
+          element={
+            <Layout darkMode={darkMode} setDarkMode={setDarkMode}>
+              <Checkout />
+            </Layout>
+          }  
+/>
         </Routes>
       </div>
     </Router>
