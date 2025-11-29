@@ -38,7 +38,14 @@ function App() {
               </Layout>
             } 
           />
-          <Route path="/checkout" element={<Checkout />} />
+          <Route 
+          path="/checkout" 
+          element={
+            <Layout darkMode={darkMode} setDarkMode={setDarkMode}>
+              <Checkout />
+            </Layout>
+          }  
+/>
         </Routes>
       </div>
     </Router>
