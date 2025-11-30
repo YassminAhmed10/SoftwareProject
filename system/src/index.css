@@ -14,6 +14,36 @@ a {
 li {
   list-style: none;
 }
+:root {
+  --surface: #ffffff;
+  --surface-alt: #f8f9fa;
+  --border: #e5e7eb;
+  --grey: #f3f4f6;
+
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+
+  --blue: #3b82f6;
+  --red: #ef4444;
+
+  --transition: 0.3s ease-in-out;
+}
+.dark {
+  --surface: #1f1f1f;
+  --surface-alt: #2a2a2a;
+  --border: #3c3c3c;
+  --grey: #2d2d2d;
+
+  --text-primary: #f5f5f5;
+  --text-secondary: #c9c9c9;
+
+  --blue: #60a5fa;
+  --red: #f87171;
+
+  --transition: 0.3s ease-in-out;
+}
+
+
 
 :root {
   --poppins: 'Poppins', sans-serif;
