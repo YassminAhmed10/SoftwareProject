@@ -4,6 +4,7 @@
   margin-left: 280px;
   transition: .3s ease;
   min-height: 100vh;
+  background: var(--primary-bg);
 }
 
 #content.sidebar-hidden {
@@ -16,6 +17,7 @@
   padding: 36px 24px;
   font-family: var(--poppins);
   min-height: calc(100vh - 56px);
+  background: var(--primary-bg);
 }
 
 #content main .head-title {
@@ -31,7 +33,7 @@
   font-size: 36px;
   font-weight: 600;
   margin-bottom: 10px;
-  color: var(--dark);
+  color: var(--text-primary);
 }
 
 #content main .head-title .left .breadcrumb {
@@ -41,11 +43,11 @@
 }
 
 #content main .head-title .left .breadcrumb li {
-  color: var(--dark);
+  color: var(--text-primary);
 }
 
 #content main .head-title .left .breadcrumb li a {
-  color: var(--dark-grey);
+  color: var(--text-secondary);
   pointer-events: none;
 }
 
@@ -54,10 +56,26 @@
   pointer-events: unset;
 }
 
+/* Dark Mode للعناوين */
+body.dark #content main .head-title .left h1,
+body.dark-mode #content main .head-title .left h1 {
+  color: var(--text-primary);
+}
+
+body.dark #content main .head-title .left .breadcrumb li,
+body.dark-mode #content main .head-title .left .breadcrumb li {
+  color: var(--text-primary);
+}
+
+body.dark #content main .head-title .left .breadcrumb li a,
+body.dark-mode #content main .head-title .left .breadcrumb li a {
+  color: var(--text-secondary);
+}
+
 .back-btn {
-  background: var(--light);
-  border: 2px solid var(--grey);
-  color: var(--dark);
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
+  color: var(--text-primary);
   padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
@@ -72,7 +90,7 @@
 
 .back-btn:hover {
   background: var(--blue);
-  color: var(--light);
+  color: white;
   border-color: var(--blue);
 }
 
@@ -85,12 +103,13 @@
 
 #content main .box-info li {
   padding: 24px;
-  background: var(--light);
+  background: var(--card-bg);
   border-radius: 20px;
   display: flex;
   align-items: center;
   gap: 24px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
 }
 
 #content main .box-info li .bx {
@@ -121,13 +140,20 @@
 #content main .box-info li .text h3 {
   font-size: 24px;
   font-weight: 600;
-  color: var(--dark);
+  color: var(--text-primary);
   margin-bottom: 4px;
 }
 
 #content main .box-info li .text p {
-  color: var(--dark-grey);
+  color: var(--text-secondary);
   font-size: 14px;
+}
+
+/* Dark Mode للإحصائيات */
+body.dark #content main .box-info li,
+body.dark-mode #content main .box-info li {
+  background: var(--card-bg);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 #content main .table-data {
@@ -135,15 +161,16 @@
   flex-wrap: wrap;
   gap: 24px;
   width: 100%;
-  color: var(--dark);
+  color: var(--text-primary);
 }
 
 #content main .table-data > div {
   border-radius: 20px;
-  background: var(--light);
+  background: var(--card-bg);
   padding: 24px;
   overflow-x: auto;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
 }
 
 #content main .table-data .head {
@@ -158,6 +185,7 @@
 #content main .table-data .head h3 {
   font-size: 24px;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .head-actions {
@@ -170,27 +198,31 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--grey);
+  background: var(--hover-bg);
   padding: 8px 16px;
   border-radius: 8px;
-  border: 1px solid var(--dark-grey);
+  border: 1px solid var(--border-color);
 }
 
 .search-box input {
   border: none;
   background: transparent;
   outline: none;
-  color: var(--dark);
+  color: var(--text-primary);
   font-family: var(--lato);
   width: 200px;
+}
+
+.search-box input::placeholder {
+  color: var(--text-secondary);
 }
 
 .filter-select {
   padding: 8px 16px;
   border-radius: 8px;
-  border: 1px solid var(--dark-grey);
-  background: var(--grey);
-  color: var(--dark);
+  border: 1px solid var(--border-color);
+  background: var(--hover-bg);
+  color: var(--text-primary);
   font-family: var(--lato);
   cursor: pointer;
   outline: none;
@@ -211,14 +243,17 @@
   padding: 16px 12px;
   font-size: 13px;
   text-align: left;
-  border-bottom: 1px solid var(--grey);
-  color: var(--dark-grey);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
   font-weight: 600;
+  background: var(--hover-bg);
 }
 
 #content main .table-data .order table td {
   padding: 16px 12px;
   vertical-align: middle;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
 }
 
 #content main .table-data .order table tr td:first-child {
@@ -228,28 +263,35 @@
 }
 
 #content main .table-data .order table td img {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  min-height: 50px;
+  max-width: 50px;
+  max-height: 50px;
+  border-radius: 8px;
   object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--border-color);
 }
 
 #content main .table-data .order table tbody tr:hover {
-  background: var(--grey);
+  background: var(--hover-bg);
 }
 
 .customer-id {
-  font-family: 'Courier New', monospace;
+  font-family: monospace;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 .id-badge {
-  background: linear-gradient(135deg, var(--blue), #2a7bcc);
-  padding: 6px 12px;
+  padding: 8px 12px;
   border-radius: 20px;
-  font-size: 11px;
-  color: white;
-  border: none;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--hover-bg);
+  border: 1px solid var(--border-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: inline-block;
   letter-spacing: 0.5px;
@@ -276,7 +318,7 @@
 .status {
   font-size: 10px;
   padding: 6px 16px;
-  color: var(--light);
+  color: white;
   border-radius: 20px;
   font-weight: 700;
   display: inline-block;
@@ -288,7 +330,7 @@
 
 .status.process {
   background: var(--yellow);
-  color: var(--dark);
+  color: var(--text-primary);
 }
 
 .status.pending {
@@ -323,6 +365,7 @@
 .order-details-container {
   max-width: 1200px;
   margin: 0 auto;
+  background: var(--primary-bg);
 }
 
 .order-details-content {
@@ -330,16 +373,17 @@
 }
 
 .order-info-card {
-  background: var(--light);
+  background: var(--card-bg);
   border-radius: 20px;
   padding: 32px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
 }
 
 .order-info-card h2 {
   font-size: 24px;
   font-weight: 600;
-  color: var(--dark);
+  color: var(--text-primary);
   margin-bottom: 24px;
 }
 
@@ -355,8 +399,9 @@
   align-items: center;
   gap: 16px;
   padding: 16px;
-  background: var(--grey);
+  background: var(--hover-bg);
   border-radius: 12px;
+  border: 1px solid var(--border-color);
 }
 
 .info-icon {
@@ -372,7 +417,7 @@
 
 .info-label {
   font-size: 12px;
-  color: var(--dark-grey);
+  color: var(--text-secondary);
   margin-bottom: 4px;
   text-transform: uppercase;
   font-weight: 600;
@@ -380,7 +425,7 @@
 
 .info-value {
   font-size: 16px;
-  color: var(--dark);
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -389,6 +434,100 @@
   margin-bottom: 20px;
 }
 
+/* ===== APP LAYOUT ===== */
+.app {
+  display: flex;
+  min-height: 100vh;
+  background: var(--primary-bg);
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  margin-left: 234px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s ease;
+  background: var(--primary-bg);
+}
+
+/* When sidebar is hidden */
+#sidebar.hide ~ .main-content,
+body.sidebar-hidden .main-content {
+  margin-left: 60px;
+}
+
+/* Content Container */
+.content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  background: var(--primary-bg);
+}
+
+/* Dark Mode للمحتوى الرئيسي */
+body.dark .main-content,
+body.dark-mode .main-content {
+  background: var(--primary-bg);
+}
+
+body.dark .content,
+body.dark-mode .content {
+  background: var(--primary-bg);
+}
+
+/* Dark Mode للجدول */
+body.dark #content main .table-data .order table tbody tr:hover,
+body.dark-mode #content main .table-data .order table tbody tr:hover {
+  background: var(--hover-bg);
+}
+
+/* Dark Mode لبطاقات المعلومات */
+body.dark .order-info-card,
+body.dark-mode .order-info-card {
+  background: var(--card-bg);
+}
+
+body.dark .info-item,
+body.dark-mode .info-item {
+  background: var(--hover-bg);
+}
+
+/* Dark Mode للأزرار */
+body.dark .back-btn,
+body.dark-mode .back-btn {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+body.dark .back-btn:hover,
+body.dark-mode .back-btn:hover {
+  background: var(--blue);
+  color: white;
+}
+
+/* Dark Mode لخلفيات البحث والتصفية */
+body.dark .search-box,
+body.dark-mode .search-box,
+body.dark .filter-select,
+body.dark-mode .filter-select {
+  background: var(--hover-bg);
+  border-color: var(--border-color);
+}
+
+body.dark .search-box input,
+body.dark-mode .search-box input {
+  color: var(--text-primary);
+}
+
+body.dark .search-box input::placeholder,
+body.dark-mode .search-box input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* ===== RESPONSIVE ===== */
 @media screen and (max-width: 768px) {
   #content {
     width: calc(100% - 200px);
@@ -402,6 +541,28 @@
 
   .search-box input {
     width: 150px;
+  }
+
+  #content main .table-data .order table td img {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    max-width: 40px;
+    max-height: 40px;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+
+  #sidebar.hide ~ .main-content,
+  body.sidebar-hidden .main-content {
+    margin-left: 0;
+  }
+
+  .content {
+    padding: 16px;
   }
 }
 
@@ -423,6 +584,57 @@
   .search-box input {
     width: 100%;
   }
-  
 
+  .content {
+    padding: 12px;
+  }
+
+  #content main {
+    padding: 24px 16px;
+  }
+
+  #content main .head-title .left h1 {
+    font-size: 28px;
+  }
+
+  #content main .box-info li {
+    padding: 16px;
+  }
+
+  #content main .box-info li .bx {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+
+  #content main .box-info li .text h3 {
+    font-size: 20px;
+  }
+}
+
+/* تحسينات إضافية للوضع الداكن */
+body.dark .id-badge,
+body.dark-mode .id-badge {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+body.dark #content main .table-data .order table th,
+body.dark-mode #content main .table-data .order table th {
+  background: var(--hover-bg);
+  color: var(--text-secondary);
+}
+
+/* تحسينات للفئات في الوضع الداكن */
+body.dark .category-badge.women,
+body.dark-mode .category-badge.women {
+  background: rgba(252, 231, 243, 0.2);
+  color: #f9a8d4;
+}
+
+body.dark .category-badge.men,
+body.dark-mode .category-badge.men {
+  background: rgba(219, 234, 254, 0.2);
+  color: #93c5fd;
 }
