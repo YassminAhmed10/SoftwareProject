@@ -6,7 +6,6 @@ import {
   PieChart, 
   FileText,
   DollarSign,
-  PlusCircle,
   Settings, 
   LogOut 
 } from 'lucide-react';
@@ -17,12 +16,11 @@ const Sidebar = ({ hide, darkMode }) => {
   const location = useLocation();
 
   const menuItems = [
-    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/', section: 'top' },
+    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', section: 'top' },
     { id: 'store', icon: ShoppingBag, label: 'My Store', path: '/my-store', section: 'top' },
     { id: 'analytics', icon: PieChart, label: 'Analytics', path: '/analytics', section: 'top' },
     { id: 'orders', icon: FileText, label: 'All Orders', path: '/orders', section: 'top' },
     { id: 'finance', icon: DollarSign, label: 'Finance', path: '/finance', section: 'top' },
-    { id: 'add-products', icon: PlusCircle, label: 'Add Products', path: '/add-products', section: 'top' },
     { id: 'settings', icon: Settings, label: 'Settings', path: '/settings', section: 'bottom' },
     { id: 'logout', icon: LogOut, label: 'Logout', path: '/logout', section: 'bottom', isLogout: true }
   ];
@@ -30,12 +28,15 @@ const Sidebar = ({ hide, darkMode }) => {
   const topMenuItems = menuItems.filter(item => item.section === 'top');
   const bottomMenuItems = menuItems.filter(item => item.section === 'bottom');
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    if (path === '/dashboard' && location.pathname === '/') return true;
+    return location.pathname === path;
+  };
 
   const handleNavigation = (item) => {
     if (item.isLogout) {
       if (window.confirm('Are you sure you want to logout?')) {
-        alert('Logging out...');
+        navigate('/');
       }
     } else {
       navigate(item.path);
