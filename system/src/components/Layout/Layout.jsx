@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar/Sidebar';
 import Navbar from './Navbar/Navbar';
 
-const Layout = ({ children }) => {
-  const [sidebarHide, setSidebarHide] = useState(false);
+const Layout = ({ children, hideSidebar = false }) => {
+  const [sidebarHide, setSidebarHide] = useState(hideSidebar);
   const [darkMode, setDarkMode] = useState(false);
   const [searchShow, setSearchShow] = useState(false);
 
@@ -12,7 +12,7 @@ const Layout = ({ children }) => {
       if (window.innerWidth < 768) {
         setSidebarHide(true);
       } else {
-        setSidebarHide(false);
+        setSidebarHide(hideSidebar);
       }
     };
 
@@ -20,7 +20,7 @@ const Layout = ({ children }) => {
     window.addEventListener('resize', handleResize);
     
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [hideSidebar]);
 
   const toggleSidebar = () => {
     setSidebarHide(!sidebarHide);
@@ -43,11 +43,13 @@ const Layout = ({ children }) => {
 
   return (
     <>
-      <Sidebar 
-        hide={sidebarHide}
-        darkMode={darkMode}
-      />
-      <section id="content" className={sidebarHide ? 'sidebar-hidden' : ''}>
+      {!hideSidebar && (
+        <Sidebar 
+          hide={sidebarHide}
+          darkMode={darkMode}
+        />
+      )}
+      <section id="content" className={sidebarHide && !hideSidebar ? 'sidebar-hidden' : ''}>
         <Navbar 
           toggleSidebar={toggleSidebar}
           toggleDarkMode={toggleDarkMode}

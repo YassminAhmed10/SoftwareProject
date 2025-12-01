@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import Layout from './components/Layout/Layout';
 import Dashboard from './pages/Dashboard';
@@ -39,17 +39,16 @@ function App() {
             } 
           />
           <Route 
-          path="/checkout" 
-          element={
-            <Layout darkMode={darkMode} setDarkMode={setDarkMode}>
-              <Checkout />
-            </Layout>
-          }  
-/>
+            path="/checkout" 
+            element={
+              <Layout darkMode={darkMode} setDarkMode={setDarkMode} hideSidebar={true}>
+                <Checkout />
+              </Layout>
+            }  
+          />
         </Routes>
       </div>
     </Router>
-
   );
 }
 

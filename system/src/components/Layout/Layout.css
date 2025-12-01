@@ -1,0 +1,163 @@
+/* Layout.css */
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  background: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-logo h1 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+.header-nav {
+  display: flex;
+  gap: 30px;
+}
+
+.header-nav a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.header-nav a:hover {
+  color: #007bff;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.sidebar-toggle {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #333;
+}
+
+/* Layout Content */
+.layout-content {
+  display: flex;
+  flex: 1;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background: #f8f9fa;
+  border-right: 1px solid #eaeaea;
+  transition: width 0.3s;
+}
+
+.sidebar.collapsed {
+  width: 60px;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 30px;
+  transition: margin-left 0.3s;
+}
+
+.main-content.with-sidebar {
+  margin-left: 0;
+}
+
+.main-content.sidebar-collapsed {
+  margin-left: -190px;
+}
+
+.main-content.full-width {
+  width: 100%;
+  max-width: 100%;
+  padding: 20px;
+}
+
+/* Checkout Layout Specific */
+.checkout-layout .header {
+  border-bottom: 1px solid #eee;
+}
+
+.checkout-layout .header-nav {
+  display: none; /* Hide nav on checkout */
+}
+
+.checkout-main {
+  flex: 1;
+  padding: 40px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.checkout-footer {
+  background: #f8f9fa;
+  padding: 20px;
+  text-align: center;
+  border-top: 1px solid #eee;
+}
+
+.checkout-footer .secure-notice {
+  color: #28a745;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* Footer */
+footer {
+  background: #333;
+  color: white;
+  padding: 40px 20px;
+  margin-top: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -250px;
+    top: 70px;
+    bottom: 0;
+    z-index: 999;
+  }
+  
+  .sidebar.open {
+    left: 0;
+  }
+  
+  .main-content.with-sidebar {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .checkout-main {
+    padding: 20px 15px;
+  }
+}

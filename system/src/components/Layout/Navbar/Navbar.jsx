@@ -1,15 +1,26 @@
 import React from 'react';
 import { Menu, Bell, Sun, Moon } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import './Navbar.css';
 
 const Navbar = ({ toggleSidebar, toggleDarkMode, darkMode }) => {
+  const location = useLocation();
+
+  // Determine the navbar title based on current route
+  const getNavbarTitle = () => {
+    if (location.pathname === '/checkout') {
+      return 'Checkout';
+    }
+    return 'Categories';
+  };
+
   return (
     <nav>
       <button className="menu-toggle" onClick={toggleSidebar}>
         <Menu size={24} />
       </button>
       
-      <a href="#" className="nav-link">Categories</a>
+      <a href="#" className="nav-link">{getNavbarTitle()}</a>
       
       <div className="nav-right">
         <button className="switch-mode-btn" onClick={toggleDarkMode}>
