@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Calendar, Users, DollarSign, ChevronRight, Search, Eye, ExternalLink } from 'lucide-react';
+import { useState } from 'react';
+import { Calendar, Users, DollarSign, ChevronRight, Search, Eye } from 'lucide-react';
 import OrderDetails from './OrderDetails';
 
 const Dashboard = () => {
@@ -23,23 +23,13 @@ const Dashboard = () => {
         phone: '01013427001',
         address: 'Sheikh Zayed, Giza, Egypt'
       },
-      payment: {
-        method: 'Cash',
-        type: 'Cash',
-      },
-      shipping: {
-        method: 'Standard',
-        address: 'Timo City, Cairo, Egypt'
-      },
+      payment: { method: 'Cash', type: 'Cash' },
+      shipping: { method: 'Standard', address: 'Timo City, Cairo, Egypt' },
       products: [
         { name: 'Hoodie Black', quantity: 1, price: 889 },
         { name: 'Sweatshirt White', quantity: 1, price: 889 }
       ],
-      acceptedBy: {
-        name: 'Admin User',
-        role: 'Administrator',
-        date: '01-10-2025 09:15 AM'
-      }
+      acceptedBy: { name: 'Admin User', role: 'Administrator', date: '01-10-2025 09:15 AM' }
     },
     { 
       id: 'CUST002', 
@@ -48,29 +38,14 @@ const Dashboard = () => {
       status: 'pending', 
       category: 'Men Item', 
       amount: '$149.99',
-      customer: {
-        name: 'Zeina Mohamed',
-        email: 'zeina@gmail.com',
-        phone: '+1234567891',
-        address: 'Elmaady, Cairo, Egypt'
-      },
-      payment: {
-        method: 'Cash',
-        type: 'Cash',
-      },
-      shipping: {
-        method: 'Express',
-        address: '456 Oak Avenue, City, Country'
-      },
+      customer: { name: 'Zeina Mohamed', email: 'zeina@gmail.com', phone: '+1234567891', address: 'Elmaady, Cairo, Egypt' },
+      payment: { method: 'Cash', type: 'Cash' },
+      shipping: { method: 'Express', address: '456 Oak Avenue, City, Country' },
       products: [
         { name: 'Men Shirt', quantity: 2, price: 529.99 },
         { name: 'Hoodie', quantity: 1, price: 559.99 }
       ],
-      acceptedBy: {
-        name: 'Store Manager',
-        role: 'Manager',
-        date: '02-10-2021 14:30 PM'
-      }
+      acceptedBy: { name: 'Store Manager', role: 'Manager', date: '02-10-2021 14:30 PM' }
     },
     { 
       id: 'CUST003', 
@@ -79,29 +54,15 @@ const Dashboard = () => {
       status: 'process', 
       category: 'Women Item', 
       amount: '$299.99',
-      customer: {
-        name: 'Ramy',
-        email: 'ramy@example.com',
-        phone: '+1234567892',
-        address: '789 Pine Road, City, Country'
-      },
-      payment: {
-        method: 'Cash',
-      },
-      shipping: {
-        method: 'Standard',
-        address: '789 Pine Road, City, Country'
-      },
+      customer: { name: 'Ramy', email: 'ramy@example.com', phone: '+1234567892', address: '789 Pine Road, City, Country' },
+      payment: { method: 'Cash' },
+      shipping: { method: 'Standard', address: '789 Pine Road, City, Country' },
       products: [
         { name: 'Leather Jacket', quantity: 1, price: 39.99 },
         { name: 'Hoodie Pink', quantity: 1, price: 34.99 },
-        { name: 'Sweatshirt White', quantity: 3, price: 75.00 }
+        { name: 'Sweatshirt White', quantity: 3, price: 75.0 }
       ],
-      acceptedBy: {
-        name: 'Admin User',
-        role: 'Administrator',
-        date: '03-10-2025 11:20 AM'
-      }
+      acceptedBy: { name: 'Admin User', role: 'Administrator', date: '03-10-2025 11:20 AM' }
     },
     { 
       id: 'CUST004', 
@@ -110,30 +71,14 @@ const Dashboard = () => {
       status: 'completed', 
       category: 'Men Item', 
       amount: '$199.99',
-      customer: {
-        name: 'Youssef',
-        email: 'youssef@example.com',
-        phone: '+1234567893',
-        address: '321 Elm Street, City, Country'
-      },
-      payment: {
-        method: 'Cash',
-        type: 'Cash',
-        number: 'N/A'
-      },
-      shipping: {
-        method: 'Standard',
-        address: '321 Elm Street, City, Country'
-      },
+      customer: { name: 'Youssef', email: 'youssef@example.com', phone: '+1234567893', address: '321 Elm Street, City, Country' },
+      payment: { method: 'Cash', type: 'Cash', number: 'N/A' },
+      shipping: { method: 'Standard', address: '321 Elm Street, City, Country' },
       products: [
         { name: 'Men Jacket', quantity: 1, price: 129.99 },
         { name: 'T-Shirt', quantity: 2, price: 19.99 }
       ],
-      acceptedBy: {
-        name: 'Sales Associate',
-        role: 'Sales',
-        date: '04-10-2025 16:45 PM'
-      }
+      acceptedBy: { name: 'Sales Associate', role: 'Sales', date: '04-10-2025 16:45 PM' }
     },
     { 
       id: 'CUST005', 
@@ -142,33 +87,26 @@ const Dashboard = () => {
       status: 'pending', 
       category: 'Women Item', 
       amount: '1159.99',
-      customer: {
-        name: 'Sara',
-        email: 'sara@example.com',
-        phone: '+1234567894',
-        address: '654 Maple Avenue, City, Country'
-      },
-      payment: {
-        method: 'Credit Card',
-        type: 'Visa',
-        number: '*******9012'
-      },
-      shipping: {
-        method: 'Express',
-        address: '654 Maple Avenue, City, Country'
-      },
+      customer: { name: 'Sara', email: 'sara@example.com', phone: '+1234567894', address: '654 Maple Avenue, City, Country' },
+      payment: { method: 'Credit Card', type: 'Visa', number: '*******9012' },
+      shipping: { method: 'Express', address: '654 Maple Avenue, City, Country' },
       products: [
         { name: 'Shoes', quantity: 1, price: 79.99 },
-        { name: 'Accessories', quantity: 2, price: 25.00 }
+        { name: 'Accessories', quantity: 2, price: 25.0 }
       ],
-      acceptedBy: null // لسة محدش قبل الطلب
+      acceptedBy: null
     }
   ];
 
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.user.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         order.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = filterCategory === 'all' || order.category === filterCategory;
+  // ----------------------------
+  // Filtered Orders
+  // ----------------------------
+  const filteredOrders = orders.filter((order) => {
+    const matchesSearch =
+      order.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      filterCategory === 'all' || order.category?.toLowerCase() === filterCategory.toLowerCase();
     return matchesSearch && matchesCategory;
   });
 
@@ -177,72 +115,47 @@ const Dashboard = () => {
     setShowOrderDetails(true);
   };
 
-  const handleCloseOrderDetails = () => {
-    setShowOrderDetails(false);
-    setSelectedOrder(null);
-  };
-
   const handleBackToOrders = () => {
     setShowOrderDetails(false);
     setSelectedOrder(null);
   };
 
+  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
   return (
     <div className={`dashboard-main ${showOrderDetails ? 'with-order-details' : ''}`}>
-      {/* Header Section */}
+      {/* Header */}
       <div className="head-title">
         <div className="left">
           <h1>Dashboard</h1>
           <ul className="breadcrumb">
-            <li>
-              <a href="#">Dashboard</a>
-            </li>
+            <li><a href="#">Dashboard</a></li>
             <li><ChevronRight size={16} /></li>
-            <li>
-              <a className="active" href="#">
-                {showOrderDetails ? 'Order Details' : 'Home'}
-              </a>
-            </li>
+            <li><a className="active" href="#">{showOrderDetails ? 'Order Details' : 'Home'}</a></li>
           </ul>
         </div>
       </div>
 
-      {/* Stats Cards - تظهر لما Order Details مش ظاهر */}
+      {/* Stats Cards */}
       {!showOrderDetails && (
         <ul className="box-info">
           <li>
-            <div className="bx">
-              <Calendar size={36} />
-            </div>
-            <span className="text">
-              <h3>233</h3>
-              <p>New Order</p>
-            </span>
+            <div className="bx"><Calendar size={36} /></div>
+            <span className="text"><h3>233</h3><p>New Order</p></span>
           </li>
           <li>
-            <div className="bx">
-              <Users size={36} />
-            </div>
-            <span className="text">
-              <h3>590</h3>
-              <p>Visitors</p>
-            </span>
+            <div className="bx"><Users size={36} /></div>
+            <span className="text"><h3>590</h3><p>Visitors</p></span>
           </li>
           <li>
-            <div className="bx">
-              <DollarSign size={36} />
-            </div>
-            <span className="text">
-              <h3>5550 LE</h3>
-              <p>Total Sales</p>
-            </span>
+            <div className="bx"><DollarSign size={36} /></div>
+            <span className="text"><h3>5550 LE</h3><p>Total Sales</p></span>
           </li>
         </ul>
       )}
 
-      {/* Main Content Area */}
+      {/* Dashboard Content */}
       <div className="dashboard-content-area">
-        {/* Recent Orders Table - يظهر لما Order Details مش ظاهر */}
         {!showOrderDetails && (
           <div className="table-data">
             <div className="order">
@@ -269,6 +182,7 @@ const Dashboard = () => {
                   </select>
                 </div>
               </div>
+
               <table className="recent-orders-table">
                 <thead>
                   <tr>
@@ -281,14 +195,10 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredOrders.map((order, index) => (
-                    <tr key={index} className="order-row">
-                      <td className="customer-id">
-                        <span className="id-badge">{order.id}</span>
-                      </td>
-                      <td className="user-name">
-                        {order.user}
-                      </td>
+                  {filteredOrders.map((order) => (
+                    <tr key={order.id} className="order-row">
+                      <td className="customer-id"><span className="id-badge">{order.id}</span></td>
+                      <td className="user-name">{order.user}</td>
                       <td className="order-date">{order.date}</td>
                       <td className="order-category">
                         <span className={`category-badge ${order.category === 'Women Item' ? 'women' : 'men'}`}>
@@ -296,17 +206,15 @@ const Dashboard = () => {
                         </span>
                       </td>
                       <td className="order-status">
-                        <span className={`status status-${order.status}`}>
-                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                        </span>
+                        <span className={`status status-${order.status}`}>{capitalize(order.status)}</span>
                       </td>
                       <td className="order-action">
-                        <button 
+                        <button
                           className="view-order-btn"
                           onClick={() => handleViewOrder(order)}
+                          aria-label={`View details for order ${order.id}`}
                         >
-                          <Eye size={16} />
-                          <span>View Details</span>
+                          <Eye size={16} /> <span>View Details</span>
                         </button>
                       </td>
                     </tr>
@@ -317,12 +225,9 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Order Details Section - تظهر لما Order Details ظاهر */}
+        {/* Order Details Section */}
         {showOrderDetails && selectedOrder && (
-          <OrderDetails 
-            order={selectedOrder} 
-            onBack={handleBackToOrders}
-          />
+          <OrderDetails order={selectedOrder} onBack={handleBackToOrders} />
         )}
       </div>
     </div>
