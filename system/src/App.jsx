@@ -11,6 +11,8 @@ import Analytics from './pages/Analytics';
 import AllOrders from './pages/AllOrders';
 import Finance from './pages/Finance';
 import Settings from './pages/Settings';
+import Products from './pages/Products';
+ 
 
 function App() {
   return (
@@ -26,6 +28,8 @@ function App() {
             <Route path="/orders" element={<Layout><AllOrders /></Layout>} />
             <Route path="/finance" element={<Layout><Finance /></Layout>} />
             <Route path="/settings" element={<Layout><Settings /></Layout>} />
+            <Route path="/Products" element={<Layout><Products /></Layout>} />
+            
           </Routes>
         </div>
       </Router>
