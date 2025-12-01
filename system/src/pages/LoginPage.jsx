@@ -1,14 +1,42 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import './Login.css';
+import { loginUser } from '../service/apiservice';
 
-function LoginPage({ onNavigateToSignup }) {
+function LoginPage({ onNavigateToSignup, onLoginSuccess }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    console.log('Login clicked', { username, password, rememberMe });
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    // Validate inputs
+    if (!username || !password) {
+      setError('Please enter both username and password');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await loginUser(username, password);
+      console.log('Login successful:', response);
+      
+      // Call the success callback to navigate to dashboard
+      if (onLoginSuccess) {
+        onLoginSuccess(response.user);
+      }
+    } catch (err) {
+      setError(err.message || 'Login failed. Please check your credentials.');
+      console.error('Login error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -35,6 +63,8 @@ function LoginPage({ onNavigateToSignup }) {
           </div>
 
           <h2 className="login-title">Log in</h2>
+
+          {error && <div className="error-message">{error}</div>}
 
           <div className="input-group">
             <div className="input-wrapper">
@@ -99,9 +129,10 @@ function LoginPage({ onNavigateToSignup }) {
 
           <button
             onClick={handleLogin}
+            disabled={loading}
             className="login-btn"
           >
-            Log in
+            {loading ? 'Logging in...' : 'Log in'}
           </button>
 
           <div className="divider">
@@ -121,5 +152,10 @@ function LoginPage({ onNavigateToSignup }) {
     </div>
   );
 }
+
+LoginPage.propTypes = {
+  onNavigateToSignup: PropTypes.func.isRequired,
+  onLoginSuccess: PropTypes.func,
+};
 
 export default LoginPage;

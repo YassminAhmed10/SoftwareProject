@@ -1,16 +1,58 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import './SignUpPage.css';
+import { registerUser } from '../service/apiservice';
+import bgImage from '../assets/bb.jpg';
+import logoImage from '../assets/RYYZstore.jpg';
 
-function SignUpPage({ onNavigateToLogin }) {
+function SignUpPage({ onNavigateToLogin, onSignupSuccess }) {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSignUp = () => {
-    console.log('Sign up clicked', { fullName, email, password, confirmPassword });
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    // Validate inputs
+    if (!fullName || !email || !password || !confirmPassword) {
+      setError('Please fill in all fields');
+      setLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await registerUser(fullName, email, password);
+      console.log('Signup successful:', response);
+      
+      // Call the success callback to navigate to dashboard
+      if (onSignupSuccess) {
+        onSignupSuccess(response.user);
+      }
+    } catch (err) {
+      setError(err.message || 'Signup failed. Please try again.');
+      console.error('Signup error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -19,7 +61,7 @@ function SignUpPage({ onNavigateToLogin }) {
         <div className="signup-left-side">
           <div className="signup-background-image">
             <img 
-              src="src/assets/bb.jpg" 
+              src={bgImage}
               alt="Background" 
               className="background-img"
             />
@@ -30,13 +72,15 @@ function SignUpPage({ onNavigateToLogin }) {
         <div className="signup-right-side">
           <div className="logo-container">
             <img 
-              src="src/assets/RYYZstore.jpg" 
+              src={logoImage}
               alt="RYYZ Logo" 
               className="logo-img"
             />
           </div>
 
           <h2 className="signup-title">Sign up</h2>
+
+          {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
             <label className="form-label">Full Name</label>
@@ -114,9 +158,10 @@ function SignUpPage({ onNavigateToLogin }) {
 
           <button
             onClick={handleSignUp}
+            disabled={loading}
             className="create-account-btn"
           >
-            Create Account
+            {loading ? 'Creating Account...' : 'Create Account'}
           </button>
 
           <div className="divider">
@@ -138,3 +183,8 @@ function SignUpPage({ onNavigateToLogin }) {
 }
 
 export default SignUpPage;
+
+SignUpPage.propTypes = {
+  onNavigateToLogin: PropTypes.func.isRequired,
+  onSignupSuccess: PropTypes.func,
+};
