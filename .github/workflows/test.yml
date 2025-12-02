@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r system/backend/requirements.txt
+          pip install -r system/backend/requirement.txt
 
       - name: Run Django Tests
         run: |
