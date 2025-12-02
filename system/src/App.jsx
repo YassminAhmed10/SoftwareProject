@@ -11,7 +11,8 @@ import Analytics from './pages/Analytics';
 import AllOrders from './pages/AllOrders';
 import Finance from './pages/Finance';
 import Settings from './pages/Settings';
-import ProductPage from './pages/ProductPage'; // Add this import
+import ProductPage from './pages/ProductPage';
+import CustomerDashboard from './pages/CustomerDashboard';
 
 function App() {
   return (
@@ -27,8 +28,8 @@ function App() {
             <Route path="/orders" element={<Layout><AllOrders /></Layout>} />
             <Route path="/finance" element={<Layout><Finance /></Layout>} />
             <Route path="/settings" element={<Layout><Settings /></Layout>} />
-            {/* Add Product Page Route */}
             <Route path="/products" element={<Layout><ProductPage /></Layout>} />
+            <Route path="/customer-dashboard" element={<Layout><CustomerDashboard /></Layout>} />
           </Routes>
         </div>
       </Router>

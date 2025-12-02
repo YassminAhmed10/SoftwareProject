@@ -3,7 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   ShoppingBag, 
-  Package,  // Added for Products
+  Package,
+  UserCircle,
   PieChart, 
   FileText,
   DollarSign,
@@ -19,7 +20,8 @@ const Sidebar = ({ hide, darkMode }) => {
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', section: 'top' },
     { id: 'store', icon: ShoppingBag, label: 'My Store', path: '/my-store', section: 'top' },
-    { id: 'products', icon: Package, label: 'Products', path: '/products', section: 'top' },  // Added Products
+    { id: 'products', icon: Package, label: 'Products', path: '/products', section: 'top' },
+    { id: 'customer', icon: UserCircle, label: 'Customer Dashboard', path: '/customer-dashboard', section: 'top' },
     { id: 'analytics', icon: PieChart, label: 'Analytics', path: '/analytics', section: 'top' },
     { id: 'orders', icon: FileText, label: 'All Orders', path: '/orders', section: 'top' },
     { id: 'finance', icon: DollarSign, label: 'Finance', path: '/finance', section: 'top' },
