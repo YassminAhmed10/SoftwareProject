@@ -29,5 +29,5 @@ jobs:
 
       - name: Run Django Tests
         run: |
-          cd system
-          python manage.py test backend.accounts
+          cd system/backend
+          python manage.py test accounts
