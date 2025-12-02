@@ -1,39 +1,48 @@
-name: React Project CI/CD
+name: Run Django Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          node-version: 18
-          cache: 'npm'
-          cache-dependency-path: system/package-lock.json
+          python-version: '3.11'
 
-      - name: Install Dependencies
-        working-directory: system
-        run: npm install
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
 
-      - name: Run Tests
-        working-directory: system
-        run: npm test --if-present
-
-      - name: Build Project
-        working-directory: system
-        run: npm run build
-
-      - name: Deploy (example)
-        if: success()
-        working-directory: system
-        run: echo "Deploy step goes here"
+      - name: Run Django Tests
+        env:
+          DB_NAME: testdb
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_HOST: localhost
+        run: |
+          python manage.py migrate
+          python manage.py test
