@@ -1,84 +1,48 @@
-// src/pages/WishlistPage.jsx
+// src/pages/WishlistPage.jsx - FINAL STABILIZED VERSION
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingCart, Eye, Trash2, Package, Tag, AlertCircle, ChevronRight, Star } from 'lucide-react';
 import './WishlistPage.css';
 
-const WishlistPage = () => {
-  // Mock wishlist data
-  const [wishlistItems, setWishlistItems] = useState([
-    {
-      id: 1,
-      name: 'Premium Denim Jacket',
-      description: 'High-quality denim jacket with premium finish',
-      price: 89.99,
-      discountPrice: 79.99,
-      category: 'Jackets',
-      sizes: ['S', 'M', 'L', 'XL'],
-      colors: ['Blue', 'Black'],
-      image: 'https://images.unsplash.com/photo-1521223890158-f9f7c3d5d504?w=400&h=400&fit=crop',
-      rating: 4.5,
-      reviewCount: 128,
-      inStock: true,
-      isNew: true,
-      addedDate: '2025-01-15'
-    },
-    {
-      id: 2,
-      name: 'Classic White T-Shirt',
-      description: '100% cotton comfortable t-shirt for everyday wear',
-      price: 24.99,
-      discountPrice: 19.99,
-      category: 'T-Shirts',
-      sizes: ['XS', 'S', 'M', 'L', 'XL'],
-      colors: ['White', 'Black', 'Gray'],
-      image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop',
-      rating: 4.2,
-      reviewCount: 89,
-      inStock: true,
-      isNew: false,
-      addedDate: '2025-01-10'
-    },
-    {
-      id: 3,
-      name: 'Leather Boots',
-      description: 'Premium leather boots for all seasons',
-      price: 129.99,
-      discountPrice: null,
-      category: 'Shoes',
-      sizes: ['40', '41', '42', '43'],
-      colors: ['Black', 'Brown'],
-      image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400&h=400&fit=crop',
-      rating: 4.8,
-      reviewCount: 56,
-      inStock: false,
-      isNew: true,
-      addedDate: '2025-01-05'
-    },
-    {
-      id: 4,
-      name: 'Wool Scarf',
-      description: 'Warm wool scarf for winter season',
-      price: 34.99,
-      discountPrice: 29.99,
-      category: 'Accessories',
-      sizes: ['One Size'],
-      colors: ['Gray', 'Navy', 'Burgundy'],
-      image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&h=400&fit=crop',
-      rating: 4.4,
-      reviewCount: 42,
-      inStock: true,
-      isNew: false,
-      addedDate: '2024-12-20'
+// --- Local Storage Hooks ---
+const useLocalStorage = (key, initialValue) => {
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      if (!item) {
+        return initialValue;
+      }
+      return JSON.parse(item);
+    } catch (error) {
+      console.error(error);
+      return initialValue;
     }
-  ]);
+  });
 
+  const setValue = (value) => {
+    try {
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  return [storedValue, setValue];
+};
+
+const WishlistPage = () => {
+  // Load wishlist items from localStorage, defaulting to empty array
+  const [wishlistItems, setWishlistItems] = useLocalStorage('ecommerceWishlistItems', []);
+  const [cartItems, setCartItems] = useLocalStorage('ecommerceCartItems', []); 
+  
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState('recent');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [notification, setNotification] = useState(null);
 
-  // Get unique categories
+  // Get unique categories from currently loaded items
   const categories = ['all', ...new Set(wishlistItems.map(item => item.category))];
 
   // Filter and sort wishlist items
@@ -108,8 +72,40 @@ const WishlistPage = () => {
   // Move all to cart
   const moveAllToCart = () => {
     const inStockItems = wishlistItems.filter(item => item.inStock);
-    // Here you would add to cart logic
-    showNotification(`${inStockItems.length} items moved to cart`);
+    
+    // Add logic to move items to cart
+    setCartItems(prevCart => {
+      let movedCount = 0;
+      let newCart = [...prevCart];
+
+      inStockItems.forEach(item => {
+        const defaultSize = item.sizes[0] || 'One Size';
+        const defaultColor = item.colors[0] || 'Default';
+        const itemId = `${item.id}-${defaultSize}-${defaultColor}`;
+
+        const existingIndex = newCart.findIndex(cartItem => cartItem.itemId === itemId);
+
+        if (existingIndex >= 0) {
+          newCart[existingIndex].quantity += 1;
+        } else {
+          newCart.push({
+            ...item,
+            itemId,
+            quantity: 1,
+            size: defaultSize,
+            color: defaultColor
+          });
+        }
+        movedCount++;
+      });
+      
+      // Remove successfully moved items from wishlist
+      const itemsToRemoveIds = inStockItems.map(item => item.id);
+      setWishlistItems(prevWishlist => prevWishlist.filter(item => !itemsToRemoveIds.includes(item.id)));
+      
+      showNotification(`${movedCount} items moved to cart!`);
+      return newCart;
+    });
   };
 
   // Add single item to cart
@@ -118,8 +114,32 @@ const WishlistPage = () => {
       showNotification('This item is out of stock', 'error');
       return;
     }
-    // Here you would add to cart logic
-    showNotification('Item added to cart');
+
+    const defaultSize = item.sizes[0] || 'One Size';
+    const defaultColor = item.colors[0] || 'Default';
+    const itemId = `${item.id}-${defaultSize}-${defaultColor}`;
+
+    setCartItems(prevCart => {
+      const existingItemIndex = prevCart.findIndex(cartItem => cartItem.itemId === itemId);
+      let newCart = [...prevCart];
+
+      if (existingItemIndex >= 0) {
+        newCart[existingItemIndex].quantity += 1;
+      } else {
+        newCart.push({
+          ...item,
+          itemId,
+          quantity: 1,
+          size: defaultSize,
+          color: defaultColor
+        });
+      }
+      
+      // Optionally remove from wishlist after adding to cart
+      removeFromWishlist(item.id); 
+      showNotification('Item added to cart and removed from wishlist!');
+      return newCart;
+    });
   };
 
   // Show notification
@@ -242,7 +262,7 @@ const WishlistPage = () => {
             <div className="empty-content">
               <Heart size={64} className="empty-icon" />
               <h2>Your wishlist is empty</h2>
-              <p>Save items you love by clicking the heart icon</p>
+              <p>Save items you love by clicking the heart icon on the product page!</p>
               <Link to="/products" className="browse-products-btn">
                 Browse Products
               </Link>
@@ -377,7 +397,7 @@ const WishlistPage = () => {
           </div>
         )}
 
-        {/* Wishlist Tips */}
+        {/* Wishlist Tips (Kept as is) */}
         <div className="wishlist-tips">
           <h3>Wishlist Tips</h3>
           <div className="tips-grid">
