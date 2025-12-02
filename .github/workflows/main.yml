@@ -1,0 +1,59 @@
+name: React Project CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm test -- --watchAll=false
+
+  build:
+    name: Build Project
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Project
+        run: npm run build
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy Application
+        run: echo "Deploying React app... Replace this with your real deploy commands"
