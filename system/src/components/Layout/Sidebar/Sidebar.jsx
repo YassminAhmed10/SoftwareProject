@@ -22,7 +22,9 @@ const Sidebar = ({ hide, darkMode }) => {
     { id: 'orders', icon: FileText, label: 'All Orders', path: '/orders', section: 'top' },
     { id: 'finance', icon: DollarSign, label: 'Finance', path: '/finance', section: 'top' },
     { id: 'settings', icon: Settings, label: 'Settings', path: '/settings', section: 'bottom' },
-    { id: 'logout', icon: LogOut, label: 'Logout', path: '/logout', section: 'bottom', isLogout: true }
+
+    // LOGOUT — redirects to /login
+    { id: 'logout', icon: LogOut, label: 'Logout', path: '/login', section: 'bottom', isLogout: true }
   ];
 
   const topMenuItems = menuItems.filter(item => item.section === 'top');
@@ -36,7 +38,7 @@ const Sidebar = ({ hide, darkMode }) => {
   const handleNavigation = (item) => {
     if (item.isLogout) {
       if (window.confirm('Are you sure you want to logout?')) {
-        navigate('/');
+        navigate('/login'); // FIXED → goes to login page
       }
     } else {
       navigate(item.path);
@@ -47,22 +49,24 @@ const Sidebar = ({ hide, darkMode }) => {
     <section id="sidebar" className={hide ? 'hide' : ''}>
       <div className="brand">
         <img 
-          src="/src/assets/logoo.png" 
-          alt="AdminHub" 
+          src="/src/assets/logoo.png"
+          alt="AdminHub"
           className="sidebar-logo"
           onError={(e) => {
             e.target.src = 'https://via.placeholder.com/120x40?text=LOGO';
           }}
         />
       </div>
-      
+
+      {/* Top Menu */}
       <ul className="side-menu top">
         {topMenuItems.map(item => {
           const Icon = item.icon;
+
           return (
             <li key={item.id} className={isActive(item.path) ? 'active' : ''}>
-              <a 
-                href="#" 
+              <a
+                href="#"
                 onClick={(e) => {
                   e.preventDefault();
                   handleNavigation(item);
@@ -77,14 +81,16 @@ const Sidebar = ({ hide, darkMode }) => {
           );
         })}
       </ul>
-      
+
+      {/* Bottom Menu */}
       <ul className="side-menu bottom">
         {bottomMenuItems.map(item => {
           const Icon = item.icon;
+
           return (
             <li key={item.id} className={isActive(item.path) ? 'active' : ''}>
-              <a 
-                href="#" 
+              <a
+                href="#"
                 className={item.isLogout ? 'logout' : ''}
                 onClick={(e) => {
                   e.preventDefault();
