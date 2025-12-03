@@ -1,21 +1,31 @@
-/* src/components/CustomerLayout.css */
+/* src/components/Layout/CustomerLayout.css */
 
-/* --- CORE LAYOUT FIXES (Ensures content is visible) --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 .customer-layout {
-  display: flex;       /* 1. CRITICAL: Enables side-by-side layout */
+  display: flex;
   min-height: 100vh;
-  background: #f5f7fa; 
+  width: 100%;
 }
 
 .main-content-area {
-  flex-grow: 1;        /* 2. CRITICAL: Forces this area to use all available width */
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
+  width: calc(100% - 250px);
+  margin-left: 250px;
+  overflow: hidden;
 }
 
 .customer-page-main {
   flex-grow: 1;
-  padding: 1.5rem;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* --- SIDEBAR STYLING --- */
@@ -25,7 +35,13 @@
   background: white;
   border-right: 1px solid #e0e0e0;
   padding: 1.5rem;
-  transition: all 0.3s ease;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
 }
 
 .customer-brand {
@@ -33,6 +49,9 @@
   font-weight: 800;
   color: #007bff;
   margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .customer-nav {
@@ -41,7 +60,8 @@
   gap: 0.5rem;
 }
 
-.customer-nav-item, .logout-btn {
+.customer-nav-item,
+.logout-btn {
   padding: 0.75rem 1rem;
   border-radius: 8px;
   text-decoration: none;
@@ -50,100 +70,110 @@
   border: none;
   text-align: left;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
-.customer-nav-item:hover,
-.customer-nav-item.active {
+.customer-nav-item:hover {
   background: #e0f2fe;
   color: #007bff;
 }
 
+.customer-nav-item.active {
+  background: #e0f2fe;
+  color: #007bff;
+  font-weight: 600;
+}
+
 .logout-btn {
-    color: #dc3545;
-    margin-top: 1rem;
+  color: #dc3545;
+  margin-top: 1rem;
 }
 
-/* --- HEADER STYLING --- */
+.logout-btn:hover {
+  background: #ffe5e5;
+  color: #c82333;
+}
+
+/* --- HEADER STYLING (Hidden) --- */
 .customer-header-inline {
-  height: 60px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 1.5rem;
-  background: white;
-  border-bottom: 1px solid #e0eeef;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  display: none;
 }
-
-/* --- MY ORDERS PAGE SPECIFIC STYLING (For visibility) --- */
-.page-title {
-    font-size: 2rem;
-    color: #1a1a1a;
-    margin-bottom: 0.5rem;
-}
-.orders-list-content {
-    margin-top: 20px;
-}
-.order-card-simple {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    margin-bottom: 10px;
-    background: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-.order-summary {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-.status-delivered {
-    background: #dcfce7;
-    color: #166534;
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-weight: 600;
-}
-.status-shipped {
-    background: #fed7aa;
-    color: #92400e;
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-weight: 600;
-}
-.status-processing, .status-pending {
-    background: #dbeafe;
-    color: #1e40af;
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-weight: 600;
-}
-
 
 /* --- DARK MODE STYLES --- */
 .customer-layout.dark {
   background: #0f1419;
 }
+
 #customer-sidebar.dark {
   background: #1a2332;
   border-right-color: #333;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
 }
-.customer-header-inline.dark {
-  background: #1a2332;
-  color: #fff;
-  border-bottom-color: #333;
+
+#customer-sidebar.dark .customer-brand {
+  color: #00a8e8;
 }
-.page-title.dark, .order-info h3 {
-    color: #fff;
+
+#customer-sidebar.dark .customer-nav-item {
+  color: #aaa;
 }
-.order-card-simple.dark {
-    background: #242f42;
+
+#customer-sidebar.dark .customer-nav-item:hover {
+  background: #2a3f5f;
+  color: #00a8e8;
+}
+
+#customer-sidebar.dark .customer-nav-item.active {
+  background: #2a3f5f;
+  color: #00a8e8;
+}
+
+#customer-sidebar.dark .logout-btn {
+  color: #ff6b6b;
+}
+
+#customer-sidebar.dark .logout-btn:hover {
+  background: #3a2a2a;
+  color: #ff8585;
+}
+
+/* Scrollbar styling */
+#customer-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+#customer-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#customer-sidebar::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+#customer-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+.customer-page-main::-webkit-scrollbar {
+  width: 8px;
+}
+
+.customer-page-main::-webkit-scrollbar-track {
+  background: #f5f7fa;
+}
+
+.customer-page-main::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.customer-page-main::-webkit-scrollbar-thumb:hover {
+  background: #999;
 }

@@ -9,6 +9,7 @@ import CustomerLayout from './components/Layout/CustomerLayout';
 // Pages
 import MyOrders from './pages/MyOrders';
 import Dashboard from './pages/Dashboard';
+import CustomerDashboard from './pages/CustomerDashboard';  // ✅ Import CustomerDashboard
 // Add more pages later…
 
 function App() {
@@ -18,22 +19,22 @@ function App() {
     <Router>
       <div className={`app ${darkMode ? 'dark' : ''}`}>
         <Routes>
-          {/* Default homepage */}
+          {/* Default homepage - Customer Dashboard */}
           <Route
             path="/"
             element={
               <CustomerLayout darkMode={darkMode} setDarkMode={setDarkMode}>
-                <Dashboard />
+                <CustomerDashboard />
               </CustomerLayout>
             }
           />
 
-          {/* Dashboard route */}
+          {/* Customer Dashboard route */}
           <Route
-            path="/dashboard"
+            path="/customer-dashboard"
             element={
               <CustomerLayout darkMode={darkMode} setDarkMode={setDarkMode}>
-                <Dashboard />
+                <CustomerDashboard />
               </CustomerLayout>
             }
           />
@@ -44,6 +45,16 @@ function App() {
             element={
               <CustomerLayout darkMode={darkMode} setDarkMode={setDarkMode}>
                 <MyOrders />
+              </CustomerLayout>
+            }
+          />
+
+          {/* Admin Dashboard route (if you have it) */}
+          <Route
+            path="/dashboard"
+            element={
+              <CustomerLayout darkMode={darkMode} setDarkMode={setDarkMode}>
+                <Dashboard />
               </CustomerLayout>
             }
           />

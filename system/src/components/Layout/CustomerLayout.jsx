@@ -1,64 +1,54 @@
-// src/components/CustomerLayout.jsx
+// src/components/Layout/CustomerLayout.jsx
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Sun, Moon, LogOut } from 'lucide-react';
-import './CustomerLayout.css'; // Imports the essential layout CSS
+import { Sun, Moon, LogOut, LayoutDashboard, Package, User } from 'lucide-react';
+import './CustomerLayout.css';
 
-// Minimal sidebar menu items
 const customerMenuItems = [
-  { label: 'My Dashboard', path: '/customer-dashboard' },
-  { label: 'My Orders', path: '/my-orders' },
-  { label: 'Profile', path: '/profile' },
+  { label: 'My Dashboard', path: '/customer-dashboard', icon: LayoutDashboard },
+  { label: 'My Orders', path: '/my-orders', icon: Package },
+  { label: 'Profile', path: '/profile', icon: User },
 ];
 
 const CustomerLayout = ({ children, darkMode, setDarkMode }) => {
   const location = useLocation();
-  // Determines if the NavLink should be active
-  const isActive = (path) => location.pathname === path;
+  
+  const isActive = (path) => location.pathname === path || (path === '/customer-dashboard' && location.pathname === '/');
 
   return (
     <div className={`customer-layout ${darkMode ? 'dark' : ''}`}>
       
-      {/* 1. SIDEBAR */}
+      {/* SIDEBAR */}
       <section id="customer-sidebar">
-        <div className="customer-brand">🛒 My Shop</div>
+        <div className="customer-brand">
+          🛍 My Shop
+        </div>
         <nav className="customer-nav">
-          {customerMenuItems.map(item => (
-            <NavLink 
-              key={item.label}
-              to={item.path}
-              className={`customer-nav-item ${isActive(item.path) ? 'active' : ''}`}
-            >
-              {item.label}
-            </NavLink>
-          ))}
+          {customerMenuItems.map(item => {
+             const Icon = item.icon; 
+             return (
+                <NavLink 
+                  key={item.label}
+                  to={item.path}
+                  className={`customer-nav-item ${isActive(item.path) ? 'active' : ''}`}
+                >
+                  <Icon size={20} />
+                  <span>{item.label}</span>
+                </NavLink>
+             );
+          })}
           <button className="customer-nav-item logout-btn">
-             <LogOut size={20} /> Logout
+             <LogOut size={20} />
+             <span>Logout</span>
           </button>
         </nav>
       </section>
       
-      {/* 2. MAIN CONTENT AREA (CRITICAL FOR DISPLAY) */}
+      {/* MAIN CONTENT AREA */}
       <div className="main-content-area">
-        {/* Header */}
-        <header className="customer-header-inline">
-          <div className="header-title">
-            <h2>Welcome Back, Customer!</h2>
-          </div>
-          
-          <div className="header-actions">
-            <button 
-              className="dark-mode-toggle" 
-              onClick={() => setDarkMode(!darkMode)}
-              aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-          </div>
-        </header>
-        
+        {/* PAGE CONTENT */}
         <main className="customer-page-main">
-          {children} {/* Renders the MyOrders component */}
+          {children}
         </main>
       </div>
     </div>
