@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from 'react-router-dom';
 import "./MyOrders.css";
 import ShipmentTracking from "./ShipmentTracking";
 
@@ -12,7 +13,7 @@ const MyOrders = () => {
       tracking: "TRK93284723EG",
       items: [
         { name: "Nike Running Shoes", qty: 1, price: 99.99, image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop" },
-        { name: "Sports Socks", qty: 2, price: 25.00, image: "https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?w-400&h=400&fit=crop" }
+        { name: "Sports Socks", qty: 2, price: 25.00, image: "https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?w=400&h=400&fit=crop" }
       ],
       shippingAddress: "123 Main St, New York, NY 10001",
       paymentMethod: "Visa **** 4242",
@@ -65,6 +66,23 @@ const MyOrders = () => {
         { status: "Confirmed", location: "Processing Center", date: "2025-01-22", time: "3:00 PM" }
       ],
       estimatedDelivery: "2025-01-28"
+    },
+    {
+      id: "ORD-1004",
+      date: "2025-01-25",
+      total: 65.99,
+      status: "pending",
+      tracking: "TRK77482901EG",
+      items: [
+        { name: "White T-Shirt", qty: 2, price: 19.99, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop" },
+        { name: "Jeans", qty: 1, price: 45.99, image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=400&fit=crop" }
+      ],
+      shippingAddress: "321 Maple Blvd, Boston, MA 02101",
+      paymentMethod: "American Express **** 1234",
+      trackingEvents: [
+        { status: "Order Placed", location: "Boston Warehouse", date: "2025-01-25", time: "3:45 PM" }
+      ],
+      estimatedDelivery: "2025-02-01"
     }
   ]);
 
@@ -127,13 +145,21 @@ const MyOrders = () => {
     }
   };
 
+  const handleContactSupport = (orderId) => {
+    window.open(`mailto:support@example.com?subject=Support Request for Order ${orderId}`, '_blank');
+  };
+
+  const handleDownloadInvoice = (orderId) => {
+    alert(`Invoice for ${orderId} would be downloaded. In a real app, this would generate a PDF.`);
+  };
+
   const statusConfig = {
-    pending: { label: "Pending", color: "#FF9800", bg: "#FFF3E0" },
-    processing: { label: "Processing", color: "#9C27B0", bg: "#F3E5F5" },
-    shipped: { label: "Shipped", color: "#2196F3", bg: "#E3F2FD" },
-    delivered: { label: "Delivered", color: "#4CAF50", bg: "#E8F5E9" },
-    cancelled: { label: "Cancelled", color: "#F44336", bg: "#FFEBEE" },
-    return_requested: { label: "Return Requested", color: "#FF9800", bg: "#FFF3E0" }
+    pending: { label: "Pending", color: "#FF9800", bg: "#FFF3E0", icon: "⏳" },
+    processing: { label: "Processing", color: "#9C27B0", bg: "#F3E5F5", icon: "⚙️" },
+    shipped: { label: "Shipped", color: "#2196F3", bg: "#E3F2FD", icon: "🚚" },
+    delivered: { label: "Delivered", color: "#4CAF50", bg: "#E8F5E9", icon: "✅" },
+    cancelled: { label: "Cancelled", color: "#F44336", bg: "#FFEBEE", icon: "❌" },
+    return_requested: { label: "Return Requested", color: "#FF9800", bg: "#FFF3E0", icon: "↩️" }
   };
 
   const getStatusConfig = (status) => statusConfig[status] || statusConfig.pending;
@@ -166,6 +192,13 @@ const MyOrders = () => {
         </div>
       </div>
 
+      {/* Back to Dashboard Link */}
+      <div className="dashboard-back-link">
+        <Link to="/customer-dashboard" className="back-to-dashboard">
+          ← Back to Dashboard
+        </Link>
+      </div>
+
       {/* Filter Tabs */}
       <div className="orders-filters">
         <button 
@@ -173,6 +206,12 @@ const MyOrders = () => {
           onClick={() => setActiveFilter("all")}
         >
           All Orders ({orders.length})
+        </button>
+        <button 
+          className={`filter-btn ${activeFilter === "pending" ? "active" : ""}`}
+          onClick={() => setActiveFilter("pending")}
+        >
+          Pending ({orders.filter(o => o.status === "pending").length})
         </button>
         <button 
           className={`filter-btn ${activeFilter === "processing" ? "active" : ""}`}
@@ -220,22 +259,27 @@ const MyOrders = () => {
                 <div className="order-header">
                   <div className="order-info">
                     <div className="order-id-container">
-                      <h2 className="order-id">Order #{order.id}</h2>
-                      <div className="order-badges">
-                        {order.status === "delivered" && (
-                          <span className="badge success">✓ Delivered</span>
-                        )}
-                        {order.status === "shipped" && (
-                          <span className="badge warning">🚚 In Transit</span>
-                        )}
-                        {order.status === "processing" && (
-                          <span className="badge info">⚙️ Processing</span>
-                        )}
+                      <div className="order-id-wrapper">
+                        <h2 className="order-id">Order #{order.id}</h2>
+                        <div className="order-badges">
+                          {order.status === "delivered" && (
+                            <span className="badge success">✓ Delivered</span>
+                          )}
+                          {order.status === "shipped" && (
+                            <span className="badge warning">🚚 In Transit</span>
+                          )}
+                          {order.status === "processing" && (
+                            <span className="badge info">⚙️ Processing</span>
+                          )}
+                          {order.status === "pending" && (
+                            <span className="badge pending">⏳ Pending</span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <div className="order-meta">
-                      <p className="order-date">Placed {formatDate(order.date)}</p>
-                      <p className="order-total-amount">${order.total.toFixed(2)}</p>
+                      <div className="order-meta">
+                        <p className="order-date">Placed {formatDate(order.date)}</p>
+                        <p className="order-total-amount">${order.total.toFixed(2)}</p>
+                      </div>
                     </div>
                   </div>
                   <div className="order-status-container">
@@ -247,6 +291,7 @@ const MyOrders = () => {
                         border: `1px solid ${statusConfig.color}20`
                       }}
                     >
+                      <span className="status-icon">{statusConfig.icon}</span>
                       {statusConfig.label}
                     </span>
                   </div>
@@ -269,6 +314,9 @@ const MyOrders = () => {
                         <div className="item-meta">
                           <span className="item-qty">Quantity: {item.qty}</span>
                           <span className="item-price">${item.price.toFixed(2)} each</span>
+                        </div>
+                        <div className="item-subtotal">
+                          Subtotal: <span>${(item.price * item.qty).toFixed(2)}</span>
                         </div>
                       </div>
                       <div className="item-total">
@@ -300,9 +348,13 @@ const MyOrders = () => {
                           <span>Shipping:</span>
                           <span>Free</span>
                         </div>
+                        <div className="summary-row">
+                          <span>Tax:</span>
+                          <span>${(order.total * 0.08).toFixed(2)}</span>
+                        </div>
                         <div className="summary-row total">
                           <span>Total:</span>
-                          <span>${order.total.toFixed(2)}</span>
+                          <span>${(order.total * 1.08).toFixed(2)}</span>
                         </div>
                       </div>
                     </div>
@@ -330,30 +382,48 @@ const MyOrders = () => {
                   >
                     {isExpanded ? "▲ Hide Details" : "▼ View Details"}
                   </button>
-                  {order.status === "delivered" && (
+                  
+                  {/* Additional Actions */}
+                  <div className="secondary-actions">
+                    {order.status === "delivered" && (
+                      <button 
+                        className="btn-secondary"
+                        onClick={() => handleReorder(order)}
+                      >
+                        🔄 Reorder
+                      </button>
+                    )}
+                    {(order.status === "pending" || order.status === "processing") && (
+                      <button 
+                        className="btn-danger"
+                        onClick={() => handleCancelOrder(order.id)}
+                      >
+                        🗑️ Cancel Order
+                      </button>
+                    )}
+                    {(order.status === "delivered" || order.status === "shipped") && (
+                      <button 
+                        className="btn-warning"
+                        onClick={() => handleRequestReturn(order.id)}
+                      >
+                        ↩️ Request Return
+                      </button>
+                    )}
+                    
+                    {/* Always Available Actions */}
                     <button 
-                      className="btn-secondary"
-                      onClick={() => handleReorder(order)}
+                      className="btn-info"
+                      onClick={() => handleContactSupport(order.id)}
                     >
-                      🔄 Reorder
+                      💬 Support
                     </button>
-                  )}
-                  {(order.status === "pending" || order.status === "processing") && (
                     <button 
-                      className="btn-danger"
-                      onClick={() => handleCancelOrder(order.id)}
+                      className="btn-light"
+                      onClick={() => handleDownloadInvoice(order.id)}
                     >
-                      🗑️ Cancel Order
+                      📄 Invoice
                     </button>
-                  )}
-                  {(order.status === "delivered" || order.status === "shipped") && (
-                    <button 
-                      className="btn-warning"
-                      onClick={() => handleRequestReturn(order.id)}
-                    >
-                      ↩️ Request Return
-                    </button>
-                  )}
+                  </div>
                 </div>
               </div>
             );
