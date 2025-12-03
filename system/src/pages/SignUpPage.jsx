@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import './SignUpPage.css';
+import hoodieImg from '../assets/hoddie.png';
+import backgroundVideo from '../assets/Gradient Color and Style Video Background Black Slate Grey in Minimalist Style.mp4';
+import logoImg from '../assets/logoo.png';
 
-function SignUpPage({ onNavigateToLogin }) {
+function SignUpPage({ onNavigateToLogin, onLogin }) {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -11,6 +14,10 @@ function SignUpPage({ onNavigateToLogin }) {
 
   const handleSignUp = () => {
     console.log('Sign up clicked', { fullName, email, password, confirmPassword });
+    // Call onLogin with user data after successful signup
+    if (onLogin && fullName && email && password && password === confirmPassword) {
+      onLogin({ username: fullName, email });
+    }
   };
 
   return (
@@ -18,10 +25,26 @@ function SignUpPage({ onNavigateToLogin }) {
       <div className="signup-card">
         <div className="signup-left-side">
           <div className="signup-background-image">
+            <video 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              preload="auto"
+              className="background-video"
+              onLoadedData={(e) => {
+                e.target.playbackRate = 1.5;
+                e.target.play();
+              }}
+            >
+              <source src={backgroundVideo} type="video/mp4" />
+            </video>
+          </div>
+          <div className="hoodie-image-container">
             <img 
-              src="src/assets/bb.jpg" 
-              alt="Background" 
-              className="background-img"
+              src={hoodieImg} 
+              alt="Hoodie" 
+              className="hoodie-img"
             />
           </div>
           <h1 className="welcome-text">Welcome!</h1>
@@ -30,7 +53,7 @@ function SignUpPage({ onNavigateToLogin }) {
         <div className="signup-right-side">
           <div className="logo-container">
             <img 
-              src="src/assets/RYYZstore.jpg" 
+              src={logoImg} 
               alt="RYYZ Logo" 
               className="logo-img"
             />
