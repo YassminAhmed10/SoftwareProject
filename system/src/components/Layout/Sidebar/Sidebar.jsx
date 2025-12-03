@@ -17,10 +17,9 @@ const Sidebar = ({ hide, darkMode }) => {
 
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', section: 'top' },
-    { id: 'store', icon: ShoppingBag, label: 'My Store', path: '/my-store', section: 'top' },
-    { id: 'analytics', icon: PieChart, label: 'Analytics', path: '/analytics', section: 'top' },
     { id: 'orders', icon: FileText, label: 'All Orders', path: '/orders', section: 'top' },
-    { id: 'finance', icon: DollarSign, label: 'Finance', path: '/finance', section: 'top' },
+    { id: 'requests', icon: ShoppingBag, label: 'New Requests', path: '/requests', section: 'top' },
+    { id: 'add-product', icon: PieChart, label: 'Add Product', path: '/add-product', section: 'top' },
     { id: 'settings', icon: Settings, label: 'Settings', path: '/settings', section: 'bottom' },
     { id: 'logout', icon: LogOut, label: 'Logout', path: '/logout', section: 'bottom', isLogout: true }
   ];
@@ -30,13 +29,14 @@ const Sidebar = ({ hide, darkMode }) => {
 
   const isActive = (path) => {
     if (path === '/dashboard' && location.pathname === '/') return true;
-    return location.pathname === path;
+    return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
   const handleNavigation = (item) => {
     if (item.isLogout) {
       if (window.confirm('Are you sure you want to logout?')) {
-        navigate('/');
+        localStorage.removeItem('user');
+        navigate('/logout');
       }
     } else {
       navigate(item.path);

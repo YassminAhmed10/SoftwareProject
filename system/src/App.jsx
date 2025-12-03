@@ -1,13 +1,26 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import './App.css';
-import Home from './pages/Home';
+import Layout from './components/Layout/Layout';
+import EmployeeDashboard from './pages/EmployeeDashboard/EmployeeDashboard';
+import AllOrders from './pages/AllOrders';
+import OrderDetails from './pages/OrderDetails';
+import Settings from './pages/Settings';
+import NewRequests from './pages/NewRequests';
+import AddProduct from './pages/AddProduct';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 
 function App() {
-  const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
 
   const login = (userData) => {
     setUser(userData);
@@ -19,30 +32,98 @@ function App() {
     localStorage.removeItem('user');
   };
 
+  // Protected Route Component
+  const ProtectedRoute = ({ children }) => {
+    if (!user) {
+      return <Navigate to="/" replace />;
+    }
+    return <Layout>{children}</Layout>;
+  };
+
   return (
     <Router>
-      <div className={`app ${darkMode ? 'dark' : ''}`}>
+      <div className="app">
         <Routes>
-          {/* Home Page */}
+          {/* Login Route - Default Page */}
           <Route 
-            path="/"
-            element={<Home darkMode={darkMode} user={user} onLogout={logout} />}
+            path="/" 
+            element={user ? <Navigate to="/dashboard" replace /> : <LoginPageWrapper onLogin={login} />}
           />
           
-          {/* Login Route */}
           <Route 
             path="/login" 
-            element={<LoginPageWrapper onLogin={login} />}
+            element={user ? <Navigate to="/dashboard" replace /> : <LoginPageWrapper onLogin={login} />}
           />
 
           {/* Register/Signup Route */}
           <Route 
             path="/register" 
-            element={<SignUpPageWrapper onLogin={login} />}
+            element={user ? <Navigate to="/dashboard" replace /> : <SignUpPageWrapper onLogin={login} />}
           />
 
-          {/* Fallback to Home for all other routes */}
-          <Route path="*" element={<Home darkMode={darkMode} user={user} onLogout={logout} />} />
+          {/* Protected Employee Routes with Layout */}
+          <Route 
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <EmployeeDashboard />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route 
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <AllOrders />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route 
+            path="/order/:orderId"
+            element={
+              <ProtectedRoute>
+                <OrderDetails />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route 
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route 
+            path="/requests"
+            element={
+              <ProtectedRoute>
+                <NewRequests />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route 
+            path="/add-product"
+            element={
+              <ProtectedRoute>
+                <AddProduct />
+              </ProtectedRoute>
+            }
+          />
+          
+          {/* Logout Route */}
+          <Route 
+            path="/logout"
+            element={<LogoutHandler onLogout={logout} />}
+          />
+
+          {/* Fallback to Login for all other routes */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </Router>
@@ -55,7 +136,7 @@ function LoginPageWrapper({ onLogin }) {
   
   const handleLogin = (userData) => {
     onLogin(userData);
-    navigate('/');
+    navigate('/dashboard');
   };
   
   return (
@@ -72,7 +153,7 @@ function SignUpPageWrapper({ onLogin }) {
   
   const handleSignUp = (userData) => {
     onLogin(userData);
-    navigate('/');
+    navigate('/dashboard');
   };
   
   return (
@@ -81,6 +162,18 @@ function SignUpPageWrapper({ onLogin }) {
       onLogin={handleSignUp}
     />
   );
+}
+
+// Logout Handler Component
+function LogoutHandler({ onLogout }) {
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    onLogout();
+    navigate('/');
+  }, [onLogout, navigate]);
+  
+  return null;
 }
 
 export default App;
