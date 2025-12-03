@@ -1,10 +1,15 @@
+// src/App.jsx
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
-import Layout from './components/Layout/Layout';
+
+// Layout
+import CustomerLayout from './components/Layout/CustomerLayout';
+
+// Pages
+import MyOrders from './pages/MyOrders';
 import Dashboard from './pages/Dashboard';
-import OrderDetails from './pages/OrderDetails';
-import MyStore from './pages/MyStore';
+// Add more pages later…
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -13,34 +18,40 @@ function App() {
     <Router>
       <div className={`app ${darkMode ? 'dark' : ''}`}>
         <Routes>
-          <Route 
-            path="/" 
+          {/* Default homepage */}
+          <Route
+            path="/"
             element={
-              <Layout darkMode={darkMode} setDarkMode={setDarkMode}>
-                <Dashboard darkMode={darkMode} />
-              </Layout>
-            } 
+              <CustomerLayout darkMode={darkMode} setDarkMode={setDarkMode}>
+                <Dashboard />
+              </CustomerLayout>
+            }
           />
-          <Route 
-            path="/order/:orderId" 
+
+          {/* Dashboard route */}
+          <Route
+            path="/dashboard"
             element={
-              <Layout darkMode={darkMode} setDarkMode={setDarkMode}>
-                <OrderDetails darkMode={darkMode} />
-              </Layout>
-            } 
+              <CustomerLayout darkMode={darkMode} setDarkMode={setDarkMode}>
+                <Dashboard />
+              </CustomerLayout>
+            }
           />
-          <Route 
-            path="/my-store" 
+
+          {/* My Orders */}
+          <Route
+            path="/my-orders"
             element={
-              <Layout darkMode={darkMode} setDarkMode={setDarkMode}>
-                <MyStore darkMode={darkMode} />
-              </Layout>
-            } 
+              <CustomerLayout darkMode={darkMode} setDarkMode={setDarkMode}>
+                <MyOrders />
+              </CustomerLayout>
+            }
           />
+
+          <Route path="*" element={<h1>404 - Page Not Found</h1>} />
         </Routes>
       </div>
     </Router>
-
   );
 }
 

@@ -103,4 +103,5 @@ const Sidebar = ({ hide, darkMode }) => {
   );
 };
 
+
 export default Sidebar;

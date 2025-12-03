@@ -1,0 +1,101 @@
+/* src/components/Sidebar/CustomerSidebar.css */
+#customer-sidebar {
+  width: 250px;
+  min-width: 250px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  left: 0;
+  background: #ffffff;
+  padding: 1.5rem 1rem;
+  border-right: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+#customer-sidebar.dark {
+  background: #1a2332;
+  border-right-color: #333;
+}
+
+.customer-brand {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #007bff;
+}
+
+#customer-sidebar.dark .logo-text {
+  color: #38bdf8;
+}
+
+.customer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.customer-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  color: #666;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#customer-sidebar.dark .customer-nav-item {
+  color: #ccc;
+}
+
+.customer-nav-item:hover {
+  background: #f0f0f0;
+  color: #007bff;
+}
+
+#customer-sidebar.dark .customer-nav-item:hover {
+  background: #242f42;
+  color: #38bdf8;
+}
+
+.customer-nav-item.active {
+  background: #e0f2fe;
+  color: #007bff;
+  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.1);
+}
+
+#customer-sidebar.dark .customer-nav-item.active {
+  background: #0f172a;
+  color: #38bdf8;
+}
+
+.menu-icon {
+  margin-right: 0.25rem;
+}
+
+.logout-btn {
+  margin-top: 1rem;
+  color: #dc3545;
+}
+
+.logout-btn:hover {
+  background: #f8d7da;
+}
+
+#customer-sidebar.dark .logout-btn {
+  color: #dc3545;
+}
+
+#customer-sidebar.dark .logout-btn:hover {
+  background: #331517;
+}
