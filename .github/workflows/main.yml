@@ -30,6 +30,8 @@ jobs:
         working-directory: SoftwareBackend/system/backend
         env:
           DJANGO_SETTINGS_MODULE: config.settings
+          SECRET_KEY: test-secret-key-for-ci
+          DEBUG: True
         run: |
           python manage.py migrate --noinput
-          python manage.py test accounts
+          python manage.py test accounts --verbosity=2
