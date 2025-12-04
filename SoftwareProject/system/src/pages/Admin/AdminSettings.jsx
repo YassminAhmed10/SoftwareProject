@@ -1,0 +1,390 @@
+// src/pages/Settings.jsx - Admin Settings
+import React, { useState } from 'react';
+import { User, Store, Users, Bell, Save, Upload, X } from 'lucide-react';
+import './AdminSettings.css';
+
+const Settings = () => {
+  const [activeTab, setActiveTab] = useState('profile');
+  const [storeOpen, setStoreOpen] = useState(true);
+  const [expandedMember, setExpandedMember] = useState(null);
+  const [notifications, setNotifications] = useState({
+    orderAlerts: true,
+    emailNotifications: true,
+    smsNotifications: false,
+    pushNotifications: true
+  });
+
+  const [adminProfile, setAdminProfile] = useState({
+    name: 'Yassmin Ahmed',
+    email: 'yassmin@admin.com',
+    phone: '+20 101 234 5678',
+    role: 'Store Owner & Admin'
+  });
+
+  const [storeHours, setStoreHours] = useState({
+    weekdays: '9:00 AM - 9:00 PM',
+    saturday: '10:00 AM - 11:00 PM',
+    sunday: '10:00 AM - 8:00 PM'
+  });
+
+  const [teamMembers] = useState([
+    {
+      id: 1,
+      name: 'Ramy Hassan',
+      role: 'Men Department Manager',
+      email: 'ramy@ryyzstore.com',
+      phone: '+20 100 111 2222',
+      tasks: []
+    },
+    {
+      id: 2,
+      name: 'Zeina Mohamed',
+      role: 'Women Department Manager',
+      email: 'zeina@employee.com',
+      phone: '+20 102 555 8888',
+      tasks: []
+    }
+  ]);
+
+  const [newTask, setNewTask] = useState({
+    title: '',
+    description: '',
+    assignedTo: '',
+    image: null
+  });
+
+  const tabs = [
+    { id: 'profile', icon: User, label: 'Admin Profile' },
+    { id: 'store', icon: Store, label: 'Store Status' },
+    { id: 'team', icon: Users, label: 'Team Management' },
+    { id: 'notifications', icon: Bell, label: 'Notifications' }
+  ];
+
+  const handleProfileChange = (field, value) => {
+    setAdminProfile(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleStoreHoursChange = (field, value) => {
+    setStoreHours(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleNotificationToggle = (key) => {
+    setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleTaskInputChange = (field, value) => {
+    setNewTask(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewTask(prev => ({ ...prev, image: URL.createObjectURL(file) }));
+    }
+  };
+
+  const assignTask = (memberId) => {
+    if (!newTask.title || !newTask.description) {
+      alert('Please fill in task details');
+      return;
+    }
+    console.log('Assigning task to member:', memberId, newTask);
+    alert(`Task "${newTask.title}" assigned successfully!`);
+    setNewTask({ title: '', description: '', assignedTo: '', image: null });
+    setExpandedMember(null);
+  };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'profile':
+        return (
+          <div className="settings-tab-content">
+            <h2>Admin Profile</h2>
+            <div className="profile-section">
+              <div className="profile-avatar">
+                <div className="avatar-circle">YA</div>
+                <button className="upload-avatar-btn">
+                  <Upload size={16} />
+                  Change Photo
+                </button>
+              </div>
+              <div className="profile-form">
+                <div className="form-group">
+                  <label>Full Name</label>
+                  <input
+                    type="text"
+                    value={adminProfile.name}
+                    onChange={(e) => handleProfileChange('name', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <input
+                    type="email"
+                    value={adminProfile.email}
+                    onChange={(e) => handleProfileChange('email', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Phone Number</label>
+                  <input
+                    type="tel"
+                    value={adminProfile.phone}
+                    onChange={(e) => handleProfileChange('phone', e.target.value)}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Role</label>
+                  <input
+                    type="text"
+                    value={adminProfile.role}
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'store':
+        return (
+          <div className="settings-tab-content">
+            <h2>Store Status</h2>
+            <div className="store-status-section">
+              <div className="store-toggle">
+                <div className="store-icon-container">
+                  <Store size={48} className={storeOpen ? 'store-open' : 'store-closed'} />
+                </div>
+                <div className="toggle-info">
+                  <h3>{storeOpen ? 'Store is Open' : 'Store is Closed'}</h3>
+                  <p>Control your store's online visibility</p>
+                </div>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={storeOpen}
+                    onChange={() => setStoreOpen(!storeOpen)}
+                  />
+                  <span className="slider"></span>
+                </label>
+              </div>
+              <div className="operating-hours">
+                <h3>Operating Hours</h3>
+                <div className="hours-grid">
+                  <div className="hour-item">
+                    <label>Weekdays (Mon - Fri)</label>
+                    <input
+                      type="text"
+                      value={storeHours.weekdays}
+                      onChange={(e) => handleStoreHoursChange('weekdays', e.target.value)}
+                    />
+                  </div>
+                  <div className="hour-item">
+                    <label>Saturday</label>
+                    <input
+                      type="text"
+                      value={storeHours.saturday}
+                      onChange={(e) => handleStoreHoursChange('saturday', e.target.value)}
+                    />
+                  </div>
+                  <div className="hour-item">
+                    <label>Sunday</label>
+                    <input
+                      type="text"
+                      value={storeHours.sunday}
+                      onChange={(e) => handleStoreHoursChange('sunday', e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'team':
+        return (
+          <div className="settings-tab-content">
+            <h2>Team Management</h2>
+            <div className="team-section">
+              {teamMembers.map(member => (
+                <div key={member.id} className="team-member-card">
+                  <div className="member-header">
+                    <div className="member-info">
+                      <span className="member-avatar">
+                        <User size={24} />
+                      </span>
+                      <div>
+                        <h3>{member.name}</h3>
+                        <p className="member-role">{member.role}</p>
+                      </div>
+                    </div>
+                    <button
+                      className="expand-btn"
+                      onClick={() => setExpandedMember(expandedMember === member.id ? null : member.id)}
+                    >
+                      {expandedMember === member.id ? '▲' : '▼'}
+                    </button>
+                  </div>
+                  <div className="member-details">
+                    <p><strong>Email:</strong> {member.email}</p>
+                    <p><strong>Phone:</strong> {member.phone}</p>
+                  </div>
+                  {expandedMember === member.id && (
+                    <div className="task-assignment">
+                      <h4>Assign New Task</h4>
+                      <div className="task-form">
+                        <input
+                          type="text"
+                          placeholder="Task Title"
+                          value={newTask.title}
+                          onChange={(e) => handleTaskInputChange('title', e.target.value)}
+                        />
+                        <textarea
+                          placeholder="Task Description"
+                          value={newTask.description}
+                          onChange={(e) => handleTaskInputChange('description', e.target.value)}
+                        />
+                        <div className="image-upload">
+                          <input
+                            type="file"
+                            id={`file-${member.id}`}
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            style={{ display: 'none' }}
+                          />
+                          <label htmlFor={`file-${member.id}`} className="upload-btn">
+                            <Upload size={16} />
+                            Upload Image
+                          </label>
+                          {newTask.image && (
+                            <div className="image-preview">
+                              <img src={newTask.image} alt="Task" />
+                              <button onClick={() => setNewTask(prev => ({ ...prev, image: null }))}>
+                                <X size={16} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        <button className="assign-btn" onClick={() => assignTask(member.id)}>
+                          Assign Task
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'notifications':
+        return (
+          <div className="settings-tab-content">
+            <h2>Notifications</h2>
+            <div className="notifications-section">
+              <div className="notification-item">
+                <div className="notification-info">
+                  <h3>Order Alerts</h3>
+                  <p>Get notified for new orders</p>
+                </div>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={notifications.orderAlerts}
+                    onChange={() => handleNotificationToggle('orderAlerts')}
+                  />
+                  <span className="slider"></span>
+                </label>
+              </div>
+              <div className="notification-item">
+                <div className="notification-info">
+                  <h3>Email Notifications</h3>
+                  <p>Receive updates via email</p>
+                </div>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={notifications.emailNotifications}
+                    onChange={() => handleNotificationToggle('emailNotifications')}
+                  />
+                  <span className="slider"></span>
+                </label>
+              </div>
+              <div className="notification-item">
+                <div className="notification-info">
+                  <h3>SMS Notifications</h3>
+                  <p>Get SMS for urgent updates</p>
+                </div>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={notifications.smsNotifications}
+                    onChange={() => handleNotificationToggle('smsNotifications')}
+                  />
+                  <span className="slider"></span>
+                </label>
+              </div>
+              <div className="notification-item">
+                <div className="notification-info">
+                  <h3>Push Notifications</h3>
+                  <p>Browser push notifications</p>
+                </div>
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={notifications.pushNotifications}
+                    onChange={() => handleNotificationToggle('pushNotifications')}
+                  />
+                  <span className="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const handleSave = () => {
+    alert('Settings saved successfully!');
+    console.log('Saved settings:', { adminProfile, storeOpen, storeHours, notifications });
+  };
+
+  return (
+    <div className="settings-container">
+      <div className="page-header">
+        <h1>Admin Settings</h1>
+        <p>Manage your admin profile and store settings</p>
+      </div>
+
+      <div className="settings-tabs">
+        {tabs.map(tab => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              <Icon size={20} />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {renderTabContent()}
+
+      <div className="settings-actions">
+        <button className="save-btn" onClick={handleSave}>
+          <Save size={18} />
+          Save Changes
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default Settings;
