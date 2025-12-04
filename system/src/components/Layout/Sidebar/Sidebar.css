@@ -1,0 +1,316 @@
+/* Sidebar.css */
+
+/* متغيرات الوضع الداكن للـ Sidebar */
+:root {
+  --sidebar-bg: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  --sidebar-brand-bg: #ffffff;
+  --sidebar-text: #454444;
+  --sidebar-hover: #ffd50267;
+  --sidebar-border: #ffffff;
+}
+
+[data-theme="dark"] {
+  --sidebar-bg: #0f2a5c;
+  --sidebar-brand-bg: #0f2a5c;
+  --sidebar-text: #e2e8f0;
+  --sidebar-hover: rgba(255, 213, 2, 0.2);
+  --sidebar-border: #0f2a5c;
+}
+
+#sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 234px;
+  height: 100%;
+  background: var(--sidebar-bg);
+  z-index: 2000;
+  font-family: 'Manrope', sans-serif;
+  transition: all .3s ease;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  border-right: none;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.06);
+  border-radius: 0 24px 24px 0;
+}
+
+#sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+#sidebar.hide {
+  width: 60px;
+}
+
+#sidebar .brand {
+  font-size: 44px;
+  font-weight: 740;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  color: #fcfcfc;
+  position: sticky;
+  top: 0;
+  left: 0;
+  background: var(--sidebar-brand-bg);
+  z-index: 500;
+  padding: 0 24px 20px 24px;
+  box-sizing: content-box;
+  gap: 12px;
+  border-bottom: 1px solid var(--sidebar-border);
+}
+
+.sidebar-logo {
+  width: 190px;
+  height: 193px;
+  object-fit: contain;
+  display: block;
+  margin: auto;
+}
+
+#sidebar.hide .sidebar-logo {
+  width: 70px;
+  height: 40px;
+}
+
+#sidebar .side-menu {
+  width: 100%;
+  margin-top: 90px;
+}
+
+#sidebar .side-menu li {
+  height: 58px;
+  background: transparent;
+  margin-left: 6px;
+  border-radius: 48px 0 0 48px;
+  padding: 4px;
+}
+
+#sidebar .side-menu li.active {
+  position: relative;
+}
+
+#sidebar .side-menu li.active::before {
+  content: '';
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  top: -40px;
+  right: 0;
+  z-index: -1;
+}
+
+#sidebar .side-menu li.active::after {
+  content: '';
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  bottom: -40px;
+  right: 0;
+  z-index: -1;
+}
+
+#sidebar .side-menu li a {
+  width: 100%;
+  height: 100%;
+  background: var(--sidebar-brand-bg);
+  display: flex;
+  align-items: center;
+  border-radius: 48px;
+  font-size: 16px;
+  color: var(--sidebar-text);
+  white-space: nowrap;
+  overflow-x: hidden;
+  padding: 0 16px;
+  gap: 12px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+#sidebar .side-menu li a:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text);
+}
+
+/* ========== ✅ ألوان الأزرار النشطة - ثابتة في كلا الوضعين ========== */
+
+/* زر 1 - وردي */
+#sidebar .side-menu li:nth-child(1).active a {
+  background: #f853be;
+  color: #ffffff;
+}
+#sidebar .side-menu li:nth-child(1).active {
+  background: #f853be;
+}
+#sidebar .side-menu li:nth-child(1).active::before {
+  box-shadow: 20px 20px 0 #f853be;
+}
+#sidebar .side-menu li:nth-child(1).active::after {
+  box-shadow: 20px -20px 0 #f853be;
+}
+
+/* زر 2 - أزرق */
+#sidebar .side-menu li:nth-child(2).active a {
+  background: #3b82f6;
+  color: #ffffff;
+}
+#sidebar .side-menu li:nth-child(2).active {
+  background: #3b82f6;
+}
+#sidebar .side-menu li:nth-child(2).active::before {
+  box-shadow: 20px 20px 0 #3b82f6;
+}
+#sidebar .side-menu li:nth-child(2).active::after {
+  box-shadow: 20px -20px 0 #3b82f6;
+}
+
+/* زر 3 - أصفر */
+#sidebar .side-menu li:nth-child(3).active a {
+  background: #f59e0b;
+  color: #ffffff;
+}
+#sidebar .side-menu li:nth-child(3).active {
+  background: #f59e0b;
+}
+#sidebar .side-menu li:nth-child(3).active::before {
+  box-shadow: 20px 20px 0 #f59e0b;
+}
+#sidebar .side-menu li:nth-child(3).active::after {
+  box-shadow: 20px -20px 0 #f59e0b;
+}
+
+/* زر 4 - أحمر */
+#sidebar .side-menu li:nth-child(4).active a {
+  background: #ef4444;
+  color: #ffffff;
+}
+#sidebar .side-menu li:nth-child(4).active {
+  background: #ef4444;
+}
+#sidebar .side-menu li:nth-child(4).active::before {
+  box-shadow: 20px 20px 0 #ef4444;
+}
+#sidebar .side-menu li:nth-child(4).active::after {
+  box-shadow: 20px -20px 0 #ef4444;
+}
+
+/* زر 5 - أخضر */
+#sidebar .side-menu li:nth-child(5).active a {
+  background: #01c014;
+  color: #ffffff;
+}
+#sidebar .side-menu li:nth-child(5).active {
+  background: #01c014;
+}
+#sidebar .side-menu li:nth-child(5).active::before {
+  box-shadow: 20px 20px 0 #01c014;
+}
+#sidebar .side-menu li:nth-child(5).active::after {
+  box-shadow: 20px -20px 0 #01c014;
+}
+
+/* زر 6 - سماوي */
+#sidebar .side-menu li:nth-child(6).active a {
+  background: #06b6d4;
+  color: #ffffff;
+}
+#sidebar .side-menu li:nth-child(6).active {
+  background: #06b6d4;
+}
+#sidebar .side-menu li:nth-child(6).active::before {
+  box-shadow: 20px 20px 0 #06b6d4;
+}
+#sidebar .side-menu li:nth-child(6).active::after {
+  box-shadow: 20px -20px 0 #06b6d4;
+}
+
+/* زر 7 - برتقالي */
+#sidebar .side-menu li:nth-child(7).active a {
+  background: #f97316;
+  color: #ffffff;
+}
+#sidebar .side-menu li:nth-child(7).active {
+  background: #f97316;
+}
+#sidebar .side-menu li:nth-child(7).active::before {
+  box-shadow: 20px 20px 0 #f97316;
+}
+#sidebar .side-menu li:nth-child(7).active::after {
+  box-shadow: 20px -20px 0 #f97316;
+}
+
+#sidebar.hide .side-menu li a {
+  width: calc(48px - (4px * 2));
+  transition: width .3s ease;
+}
+
+#sidebar .side-menu li a.logout {
+  color: #f50000;
+}
+
+#sidebar .side-menu li a.logout:hover {
+  color: #f80202;
+  background: #fee2e2;
+}
+
+/* تنسيق الأيقونات */
+.menu-icon {
+  color: #0c0c0c;
+  transition: color 0.1s ease;
+}
+
+#sidebar .side-menu li.active .menu-icon {
+  color: #ffffff;
+}
+
+#sidebar .side-menu li a:hover .menu-icon {
+  color: #ffc400;
+}
+
+/* ========== ✅ الوضع الداكن ========== */
+body.dark #sidebar .side-menu li a,
+body.dark-mode #sidebar .side-menu li a {
+  background:#092757;
+  color: var(--sidebar-text);
+}
+
+body.dark #sidebar .side-menu li a:hover,
+body.dark-mode #sidebar .side-menu li a:hover {
+  background: #0b3578;
+  color: #2375f9;
+}
+
+body.dark .menu-icon,
+body.dark-mode .menu-icon {
+  color: #cbd5e1;
+}
+
+body.dark #sidebar .side-menu li.active .menu-icon,
+body.dark-mode #sidebar .side-menu li.active .menu-icon {
+  color: #ffffff;
+}
+
+body.dark #sidebar .side-menu li a:hover .menu-icon,
+body.dark-mode #sidebar .side-menu li a:hover .menu-icon {
+  color: #fffb00;
+}
+
+body.dark #sidebar .side-menu li a.logout,
+body.dark-mode #sidebar .side-menu li a.logout {
+  color: #f87171;
+}
+
+body.dark #sidebar .side-menu li a.logout:hover,
+body.dark-mode #sidebar .side-menu li a.logout:hover {
+  color: #dc2626;
+  background: #7f1d1d;
+}
+
+/* ========== ✅ التصميم المتجاوب ========== */
+@media screen and (max-width: 768px) {
+  #sidebar {
+    width: 200px;
+  }
+}
