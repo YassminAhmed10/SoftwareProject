@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import './Login.css';
+import hoodieImg from '../assets/hoddie.png';
+import backgroundVideo from '../assets/Gradient Color and Style Video Background Black Slate Grey in Minimalist Style.mp4';
+import logoImg from '../assets/logoo.png';
 
-function LoginPage({ onNavigateToSignup }) {
+function LoginPage({ onNavigateToSignup, onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -9,6 +12,10 @@ function LoginPage({ onNavigateToSignup }) {
 
   const handleLogin = () => {
     console.log('Login clicked', { username, password, rememberMe });
+    // Call onLogin with user data
+    if (onLogin && username && password) {
+      onLogin({ username, rememberMe });
+    }
   };
 
   return (
@@ -16,10 +23,26 @@ function LoginPage({ onNavigateToSignup }) {
       <div className="login-card">
         <div className="login-left-side">
           <div className="login-background-image">
+            <video 
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              preload="auto"
+              className="background-video"
+              onLoadedData={(e) => {
+                e.target.playbackRate = 1.5;
+                e.target.play();
+              }}
+            >
+              <source src={backgroundVideo} type="video/mp4" />
+            </video>
+          </div>
+          <div className="hoodie-image-container">
             <img 
-              src="src/assets/bb.jpg" 
-              alt="Background" 
-              className="background-img"
+              src={hoodieImg} 
+              alt="Hoodie" 
+              className="hoodie-img"
             />
           </div>
           <h1 className="welcome-text">Welcome Back!</h1>
@@ -28,7 +51,7 @@ function LoginPage({ onNavigateToSignup }) {
         <div className="login-right-side">
           <div className="logo-container">
             <img 
-              src="src/assets/RYYZstore.jpg" 
+              src={logoImg} 
               alt="RYYZ Logo" 
               className="logo-img"
             />
