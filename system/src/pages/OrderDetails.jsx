@@ -1,287 +1,251 @@
+// src/pages/OrderDetails.jsx
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { FaPrint, FaDownload, FaArrowLeft, FaTshirt, FaMapMarkerAlt, FaEnvelope, FaPhone, FaCreditCard, FaTimes } from 'react-icons/fa';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Printer, Mail, Truck, CheckCircle, Clock, XCircle } from 'lucide-react';
 import './OrderDetails.css';
 
-const OrderDetails = ({ order: propOrder, onBack: propOnBack }) => {
-  const location = useLocation();
+const OrderDetails = () => {
+  const { orderId } = useParams();
   const navigate = useNavigate();
-  
-  const order = propOrder || location.state?.orderData;
 
-  if (!order) {
-    return (
-      <div className="order-details-page">
-        <div className="order-details-container">
-          <div className="no-order">
-            <h2>No order selected</h2>
-            <button 
-              onClick={propOnBack || (() => navigate('/'))} 
-              className="back-btn"
-            >
-              Back to {propOnBack ? 'Dashboard' : 'Orders'}
-            </button>
+  // Mock order data
+  const order = {
+    id: orderId || '123',
+    customer: {
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      phone: '+1 (555) 123-4567',
+      address: '123 Main St, New York, NY 10001'
+    },
+    date: '2024-01-15',
+    status: 'processing',
+    total: 245.99,
+    items: [
+      { id: 1, name: 'Wireless Headphones', price: 89.99, quantity: 2, total: 179.98 },
+      { id: 2, name: 'Phone Case', price: 24.99, quantity: 1, total: 24.99 },
+      { id: 3, name: 'Screen Protector', price: 14.99, quantity: 1, total: 14.99 },
+      { id: 4, name: 'USB-C Cable', price: 11.99, quantity: 2, total: 23.98 }
+    ],
+    shipping: {
+      method: 'Express',
+      cost: 9.99,
+      trackingNumber: 'TRK123456789',
+      estimatedDelivery: '2024-01-18'
+    },
+    payment: {
+      method: 'Credit Card',
+      status: 'paid',
+      transactionId: 'TXN987654321'
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch(status) {
+      case 'completed': return <CheckCircle size={20} className="status-icon completed" />;
+      case 'processing': return <Clock size={20} className="status-icon processing" />;
+      case 'cancelled': return <XCircle size={20} className="status-icon cancelled" />;
+      default: return <Clock size={20} className="status-icon pending" />;
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch(status) {
+      case 'completed': return 'Completed';
+      case 'processing': return 'Processing';
+      case 'cancelled': return 'Cancelled';
+      default: return 'Pending';
+    }
+  };
+
+  return (
+    <div className="order-details-container">
+      <div className="page-header">
+        <div className="header-left">
+          <button className="btn-back" onClick={() => navigate('/dashboard/orders')}>
+            <ArrowLeft size={20} />
+            Back to Orders
+          </button>
+          <div>
+            <h1>Order #{order.id}</h1>
+            <p>Order details and management</p>
+          </div>
+        </div>
+        <div className="header-right">
+          <button className="btn-action">
+            <Printer size={18} />
+            Print Invoice
+          </button>
+          <button className="btn-action">
+            <Mail size={18} />
+            Email Customer
+          </button>
+          <button className="btn-primary">
+            Update Status
+          </button>
+        </div>
+      </div>
+
+      <div className="order-overview">
+        <div className="overview-card">
+          <div className="overview-header">
+            <div className="order-status">
+              {getStatusIcon(order.status)}
+              <div>
+                <h3>{getStatusText(order.status)}</h3>
+                <p>Order Status</p>
+              </div>
+            </div>
+            <div className="order-total">
+              <h3>${order.total.toFixed(2)}</h3>
+              <p>Total Amount</p>
+            </div>
+          </div>
+          
+          <div className="overview-details">
+            <div className="detail-item">
+              <span className="detail-label">Order Date</span>
+              <span className="detail-value">{order.date}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Customer</span>
+              <span className="detail-value">{order.customer.name}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Payment</span>
+              <span className="detail-value">{order.payment.method} - {order.payment.status}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Shipping</span>
+              <span className="detail-value">{order.shipping.method} - ${order.shipping.cost}</span>
+            </div>
           </div>
         </div>
       </div>
-    );
-  }
 
-  const handleBack = () => {
-    if (propOnBack) {
-      propOnBack();
-    } else {
-      navigate(-1);
-    }
-  };
-
-  const subtotal = order.products ? order.products.reduce((sum, product) => 
-    sum + (product.price * product.quantity), 0) : 0;
-  
-  const shippingCost = 10.85;
-  const discount = 9.00;
-  const total = subtotal + shippingCost - discount;
-
-  // ربط كل منتج بالصورة المناسبة له
-  const getProductImage = (productName) => {
-    if (!productName) return '/images/hoodie2.png';
-    
-    const name = productName.toLowerCase();
-    
-    // ربط المنتجات بالصور المناسبة
-    if (name.includes('hoodie') && name.includes('hoodie')) {
-      return '/src/assets/hoodie2.png';
-    } else if (name.includes('hoodie') || name.includes('hoodie')) {
-      return '/src/assets/tshirt.png';
-    } else if (name.includes('hoodie') && name.includes('hoodie')) {
-      return '/src/assets/pinkHoodie.png';
-    } else if (name.includes('jacket') || name.includes('leather')) {
-      return '/src/assets/jacket.png';
-    } else if (name.includes('sweatshirt') || name.includes('white')) {
-      return '/src/assets/hoodie3.png';
-    } else {
-      // صور افتراضية للمنتجات الأخرى
-      const defaultImages = [
-        '/src/assets/hoodie2.png',
-        '/images/pinkHoodie.png', 
-        '/images/pinkHoodie.png',
-        '/src/assets/jacket.png',
-        '/src/assets/tshirt.png'
-      ];
-      // استخدام hash من اسم المنتج لاختيار صورة ثابتة لنفس المنتج
-      const hash = productName.split('').reduce((a, b) => {
-        a = ((a << 5) - a) + b.charCodeAt(0);
-        return a & a;
-      }, 0);
-      const index = Math.abs(hash) % defaultImages.length;
-      return defaultImages[index];
-    }
-  };
-
-  const getCustomerInitials = (name) => {
-    if (!name) return 'CU';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-  };
-
-  const handleDownload = () => {
-    console.log('Downloading invoice...');
-  };
-
-  const handlePrint = () => {
-    console.log('Printing invoice...');
-    window.print();
-  };
-
-  const getPaymentStatus = () => {
-    switch(order.status) {
-      case 'completed':
-        return {
-          show: true,
-          message: 'Cash Paid on ' + order.date,
-          icon: <FaCreditCard size={16} />,
-          className: 'payment-status paid'
-        };
-      case 'pending':
-      case 'process':
-        return {
-          show: true,
-          message: 'Payment Pending - Not Received Yet',
-          icon: <FaTimes size={16} />,
-          className: 'payment-status pending'
-        };
-      case 'canceled':
-      default:
-        return {
-          show: false,
-          message: '',
-          icon: null,
-          className: ''
-        };
-    }
-  };
-
-  const paymentStatus = getPaymentStatus();
-
-  return (
-    <div className="order-details-page">
-      <div className="order-details-container">
-        {/* Header Section */}
-        <div className="order-header">
-          <div className="order-info">
-            <button className="back-button" onClick={handleBack}>
-              <FaArrowLeft size={14} />
-              Back to {propOnBack ? 'Dashboard' : 'Orders'}
-            </button>
-            <div className="order-title">
-              <h1>Order #{order.id}</h1>
-              <p>{order.date} at 10:34 PM</p>
-            </div>
+      <div className="order-content">
+        <div className="order-section">
+          <div className="section-header">
+            <h2>Order Items</h2>
+            <span className="item-count">{order.items.length} items</span>
           </div>
-          <div className={`status-badge ${order.status}`}>
-            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+          <div className="items-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {order.items.map(item => (
+                  <tr key={item.id}>
+                    <td className="product-name">
+                      <div className="product-info">
+                        <div className="product-thumbnail"></div>
+                        <span>{item.name}</span>
+                      </div>
+                    </td>
+                    <td>${item.price.toFixed(2)}</td>
+                    <td>{item.quantity}</td>
+                    <td className="item-total">${item.total.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colSpan="3" className="text-right">Subtotal</td>
+                  <td>${(order.total - order.shipping.cost).toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td colSpan="3" className="text-right">Shipping</td>
+                  <td>${order.shipping.cost.toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td colSpan="3" className="text-right total-label">Total</td>
+                  <td className="total-amount">${order.total.toFixed(2)}</td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="order-content">
-          {/* Customer Information */}
-          <div className="customer-info-wide">
-            <div className="customer-main-info">
-              <div className="customer-avatar-large">
-                {getCustomerInitials(order.customer?.name || order.user)}
+        <div className="order-sidebar">
+          <div className="sidebar-section">
+            <h3>Customer Information</h3>
+            <div className="customer-details">
+              <div className="detail-row">
+                <span className="detail-label">Name</span>
+                <span className="detail-value">{order.customer.name}</span>
               </div>
-              <div className="customer-details-wide">
-                <h2>{order.customer?.name || order.user || 'Customer'}</h2>
-                <p className="customer-meta">1 Previous Orders • New Customer</p>
-                <div className="customer-contact-wide">
-                  <div className="contact-item-wide">
-                    <FaEnvelope size={14} />
-                    <span>Email: {order.customer?.email || 'customer@example.com'}</span>
-                  </div>
-                  <div className="contact-item-wide">
-                    <FaPhone size={14} />
-                    <span>Phone: {order.customer?.phone || '+20 101 342 7001'}</span>
-                  </div>
-                </div>
+              <div className="detail-row">
+                <span className="detail-label">Email</span>
+                <span className="detail-value">{order.customer.email}</span>
               </div>
-            </div>
-            <div className="customer-address-wide">
-              <div className="address-section">
-                <h4>
-                  <FaMapMarkerAlt size={14} />
-                  Shipping Address
-                </h4>
-                <p>{order.shipping?.address || 'ElSheikh Zaid, Giza, Egypt'}</p>
+              <div className="detail-row">
+                <span className="detail-label">Phone</span>
+                <span className="detail-value">{order.customer.phone}</span>
               </div>
-              <div className="address-section">
-                <h4>
-                  <FaMapMarkerAlt size={14} />
-                  Billing Address
-                </h4>
-                <p>{order.customer?.address || 'El maadiy, Cairo, Egypt'}</p>
+              <div className="detail-row">
+                <span className="detail-label">Address</span>
+                <span className="detail-value">{order.customer.address}</span>
               </div>
             </div>
           </div>
 
-          <div className="content-grid">
-            {/* Left Column - Products */}
-            <div className="left-column">
-              <div className="section">
-                <h2 className="section-title">Product Details</h2>
-                <div className="products-table">
-                  <div className="table-header">
-                    <div className="header-product">PRODUCT</div>
-                    <div className="header-quantity">QUANTITY</div>
-                    <div className="header-price">PRICE</div>
-                  </div>
-                  
-                  {order.products && order.products.length > 0 ? (
-                    order.products.map((product, index) => (
-                      <div className="table-row" key={index}>
-                        <div className="product-info">
-                          <div className="product-image">
-                            <img 
-                              src={getProductImage(product.name)} 
-                              alt={product.name}
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.nextSibling.style.display = 'flex';
-                              }}
-                            />
-                            <div className="image-placeholder">
-                              <FaTshirt size={20} />
-                            </div>
-                          </div>
-                          <div className="product-details">
-                            <h4>{product.name || `Product ${index + 1}`}</h4>
-                            <div className="product-attributes">
-                              <span className="attribute">Color: {product.color || 'Various'}</span>
-                              <span className="attribute">Size: {product.size || 'Standard'}</span>
-                            </div>
-                            <div className="product-meta">
-                              <span className="product-sku">SKU: {product.sku || 'N/A'}</span>
-                              <span className="product-category">{product.category || 'Clothing'}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="quantity">{product.quantity?.toString().padStart(2, '0') || '01'}</div>
-                        <div className="price">{(product.price || 0).toFixed(2)} LE</div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="no-products">
-                      <p>No products found in this order</p>
-                    </div>
-                  )}
-                </div>
+          <div className="sidebar-section">
+            <h3>Shipping Information</h3>
+            <div className="shipping-details">
+              <div className="detail-row">
+                <span className="detail-label">Method</span>
+                <span className="detail-value">{order.shipping.method}</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Tracking</span>
+                <span className="detail-value">{order.shipping.trackingNumber}</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Est. Delivery</span>
+                <span className="detail-value">{order.shipping.estimatedDelivery}</span>
               </div>
             </div>
+          </div>
 
-            {/* Right Column - Summary */}
-            <div className="right-column">
-              {/* Order Summary */}
-              <div className="section">
-                <h2 className="section-title">Order Summary</h2>
-                <div className="order-summary">
-                  <div className="summary-row">
-                    <span>Subtotal</span>
-                    <span>{subtotal.toFixed(2)} LE</span>
-                  </div>
-                  <div className="summary-row">
-                    <span>Shipping Cost</span>
-                    <span>{shippingCost.toFixed(2)} LE</span>
-                  </div>
-                  <div className="summary-row">
-                    <span>Discount</span>
-                    <span className="discount">-{discount.toFixed(2)} LE</span>
-                  </div>
-                  <div className="summary-divider"></div>
-                  <div className="summary-row total-row">
-                    <span>Total Order</span>
-                    <span>{total.toFixed(2)} LE</span>
-                  </div>
-                </div>
-                
-                {paymentStatus.show && (
-                  <div className={paymentStatus.className}>
-                    {paymentStatus.icon}
-                    <span>{paymentStatus.message}</span>
-                  </div>
-                )}
+          <div className="sidebar-section">
+            <h3>Payment Information</h3>
+            <div className="payment-details">
+              <div className="detail-row">
+                <span className="detail-label">Method</span>
+                <span className="detail-value">{order.payment.method}</span>
               </div>
+              <div className="detail-row">
+                <span className="detail-label">Status</span>
+                <span className={`detail-value status-${order.payment.status}`}>
+                  {order.payment.status}
+                </span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Transaction ID</span>
+                <span className="detail-value">{order.payment.transactionId}</span>
+              </div>
+            </div>
+          </div>
 
-              {/* Quick Actions */}
-              <div className="section">
-                <h2 className="section-title">Quick Actions</h2>
-                <div className="quick-actions">
-                  <button className="action-icon-btn download-btn" onClick={handleDownload} title="Download Invoice">
-                    <FaDownload size={24} />
-                  </button>
-                  <button className="action-icon-btn print-btn" onClick={handlePrint} title="Print Invoice">
-                    <FaPrint size={24} />
-                  </button>
-                </div>
-              </div>
+          <div className="sidebar-section">
+            <h3>Order Actions</h3>
+            <div className="order-actions">
+              <button className="btn-action-full">
+                <Truck size={18} />
+                Update Shipping
+              </button>
+              <button className="btn-action-full">
+                <Mail size={18} />
+                Send Tracking
+              </button>
+              <button className="btn-action-full btn-danger">
+                Cancel Order
+              </button>
             </div>
           </div>
         </div>
