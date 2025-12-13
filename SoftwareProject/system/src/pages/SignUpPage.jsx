@@ -17,6 +17,8 @@ function SignUpPage({ onNavigateToLogin, onLogin }) {
   const handleSignUp = async () => {
     setError('');
 
+    console.log('SignUp Data:', { fullName, email, password, confirmPassword });
+
     if (!fullName || !email || !password || !confirmPassword) {
       setError('Please fill in all fields');
       return;
@@ -34,8 +36,10 @@ function SignUpPage({ onNavigateToLogin, onLogin }) {
 
     setIsLoading(true);
     try {
+      console.log('Calling onLogin with:', email, password, fullName);
       await onLogin(email, password, fullName);
     } catch (err) {
+      console.error('SignUp Error:', err);
       setError(err.message || 'Signup failed. Please try again.');
     } finally {
       setIsLoading(false);

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaTruck, FaMapMarkerAlt, FaHeadset, FaMobileAlt, FaSearch, FaUser, FaStar, FaFire } from 'react-icons/fa';
+import { FaTruck, FaMapMarkerAlt, FaHeadset, FaMobileAlt, FaStar, FaFire } from 'react-icons/fa';
+import Header from '../components/Header/Header';
 import './Home.css';
 
 // ========== IMAGE IMPORTS ==========
@@ -136,56 +137,7 @@ const Home = ({ darkMode, user, onLogout }) => {
 
   return (
     <div className={`home ${darkMode ? 'dark' : ''}`}>
-
-      {/* TOP NAVIGATION */}
-      <nav className="top-navbar">
-        <div className="nav-container">
-          <div className="nav-logo">
-            <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-              <h2>RYYZ Store</h2>
-            </Link>
-          </div>
-
-          <div className="category-nav">
-            <Link to="/men" className="category-link">Men</Link>
-            <Link to="/women" className="category-link">Women</Link>
-            <Link to="/my-orders" className="category-link">My Orders</Link>
-          </div>
-
-          <div className="nav-actions">
-            <div className="search-bar">
-              <input type="text" placeholder="Search products..." className="search-input" />
-              <button className="search-btn">
-                <FaSearch />
-              </button>
-            </div>
-
-            <div className="user-section">
-              {user ? (
-                <>
-                  <Link to="/dashboard" className="nav-link">
-                    <FaUser className="nav-icon" />
-                    My Account
-                  </Link>
-                  <button onClick={onLogout} className="nav-link logout-btn">
-                    Logout
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link to="/login" className="nav-link">
-                    <FaUser className="nav-icon" />
-                    Login
-                  </Link>
-                  <Link to="/register" className="nav-link register-btn">
-                    Register
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Header user={user} onLogout={onLogout} />
 
       {/* HERO SECTION WITH IMAGE BACKGROUND */}
       <section className="hero-section">

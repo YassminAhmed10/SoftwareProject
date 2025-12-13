@@ -1,17 +1,23 @@
 const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
 export const api = {
-  async login(email, password) {
+  async login(emailOrUsername, password) {
     try {
       console.log('Attempting login to:', `${API_BASE_URL}/login/`);
-      console.log('Email:', email);
+      console.log('Email/Username:', emailOrUsername);
+      
+      // Check if it's an email or username
+      const isEmail = emailOrUsername.includes('@');
+      const requestBody = isEmail 
+        ? { email: emailOrUsername, password }
+        : { username: emailOrUsername, password };
       
       const response = await fetch(`${API_BASE_URL}/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(requestBody),
       });
 
       console.log('Response status:', response.status);
@@ -36,6 +42,9 @@ export const api = {
   async signup(email, password, firstName = '', lastName = '') {
     try {
       const username = email.split('@')[0];
+      console.log('Attempting signup to:', `${API_BASE_URL}/signup/`);
+      console.log('Signup data:', { email, username, firstName, lastName });
+      
       const response = await fetch(`${API_BASE_URL}/signup/`, {
         method: 'POST',
         headers: {
@@ -50,15 +59,21 @@ export const api = {
         }),
       });
 
+      console.log('Signup response status:', response.status);
       const data = await response.json();
+      console.log('Signup response data:', data);
 
       if (!response.ok) {
-        throw new Error(data.error || 'Signup failed');
+        const errorMessage = data.error || data.detail || JSON.stringify(data) || 'Signup failed';
+        throw new Error(errorMessage);
       }
 
       return data;
     } catch (error) {
       console.error('Signup error:', error);
+      if (error.message === 'Failed to fetch') {
+        throw new Error('Cannot connect to server. Please ensure the backend is running at http://127.0.0.1:8000');
+      }
       throw error;
     }
   },
@@ -93,6 +108,6 @@ export const api = {
     } else if (email.endsWith('@employee.com')) {
       return 'employee';
     }
-    return 'user';
+    return 'customer'; // Regular users are customers
   },
 };

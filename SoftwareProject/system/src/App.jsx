@@ -19,6 +19,14 @@ import Analytics from './pages/Admin/Analytics';
 import Finance from './pages/Admin/Finance';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
+import Home from './pages/Home';
+import ShoppingCart from './pages/ShoppingCart';
+import Wishlist from './pages/Wishlist';
+import MenProducts from './pages/MenProducts';
+import WomenProducts from './pages/WomenProducts';
+import MyAccount from './pages/MyAccount';
+import ProductDetails from './pages/ProductDetails';
+import { CartProvider } from './Contexts/CartContext';
 import { api } from './services/api';
 
 function App() {
@@ -56,13 +64,21 @@ function App() {
     localStorage.removeItem('refreshToken');
   };
 
+  // Determine dashboard route based on role
+  const getDashboardRoute = () => {
+    if (!user) return '/';
+    if (user.role === 'admin') return '/admin/dashboard';
+    if (user.role === 'employee') return '/employee/dashboard';
+    return '/home'; // Customers go to home page
+  };
+
   // Protected Route Component
   const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     if (!user) {
       return <Navigate to="/" replace />;
     }
     if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-      return <Navigate to="/dashboard" replace />;
+      return <Navigate to={getDashboardRoute()} replace />;
     }
     return <>{children}</>;
   };
@@ -76,16 +92,11 @@ function App() {
     return <div>Loading...</div>;
   }
 
-  // Determine dashboard route based on role
-  const getDashboardRoute = () => {
-    if (!user) return '/';
-    return user.role === 'admin' ? '/admin/dashboard' : '/employee/dashboard';
-  };
-
   return (
-    <Router>
-      <div className="app">
-        <Routes>
+    <CartProvider>
+      <Router>
+        <div className="app">
+          <Routes>
           {/* Login Route - Default Page */}
           <Route 
             path="/" 
@@ -101,6 +112,86 @@ function App() {
           <Route 
             path="/register" 
             element={user ? <Navigate to={getDashboardRoute()} replace /> : <SignUpPageWrapper onLogin={login} />}
+          />
+
+          {/* Customer Home Page */}
+          <Route 
+            path="/home"
+            element={
+              <ProtectedRoute allowedRoles={['customer']}>
+                <Home user={user} onLogout={logout} />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Shopping Cart/Checkout Route - للـ Customers */}
+          <Route 
+            path="/checkout"
+            element={
+              <ProtectedRoute allowedRoles={['customer']}>
+                <ShoppingCart user={user} onLogout={logout} />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Shopping Cart Route - alternative path */}
+          <Route 
+            path="/cart"
+            element={
+              <ProtectedRoute allowedRoles={['customer']}>
+                <ShoppingCart user={user} onLogout={logout} />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Wishlist Route */}
+          <Route 
+            path="/wishlist"
+            element={
+              <ProtectedRoute allowedRoles={['customer']}>
+                <Wishlist user={user} onLogout={logout} />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Men Products Route */}
+          <Route 
+            path="/men"
+            element={
+              <ProtectedRoute allowedRoles={['customer']}>
+                <MenProducts user={user} onLogout={logout} />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Women Products Route */}
+          <Route 
+            path="/women"
+            element={
+              <ProtectedRoute allowedRoles={['customer']}>
+                <WomenProducts user={user} onLogout={logout} />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* My Account Route */}
+          <Route 
+            path="/my-account"
+            element={
+              <ProtectedRoute allowedRoles={['customer']}>
+                <MyAccount user={user} onLogout={logout} />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Product Details Route */}
+          <Route 
+            path="/product/:id"
+            element={
+              <ProtectedRoute allowedRoles={['customer']}>
+                <ProductDetails user={user} onLogout={logout} />
+              </ProtectedRoute>
+            }
           />
 
           {/* Admin Routes */}
@@ -290,6 +381,7 @@ function App() {
         </Routes>
       </div>
     </Router>
+    </CartProvider>
   );
 }
 
@@ -302,7 +394,14 @@ function LoginPageWrapper({ onLogin }) {
       const response = await api.login(email, password);
       onLogin(response.user, response.tokens);
       const role = api.getUserRole(response.user.email);
-      navigate(role === 'admin' ? '/admin/dashboard' : '/employee/dashboard');
+      // Route based on role
+      if (role === 'admin') {
+        navigate('/admin/dashboard');
+      } else if (role === 'employee') {
+        navigate('/employee/dashboard');
+      } else {
+        navigate('/home'); // Customer goes to home page
+      }
     } catch (error) {
       alert(error.message || 'Login failed. Please check your credentials.');
       throw error;
@@ -332,7 +431,14 @@ function SignUpPageWrapper({ onLogin }) {
       const response = await api.signup(email, password, firstName, lastName);
       onLogin(response.user, response.tokens);
       const role = api.getUserRole(response.user.email);
-      navigate(role === 'admin' ? '/admin/dashboard' : '/employee/dashboard');
+      // Route based on role
+      if (role === 'admin') {
+        navigate('/admin/dashboard');
+      } else if (role === 'employee') {
+        navigate('/employee/dashboard');
+      } else {
+        navigate('/home'); // Customer goes to home page
+      }
     } catch (error) {
       alert(error.message || 'Signup failed. Please try again.');
       throw error;
