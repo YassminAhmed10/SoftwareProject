@@ -75,7 +75,7 @@ const CustomerDashboard = () => {
   ];
 
   return (
-    <div className="customer-dashboard"> {/* Added back the wrapper class */}
+    <div className="customer-dashboard">
       <div className="dashboard-layout">
         {/* Sidebar Navigation */}
         <aside className="dashboard-sidebar">
@@ -135,17 +135,7 @@ const CustomerDashboard = () => {
               </ul>
             </div>
 
-            <div className="nav-section">
-              <ul className="nav-list">
-                <li>
-                  <Link to="/my-orders" className="nav-link">
-                    <Package size={20} />
-                    <span>My Orders</span>
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
+            {/* REMOVED the "My Orders" section completely */}
             <div className="nav-section logout-section">
               <ul className="nav-list">
                 <li>

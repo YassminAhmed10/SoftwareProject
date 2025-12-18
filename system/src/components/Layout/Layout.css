@@ -168,13 +168,52 @@
   color: #dc2626;
 }
 
-/* Loyalty Card */
+/* Loyalty Card - Minimized */
 .loyalty-card {
   margin: 20px 25px 25px;
-  padding: 20px;
+  padding: 15px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
+  border-radius: 10px;
   color: white;
+}
+
+/* Minimized Loyalty Card */
+.loyalty-card.mini-loyalty {
+  padding: 12px;
+  margin: 15px 25px 20px;
+}
+
+.loyalty-card.mini-loyalty .loyalty-header {
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.loyalty-card.mini-loyalty .loyalty-icon {
+  font-size: 1.2rem;
+  min-width: 24px;
+}
+
+.loyalty-card.mini-loyalty .loyalty-info h4 {
+  font-size: 0.8rem;
+  margin-bottom: 2px;
+}
+
+.loyalty-card.mini-loyalty .loyalty-info .points {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.loyalty-card.mini-loyalty .progress-bar {
+  height: 6px;
+  margin: 12px 0 6px;
+}
+
+.loyalty-card.mini-loyalty .progress-text {
+  font-size: 0.7rem;
+  opacity: 0.9;
+  margin: 0;
+  font-weight: 500;
 }
 
 .loyalty-header {
@@ -186,6 +225,11 @@
 
 .loyalty-icon {
   font-size: 2rem;
+  min-width: 40px;
+}
+
+.loyalty-info {
+  flex: 1;
 }
 
 .loyalty-info h4 {
@@ -262,6 +306,10 @@
   .loyalty-card {
     margin: 20px;
   }
+  
+  .loyalty-card.mini-loyalty {
+    margin: 15px 20px 20px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -275,5 +323,9 @@
   
   .loyalty-card {
     margin: 15px;
+  }
+  
+  .loyalty-card.mini-loyalty {
+    margin: 12px 15px 15px;
   }
 }

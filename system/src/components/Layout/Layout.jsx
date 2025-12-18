@@ -6,7 +6,6 @@ import {
   ShoppingCart, 
   Heart,
   User,
-  Package,
   Settings
 } from 'lucide-react';
 import './Layout.css';
@@ -14,7 +13,7 @@ import './Layout.css';
 const Layout = ({ children }) => {
   const location = useLocation();
 
-  // Navigation items - REMOVED Dashboard from SHOPPING section
+  // Navigation items - REMOVED "My Orders" completely
   const navItems = [
     // SHOPPING section
     { 
@@ -40,12 +39,6 @@ const Layout = ({ children }) => {
       path: '/customer-dashboard', 
       icon: <User size={20} />, 
       label: 'Customer Dashboard',
-      section: 'ACCOUNT'
-    },
-    { 
-      path: '/orders', 
-      icon: <Package size={20} />, 
-      label: 'My Orders',
       section: 'ACCOUNT'
     },
     { 
@@ -116,19 +109,19 @@ const Layout = ({ children }) => {
           </ul>
         </div>
 
-        {/* Loyalty Points */}
-        <div className="loyalty-card">
+        {/* Minimized Loyalty Points */}
+        <div className="loyalty-card mini-loyalty">
           <div className="loyalty-header">
             <div className="loyalty-icon">⭐</div>
             <div className="loyalty-info">
               <h4>Loyalty Points</h4>
-              <p className="points">450 Points</p>
+              <p className="points">450</p>
             </div>
           </div>
           <div className="progress-bar">
             <div className="progress-fill" style={{ width: '45%' }}></div>
           </div>
-          <p className="progress-text">550 points to next tier</p>
+          <p className="progress-text">550 to next tier</p>
         </div>
       </aside>
 
