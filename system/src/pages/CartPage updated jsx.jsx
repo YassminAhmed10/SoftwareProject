@@ -66,9 +66,8 @@ const CartPage = () => {
         </div>
       </header>
 
-      {/* Main Content with centered container */}
-      <div className="main-cart-content">
-        {/* Navigation */}
+      {/* Navigation */}
+      <div className="container">
         <div className="simple-nav">
           <Link to="/products" className="nav-link">All Products</Link>
           <Link to="/cart" className="nav-link active">
@@ -77,9 +76,11 @@ const CartPage = () => {
           <Link to="/wishlist" className="nav-link">
             <Heart size={18} /> Wishlist
           </Link>
-          <Link to="/customer-dashboard" className="nav-link">My Account</Link>
+          <Link to="/account" className="nav-link">My Account</Link>
         </div>
+      </div>
 
+      <div className="container">
         {cartItems.length === 0 ? (
           <div className="empty-cart">
             <div className="empty-cart-content">

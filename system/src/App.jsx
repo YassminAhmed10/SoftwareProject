@@ -13,6 +13,8 @@ import Finance from './pages/Finance';
 import Settings from './pages/Settings';
 import ProductPage from './pages/ProductPage';
 import CustomerDashboard from './pages/CustomerDashboard';
+import CartPage from './pages/CartPage';
+import WishlistPage from './pages/WishlistPage';
 
 function App() {
   return (
@@ -20,7 +22,9 @@ function App() {
       <Router>
         <div className="app">
           <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            {/* Redirect root to products instead of dashboard */}
+            <Route path="/" element={<Navigate to="/products" replace />} />
+            {/* You can keep or remove the dashboard route */}
             <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
             <Route path="/order/:orderId" element={<Layout><OrderDetails /></Layout>} />
             <Route path="/my-store" element={<Layout><MyStore /></Layout>} />
@@ -29,7 +33,10 @@ function App() {
             <Route path="/finance" element={<Layout><Finance /></Layout>} />
             <Route path="/settings" element={<Layout><Settings /></Layout>} />
             <Route path="/products" element={<Layout><ProductPage /></Layout>} />
-            <Route path="/customer-dashboard" element={<Layout><CustomerDashboard /></Layout>} />
+            {/* CustomerDashboard should NOT be wrapped with Layout since it has its own sidebar */}
+            <Route path="/customer-dashboard" element={<CustomerDashboard />} />
+            <Route path="/cart" element={<Layout><CartPage /></Layout>} />
+            <Route path="/wishlist" element={<Layout><WishlistPage /></Layout>} />
           </Routes>
         </div>
       </Router>

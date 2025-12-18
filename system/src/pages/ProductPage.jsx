@@ -1,37 +1,82 @@
-// src/pages/ProductPage.jsx - FULL UPDATED WITH CART FUNCTIONALITY
-import React, { useState, useEffect } from 'react';
+// src/pages/ProductPage.jsx - FINAL VERSION WITH CORRECT IMAGE IMPORTS
+
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Heart, Eye, Star, Search, Package, Truck, Shield } from 'lucide-react';
 import './ProductPage.css';
 
-// Mock data directly in the file
+// =======================================================
+// FIX: Correctly Importing Images from the src/assets Path
+// Assuming these file names correspond to assets in your project structure
+// Replace these with actual paths/imports if necessary for your build system
+// =======================================================
+import jacketImage from '../assets/jacket.png';
+import hoodie4Image from '../assets/hoodie4.png';
+import hoodie2Image from '../assets/hoodie2.png';
+import hoddieImage from '../assets/hoddie.png';
+import tshirtImage from '../assets/tshirt.png';
+import pinkHoodieImage from '../assets/pinkHoodie.png';
+// If the white t-shirt and background image were also in assets, import them:
+// import whiteTshirtImage from './assets/white-tshirt.jpg'; 
+// =======================================================
+
+
+// --- Local Storage Hooks for Cart and Wishlist (Same as before) ---
+const useLocalStorage = (key, initialValue) => {
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      if (!item) {
+        return initialValue;
+      }
+      return JSON.parse(item);
+    } catch (error) {
+      console.error(error);
+      return initialValue;
+    }
+  });
+
+  const setValue = (value) => {
+    try {
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  return [storedValue, setValue];
+};
+
+// Mock data directly in the file (Now using imported image variables)
 const mockProducts = [
   {
     id: 1,
-    name: 'Premium Denim Jacket',
-    description: 'High-quality denim jacket with premium finish and comfortable fit',
-    price: 89.99,
-    discountPrice: 79.99,
+    name: 'Leather  Jacket',
+    description: 'Genuine leather jacket with asymmetrical zip and snap collar.',
+    price: 189.99,
+    discountPrice: 159.99,
     category: 'Jackets',
     sizes: ['S', 'M', 'L', 'XL'],
-    colors: ['Blue', 'Black'],
-    image: 'https://images.unsplash.com/photo-1521223890158-f9f7c3d5d504?w=400&h=500&fit=crop',
+    colors: ['Black'],
+    image: jacketImage, // <-- Fixed path
     rating: 4.5,
     reviewCount: 128,
     inStock: true,
     isNew: true,
-    discountPercentage: 15
+    discountPercentage: 16
   },
   {
     id: 2,
-    name: 'Classic White T-Shirt',
+    name: 'Classic T-Shirt',
     description: '100% cotton comfortable t-shirt for everyday wear',
     price: 24.99,
     discountPrice: 19.99,
     category: 'T-Shirts',
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     colors: ['White', 'Black', 'Gray'],
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=500&fit=crop',
+    // Keeping this as a URL fallback, assuming it's not in the new assets folder
+    image: tshirtImage,
     rating: 4.2,
     reviewCount: 89,
     inStock: true,
@@ -40,14 +85,14 @@ const mockProducts = [
   },
   {
     id: 3,
-    name: 'Leather Boots',
-    description: 'Premium leather boots for all seasons with durable construction',
-    price: 129.99,
+    name: 'Ocean Striped Sweater',
+    description: 'Navy and white striped cotton-blend sweater with raglan sleeves.',
+    price: 79.99,
     discountPrice: null,
-    category: 'Shoes',
-    sizes: ['40', '41', '42', '43', '44'],
-    colors: ['Black', 'Brown'],
-    image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400&h=500&fit=crop',
+    category: 'Sweaters',
+    sizes: ['S', 'M', 'L', 'XL'],
+    colors: ['Navy', 'White'],
+    image: hoodie4Image, // <-- Fixed path
     rating: 4.8,
     reviewCount: 56,
     inStock: true,
@@ -56,60 +101,75 @@ const mockProducts = [
   },
   {
     id: 4,
-    name: 'Wool Scarf',
-    description: 'Warm wool scarf perfect for winter season',
-    price: 34.99,
-    discountPrice: 29.99,
-    category: 'Accessories',
-    sizes: ['One Size'],
-    colors: ['Gray', 'Navy', 'Burgundy'],
-    image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&h=500&fit=crop',
+    name: 'Black Pullover Hoodie',
+    description: 'Heavyweight cotton pullover hoodie with front pocket.',
+    price: 59.99,
+    discountPrice: 49.99,
+    category: 'Hoodies',
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+    colors: ['Black'],
+    image: hoodie2Image, // <-- Fixed path
     rating: 4.4,
     reviewCount: 42,
     inStock: true,
     isNew: false,
-    discountPercentage: 15
+    discountPercentage: 17
   },
   {
     id: 5,
-    name: 'Summer Dress',
-    description: 'Light and breezy summer dress with floral pattern',
-    price: 59.99,
-    discountPrice: 49.99,
-    category: 'Dresses',
+    name: 'Cloud White Hoodie',
+    description: 'Thick, premium white hoodie with a smooth finish and drawstrings.',
+    price: 69.99,
+    discountPrice: 59.99,
+    category: 'Hoodies',
     sizes: ['S', 'M', 'L'],
-    colors: ['Blue', 'Pink', 'Yellow'],
-    image: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=400&h=500&fit=crop',
+    colors: ['White', 'Beige'],
+    image: hoddieImage, // <-- Fixed path
     rating: 4.6,
     reviewCount: 75,
     inStock: true,
     isNew: true,
-    discountPercentage: 17
+    discountPercentage: 14
   },
   {
     id: 6,
-    name: 'Running Shoes',
-    description: 'Comfortable running shoes with cushion technology',
-    price: 89.99,
-    discountPrice: 74.99,
-    category: 'Shoes',
-    sizes: ['40', '41', '42', '43'],
-    colors: ['Black', 'Blue', 'Red'],
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=500&fit=crop',
+    name: 'Cobalt Blue T-Shirt',
+    description: 'Vibrant blue athletic tee with moisture-wicking technology.',
+    price: 39.99,
+    discountPrice: 34.99,
+    category: 'T-Shirts',
+    sizes: ['S', 'M', 'L', 'XL'],
+    colors: ['Blue'],
+    image: tshirtImage, // <-- Fixed path
     rating: 4.7,
     reviewCount: 203,
-    inStock: false,
+    inStock: true, 
     isNew: false,
-    discountPercentage: 17
-  }
+    discountPercentage: 12
+  },
+  {
+    id: 7,
+    name: 'Rose Zip Hoodie',
+    description: 'Light pink full-zip hoodie, perfect for layering.',
+    price: 64.99,
+    discountPrice: null,
+    category: 'Hoodies',
+    sizes: ['XS', 'S', 'M', 'L'],
+    colors: ['Pink'],
+    image: pinkHoodieImage, // <-- Fixed path
+    rating: 4.1,
+    reviewCount: 50,
+    inStock: false, 
+    isNew: true,
+    discountPercentage: 0
+  },
 ];
 
-const categories = ['All', 'Jackets', 'T-Shirts', 'Shoes', 'Accessories', 'Dresses'];
+const categories = ['All', 'Jackets', 'T-Shirts', 'Hoodies', 'Sweaters'];
 const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-const colors = ['Black', 'White', 'Blue', 'Gray', 'Brown', 'Navy', 'Burgundy', 'Red'];
+const colors = ['Black', 'White', 'Blue', 'Gray', 'Brown', 'Navy', 'Pink'];
 
 const ProductPage = () => {
-  const navigate = useNavigate();
   const [allProducts] = useState(mockProducts);
   const [filteredProducts, setFilteredProducts] = useState(mockProducts);
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -119,17 +179,78 @@ const ProductPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState('featured');
   const [loading, setLoading] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
-  const [showCartNotification, setShowCartNotification] = useState(false);
+  
+  const [cartItems, setCartItems] = useLocalStorage('ecommerceCartItems', []);
+  const [wishlistItems, setWishlistItems] = useLocalStorage('ecommerceWishlistItems', []);
+  
+  const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
+  const [notificationType, setNotificationType] = useState('success');
+
+  // Show Notification
+  const displayNotification = useCallback((message, type = 'success') => {
+    setNotificationMessage(message);
+    setNotificationType(type);
+    setShowNotification(true);
+    setTimeout(() => {
+      setShowNotification(false);
+    }, 3000);
+  }, []);
+
+  // Add to Cart Function
+  const addToCart = (product) => {
+    if (!product.inStock) {
+      displayNotification('This item is currently out of stock', 'error');
+      return;
+    }
+
+    const defaultSize = product.sizes[0] || 'One Size';
+    const defaultColor = product.colors[0] || 'Default';
+    const itemId = `${product.id}-${defaultSize}-${defaultColor}`; 
+
+    setCartItems(prevCart => {
+      const existingItemIndex = prevCart.findIndex(item => item.itemId === itemId);
+
+      if (existingItemIndex >= 0) {
+        const updatedCart = [...prevCart];
+        updatedCart[existingItemIndex].quantity += 1;
+        displayNotification(`${product.name} quantity updated in cart!`, 'success');
+        return updatedCart;
+      } else {
+        displayNotification(`${product.name} added to cart!`, 'success');
+        return [...prevCart, {
+          ...product,
+          itemId,
+          quantity: 1,
+          size: defaultSize,
+          color: defaultColor
+        }];
+      }
+    });
+  };
+
+  // Toggle Wishlist Function
+  const toggleWishlist = (product) => {
+    setWishlistItems(prevWishlist => {
+      const exists = prevWishlist.some(item => item.id === product.id);
+
+      if (exists) {
+        displayNotification(`${product.name} removed from wishlist.`, 'success');
+        return prevWishlist.filter(item => item.id !== product.id);
+      } else {
+        displayNotification(`${product.name} added to wishlist!`, 'success');
+        return [...prevWishlist, { ...product, addedDate: new Date().toISOString() }];
+      }
+    });
+  };
 
   // Apply filters and sorting
   useEffect(() => {
     setLoading(true);
-    
+
     const timer = setTimeout(() => {
       let filtered = [...allProducts];
-      
+
       // Search filter
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase().trim();
@@ -139,37 +260,37 @@ const ProductPage = () => {
           product.category.toLowerCase().includes(query)
         );
       }
-      
+
       // Category filter
       if (selectedCategory !== 'All') {
         filtered = filtered.filter(product => product.category === selectedCategory);
       }
-      
+
       // Size filter
       if (selectedSizes.length > 0) {
         filtered = filtered.filter(product =>
           selectedSizes.some(size => product.sizes.includes(size))
         );
       }
-      
+
       // Color filter
       if (selectedColors.length > 0) {
         filtered = filtered.filter(product =>
           selectedColors.some(color => product.colors.includes(color))
         );
       }
-      
+
       // Price filter
       const [minPrice, maxPrice] = priceRange;
       filtered = filtered.filter(product => {
         const price = product.discountPrice || product.price;
         return price >= minPrice && price <= maxPrice;
       });
-      
+
       // Sorting
       switch (sortOption) {
         case 'price-low':
-          filtered.sort((a, b) => (a.discountPrice || a.price) - (b.discountPrice || b.price));
+          filtered.sort((a, b) => (a.discountPrice || a.price) - (b.discountPrice || a.price));
           break;
         case 'price-high':
           filtered.sort((a, b) => (b.discountPrice || b.price) - (a.discountPrice || a.price));
@@ -190,63 +311,18 @@ const ProductPage = () => {
             return bScore - aScore;
           });
       }
-      
+
       setFilteredProducts(filtered);
       setLoading(false);
     }, 300);
-    
+
     return () => clearTimeout(timer);
   }, [allProducts, searchQuery, selectedCategory, selectedSizes, selectedColors, priceRange, sortOption]);
 
-  // Add to Cart Function
-  const addToCart = (product) => {
-    if (!product.inStock) {
-      showNotification('This item is currently out of stock', 'error');
-      return;
-    }
-    
-    // Check if product is already in cart
-    const existingItemIndex = cartItems.findIndex(item => item.id === product.id);
-    
-    if (existingItemIndex >= 0) {
-      // Update quantity
-      const updatedCart = [...cartItems];
-      updatedCart[existingItemIndex].quantity += 1;
-      setCartItems(updatedCart);
-    } else {
-      // Add new item
-      setCartItems([...cartItems, {
-        ...product,
-        quantity: 1,
-        selectedSize: product.sizes[0],
-        selectedColor: product.colors[0]
-      }]);
-    }
-    
-    // Save to localStorage
-    localStorage.setItem('cartItems', JSON.stringify([...cartItems, {
-      ...product,
-      quantity: 1,
-      selectedSize: product.sizes[0],
-      selectedColor: product.colors[0]
-    }]));
-    
-    showNotification(`${product.name} added to cart!`, 'success');
-  };
-
-  // Show notification
-  const showNotification = (message, type = 'success') => {
-    setNotificationMessage(message);
-    setShowCartNotification(true);
-    setTimeout(() => {
-      setShowCartNotification(false);
-    }, 3000);
-  };
-
   // Filter handlers
   const handleSizeClick = (size) => {
-    setSelectedSizes(prev => 
-      prev.includes(size) 
+    setSelectedSizes(prev =>
+      prev.includes(size)
         ? prev.filter(s => s !== size)
         : [...prev, size]
     );
@@ -273,19 +349,22 @@ const ProductPage = () => {
     setSearchQuery('');
   };
 
-  const activeFilterCount = 
+  const activeFilterCount =
     (selectedCategory !== 'All' ? 1 : 0) +
     selectedSizes.length +
     selectedColors.length +
     (priceRange[0] > 0 || priceRange[1] < 200 ? 1 : 0);
+    
+  // Check if item is in wishlist for heart icon status
+  const isWishlisted = (productId) => wishlistItems.some(item => item.id === productId);
 
   return (
     <div className="products-page">
       {/* Notification */}
-      {showCartNotification && (
-        <div className={`cart-notification ${notificationMessage.includes('error') ? 'error' : 'success'}`}>
+      {showNotification && (
+        <div className={`cart-notification ${notificationType}`}>
           {notificationMessage}
-          <button onClick={() => setShowCartNotification(false)}>×</button>
+          <button onClick={() => setShowNotification(false)}>×</button>
         </div>
       )}
 
@@ -296,22 +375,22 @@ const ProductPage = () => {
           <p>Discover our latest collection of premium clothing & accessories</p>
         </div>
       </header>
-      
+
       {/* Navigation Bar */}
       <div className="container">
         <div className="simple-nav">
           <Link to="/products" className="nav-link active">All Products</Link>
           <Link to="/cart" className="nav-link cart-link">
-            <ShoppingCart size={18} /> 
+            <ShoppingCart size={18} />
             Cart ({cartItems.length})
           </Link>
           <Link to="/wishlist" className="nav-link">
-            <Heart size={18} /> Wishlist
+            <Heart size={18} /> Wishlist ({wishlistItems.length})
           </Link>
           <Link to="/customer-dashboard" className="nav-link">My Account</Link>
         </div>
       </div>
-      
+
       {/* Search Section */}
       <section className="search-section">
         <div className="container">
@@ -329,7 +408,7 @@ const ProductPage = () => {
           </div>
         </div>
       </section>
-      
+
       {/* Main Content */}
       <div className="products-container">
         <div className="container">
@@ -358,8 +437,8 @@ const ProductPage = () => {
                         >
                           <span>{category}</span>
                           <span className="category-count">
-                            {category === 'All' 
-                              ? allProducts.length 
+                            {category === 'All'
+                              ? allProducts.length
                               : allProducts.filter(p => p.category === category).length}
                           </span>
                         </button>
@@ -408,6 +487,7 @@ const ProductPage = () => {
                       type="range"
                       min="0"
                       max="200"
+                      step="10"
                       value={priceRange[1]}
                       onChange={handlePriceChange}
                       className="price-slider"
@@ -420,13 +500,13 @@ const ProductPage = () => {
                 </div>
               </div>
             </aside>
-            
+
             {/* Products Column */}
             <main className="products-column">
               {/* Products Header with Controls */}
               <div className="products-controls">
                 <div className="results-info">
-                  <h2>Products</h2>
+                  <h2 className="featured-heading">Featured Products</h2>
                   <div className="results-count">
                     <span>{filteredProducts.length} products found</span>
                     {activeFilterCount > 0 && (
@@ -436,15 +516,11 @@ const ProductPage = () => {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="controls-right">
-                  <Link to="/cart" className="go-to-cart-btn">
-                    <ShoppingCart size={18} />
-                    View Cart ({cartItems.length})
-                  </Link>
-                  
                   <div className="sort-dropdown">
-                    <select 
+                    <span className="sort-label">Sort by:</span>
+                    <select
                       value={sortOption}
                       onChange={(e) => setSortOption(e.target.value)}
                       className="sort-select"
@@ -457,9 +533,20 @@ const ProductPage = () => {
                       <option value="newest">Newest</option>
                     </select>
                   </div>
+                  
+                  {/* View Wishlist Button */}
+                  <Link to="/wishlist" className="go-to-cart-btn view-wishlist-btn-header">
+                    <Heart size={18} />
+                    View Wishlist ({wishlistItems.length})
+                  </Link>
+
+                  <Link to="/cart" className="go-to-cart-btn">
+                    <ShoppingCart size={18} />
+                    View Cart ({cartItems.length})
+                  </Link>
                 </div>
               </div>
-              
+
               {/* Loading State */}
               {loading ? (
                 <div className="loading-state">
@@ -470,7 +557,7 @@ const ProductPage = () => {
                 /* Products Grid */
                 <div className="products-grid">
                   {filteredProducts.map(product => {
-                    const discountPercentage = product.discountPrice 
+                    const discountPercentage = product.discountPrice
                       ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
                       : 0;
 
@@ -479,8 +566,8 @@ const ProductPage = () => {
                         {/* Product Image */}
                         <div className="product-image-container">
                           <Link to={`/product/${product.id}`}>
-                            <img 
-                              src={product.image} 
+                            <img
+                              src={product.image}
                               alt={product.name}
                               className="product-image"
                               onError={(e) => {
@@ -489,7 +576,7 @@ const ProductPage = () => {
                               }}
                             />
                           </Link>
-                          
+
                           {/* Badges */}
                           <div className="product-badges">
                             {product.discountPrice && discountPercentage > 0 && (
@@ -504,17 +591,17 @@ const ProductPage = () => {
                               <span className="product-badge stock-badge">OUT OF STOCK</span>
                             )}
                           </div>
-                          
-                          {/* Quick Actions */}
+
+                          {/* Quick Actions (Heart button is here, now fully visible via CSS) */}
                           <div className="quick-actions">
-                            <button 
-                              className="wishlist-btn" 
-                              title="Add to wishlist"
-                              onClick={() => showNotification(`${product.name} added to wishlist!`)}
+                            <button
+                              className={`wishlist-btn ${isWishlisted(product.id) ? 'active' : ''}`}
+                              title={isWishlisted(product.id) ? "Remove from wishlist" : "Add to wishlist"}
+                              onClick={() => toggleWishlist(product)}
                             >
-                              <Heart size={18} />
+                              <Heart size={18} fill={isWishlisted(product.id) ? "#ef4444" : "none"} />
                             </button>
-                            <Link 
+                            <Link
                               to={`/product/${product.id}`}
                               className="view-btn"
                               title="View details"
@@ -527,20 +614,20 @@ const ProductPage = () => {
                         {/* Product Info */}
                         <div className="product-info">
                           <span className="product-category">{product.category}</span>
-                          
+
                           <Link to={`/product/${product.id}`} className="product-name-link">
                             <h3 className="product-name">{product.name}</h3>
                           </Link>
-                          
+
                           <p className="product-description">{product.description}</p>
-                          
+
                           {/* Rating */}
                           <div className="product-rating">
                             <div className="stars">
                               {[...Array(5)].map((_, i) => (
-                                <Star 
-                                  key={i} 
-                                  size={14} 
+                                <Star
+                                  key={i}
+                                  size={14}
                                   fill={i < Math.floor(product.rating) ? "#fbbf24" : "none"}
                                   stroke={i < Math.floor(product.rating) ? "#fbbf24" : "#d1d5db"}
                                 />
@@ -550,7 +637,7 @@ const ProductPage = () => {
                               {product.rating.toFixed(1)} ({product.reviewCount} reviews)
                             </span>
                           </div>
-                          
+
                           {/* Price */}
                           <div className="product-price">
                             {product.discountPrice ? (
@@ -562,16 +649,16 @@ const ProductPage = () => {
                               <span className="current-price">${product.price.toFixed(2)}</span>
                             )}
                           </div>
-                          
+
                           {/* Stock Status */}
                           <div className="product-stock">
                             <span className={`stock-status ${product.inStock ? 'in-stock' : 'out-of-stock'}`}>
                               {product.inStock ? '✓ In Stock' : '✗ Out of Stock'}
                             </span>
                           </div>
-                          
+
                           {/* Add to Cart Button */}
-                          <button 
+                          <button
                             onClick={() => addToCart(product)}
                             className={`add-to-cart-button ${!product.inStock ? 'disabled' : ''}`}
                             disabled={!product.inStock}
@@ -579,7 +666,7 @@ const ProductPage = () => {
                             <ShoppingCart size={16} />
                             {product.inStock ? 'Add to Cart' : 'Out of Stock'}
                           </button>
-                          
+
                           {/* View Details Link */}
                           <div className="view-details-link">
                             <Link to={`/product/${product.id}`}>View Details →</Link>
@@ -590,7 +677,7 @@ const ProductPage = () => {
                   })}
                 </div>
               )}
-              
+
               {/* No Results State */}
               {!loading && filteredProducts.length === 0 && (
                 <div className="no-results-suggestions">

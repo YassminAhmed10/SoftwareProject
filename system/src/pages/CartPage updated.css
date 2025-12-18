@@ -28,17 +28,11 @@
   gap: 15px;
 }
 
-/* Container for header */
-.container {
-  max-width: 100%;
-  padding: 0 20px;
-}
-
-/* Main cart content with centered layout */
+/* FIX: Centering Class applied to the element containing NAV and CART LAYOUT */
 .main-cart-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
+  max-width: 1200px; /* Define the max width for the entire visible block */
+  margin: 0 auto; /* Center the entire visible block */
+  padding: 0 20px; /* Add padding inside the block */
 }
 
 /* Navigation */
@@ -75,7 +69,7 @@
   color: white;
 }
 
-/* Empty Cart */
+/* Empty Cart - Ensure it centers correctly inside the fixed width */
 .empty-cart {
   display: flex;
   justify-content: center;
@@ -85,7 +79,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   padding: 40px;
-  max-width: 100%;
+  max-width: 100%; /* Important: Must fill the parent container's width */
 }
 
 .empty-cart-content {
@@ -680,7 +674,8 @@
     font-size: 0.9rem;
   }
   
-  .main-cart-content {
+  /* Use the dedicated wrapper for mobile padding */
+  .centered-content { 
     padding: 0 15px;
   }
 }
