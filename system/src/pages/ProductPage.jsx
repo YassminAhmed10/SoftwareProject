@@ -1,32 +1,38 @@
-// src/pages/ProductPage.jsx - FINAL VERSION WITH CORRECT IMAGE IMPORTS
-
+// src/pages/ProductPage.jsx - FULL UPDATED WITH WISHLIST SYNC
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ShoppingCart, Heart, Eye, Star, Search, Package, Truck, Shield } from 'lucide-react';
 import './ProductPage.css';
 
-// =======================================================
-// FIX: Correctly Importing Images from the src/assets Path
-// Assuming these file names correspond to assets in your project structure
-// Replace these with actual paths/imports if necessary for your build system
-// =======================================================
+// Import images
 import jacketImage from '../assets/jacket.png';
 import hoodie4Image from '../assets/hoodie4.png';
 import hoodie2Image from '../assets/hoodie2.png';
 import hoddieImage from '../assets/hoddie.png';
 import tshirtImage from '../assets/tshirt.png';
 import pinkHoodieImage from '../assets/pinkHoodie.png';
-// If the white t-shirt and background image were also in assets, import them:
-// import whiteTshirtImage from './assets/white-tshirt.jpg'; 
-// =======================================================
 
-
-// --- Local Storage Hooks for Cart and Wishlist (Same as before) ---
+// Local Storage Hook
 const useLocalStorage = (key, initialValue) => {
   const [storedValue, setStoredValue] = useState(() => {
     try {
       const item = window.localStorage.getItem(key);
       if (!item) {
+        // For wishlist, check if we have old format data
+        if (key === 'ecommerceWishlistItems') {
+          // Try to migrate from old localStorage if exists
+          const oldData = window.localStorage.getItem('wishlistItems');
+          if (oldData) {
+            try {
+              const parsedOldData = JSON.parse(oldData);
+              window.localStorage.setItem(key, JSON.stringify(parsedOldData));
+              window.localStorage.removeItem('wishlistItems');
+              return parsedOldData;
+            } catch (e) {
+              console.error('Error migrating old wishlist data:', e);
+            }
+          }
+        }
         return initialValue;
       }
       return JSON.parse(item);
@@ -48,18 +54,18 @@ const useLocalStorage = (key, initialValue) => {
   return [storedValue, setValue];
 };
 
-// Mock data directly in the file (Now using imported image variables)
+// Mock products data
 const mockProducts = [
   {
     id: 1,
-    name: 'Leather  Jacket',
+    name: 'Leather Jacket',
     description: 'Genuine leather jacket with asymmetrical zip and snap collar.',
     price: 189.99,
     discountPrice: 159.99,
     category: 'Jackets',
     sizes: ['S', 'M', 'L', 'XL'],
     colors: ['Black'],
-    image: jacketImage, // <-- Fixed path
+    image: jacketImage,
     rating: 4.5,
     reviewCount: 128,
     inStock: true,
@@ -75,7 +81,6 @@ const mockProducts = [
     category: 'T-Shirts',
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
     colors: ['White', 'Black', 'Gray'],
-    // Keeping this as a URL fallback, assuming it's not in the new assets folder
     image: tshirtImage,
     rating: 4.2,
     reviewCount: 89,
@@ -92,7 +97,7 @@ const mockProducts = [
     category: 'Sweaters',
     sizes: ['S', 'M', 'L', 'XL'],
     colors: ['Navy', 'White'],
-    image: hoodie4Image, // <-- Fixed path
+    image: hoodie4Image,
     rating: 4.8,
     reviewCount: 56,
     inStock: true,
@@ -108,7 +113,7 @@ const mockProducts = [
     category: 'Hoodies',
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
     colors: ['Black'],
-    image: hoodie2Image, // <-- Fixed path
+    image: hoodie2Image,
     rating: 4.4,
     reviewCount: 42,
     inStock: true,
@@ -124,7 +129,7 @@ const mockProducts = [
     category: 'Hoodies',
     sizes: ['S', 'M', 'L'],
     colors: ['White', 'Beige'],
-    image: hoddieImage, // <-- Fixed path
+    image: hoddieImage,
     rating: 4.6,
     reviewCount: 75,
     inStock: true,
@@ -140,10 +145,10 @@ const mockProducts = [
     category: 'T-Shirts',
     sizes: ['S', 'M', 'L', 'XL'],
     colors: ['Blue'],
-    image: tshirtImage, // <-- Fixed path
+    image: tshirtImage,
     rating: 4.7,
     reviewCount: 203,
-    inStock: true, 
+    inStock: true,
     isNew: false,
     discountPercentage: 12
   },
@@ -156,10 +161,10 @@ const mockProducts = [
     category: 'Hoodies',
     sizes: ['XS', 'S', 'M', 'L'],
     colors: ['Pink'],
-    image: pinkHoodieImage, // <-- Fixed path
+    image: pinkHoodieImage,
     rating: 4.1,
     reviewCount: 50,
-    inStock: false, 
+    inStock: false,
     isNew: true,
     discountPercentage: 0
   },
@@ -206,7 +211,7 @@ const ProductPage = () => {
 
     const defaultSize = product.sizes[0] || 'One Size';
     const defaultColor = product.colors[0] || 'Default';
-    const itemId = `${product.id}-${defaultSize}-${defaultColor}`; 
+    const itemId = `${product.id}-${defaultSize}-${defaultColor}`;
 
     setCartItems(prevCart => {
       const existingItemIndex = prevCart.findIndex(item => item.itemId === itemId);
@@ -229,18 +234,32 @@ const ProductPage = () => {
     });
   };
 
-  // Toggle Wishlist Function
+  // Toggle Wishlist Function - UPDATED FOR PROPER SYNC
   const toggleWishlist = (product) => {
     setWishlistItems(prevWishlist => {
       const exists = prevWishlist.some(item => item.id === product.id);
-
+      
+      let updatedWishlist;
+      
       if (exists) {
+        // Remove from wishlist
+        updatedWishlist = prevWishlist.filter(item => item.id !== product.id);
         displayNotification(`${product.name} removed from wishlist.`, 'success');
-        return prevWishlist.filter(item => item.id !== product.id);
       } else {
+        // Add to wishlist
+        const wishlistItem = {
+          ...product,
+          addedDate: new Date().toISOString().split('T')[0], // Format: YYYY-MM-DD
+          inWishlist: true
+        };
+        updatedWishlist = [...prevWishlist, wishlistItem];
         displayNotification(`${product.name} added to wishlist!`, 'success');
-        return [...prevWishlist, { ...product, addedDate: new Date().toISOString() }];
       }
+      
+      // Force immediate localStorage update for cross-page sync
+      localStorage.setItem('ecommerceWishlistItems', JSON.stringify(updatedWishlist));
+      
+      return updatedWishlist;
     });
   };
 
@@ -290,7 +309,7 @@ const ProductPage = () => {
       // Sorting
       switch (sortOption) {
         case 'price-low':
-          filtered.sort((a, b) => (a.discountPrice || a.price) - (b.discountPrice || a.price));
+          filtered.sort((a, b) => (a.discountPrice || a.price) - (b.discountPrice || b.price));
           break;
         case 'price-high':
           filtered.sort((a, b) => (b.discountPrice || b.price) - (a.discountPrice || a.price));
@@ -554,12 +573,14 @@ const ProductPage = () => {
                   <p>Loading products...</p>
                 </div>
               ) : (
-                /* Products Grid */
+                /* Products Grid with Wishlist Icons */
                 <div className="products-grid">
                   {filteredProducts.map(product => {
                     const discountPercentage = product.discountPrice
                       ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
                       : 0;
+
+                    const wishlisted = isWishlisted(product.id);
 
                     return (
                       <div key={product.id} className="product-card">
@@ -592,23 +613,37 @@ const ProductPage = () => {
                             )}
                           </div>
 
-                          {/* Quick Actions (Heart button is here, now fully visible via CSS) */}
+                          {/* Wishlist Heart Button - ALWAYS VISIBLE */}
                           <div className="quick-actions">
                             <button
-                              className={`wishlist-btn ${isWishlisted(product.id) ? 'active' : ''}`}
-                              title={isWishlisted(product.id) ? "Remove from wishlist" : "Add to wishlist"}
+                              className={`wishlist-btn ${wishlisted ? 'active' : ''}`}
+                              title={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
                               onClick={() => toggleWishlist(product)}
+                              aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
                             >
-                              <Heart size={18} fill={isWishlisted(product.id) ? "#ef4444" : "none"} />
+                              <Heart 
+                                size={18} 
+                                fill={wishlisted ? "#ef4444" : "none"} 
+                                color={wishlisted ? "#ef4444" : "#4a5568"}
+                              />
                             </button>
                             <Link
                               to={`/product/${product.id}`}
                               className="view-btn"
                               title="View details"
+                              aria-label="View product details"
                             >
                               <Eye size={18} />
                             </Link>
                           </div>
+
+                          {/* Wishlist Indicator Badge */}
+                          {wishlisted && (
+                            <div className="wishlist-indicator-badge">
+                              <Heart size={12} fill="#ef4444" color="#ef4444" />
+                              <span>Saved</span>
+                            </div>
+                          )}
                         </div>
 
                         {/* Product Info */}

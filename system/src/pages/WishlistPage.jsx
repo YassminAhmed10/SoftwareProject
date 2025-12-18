@@ -1,12 +1,37 @@
-// src/pages/WishlistPage.jsx
+// src/pages/WishlistPage.jsx - UPDATED TO SYNC WITH LOCAL STORAGE
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingCart, Eye, Trash2, Package, Tag, AlertCircle, ChevronRight, Star } from 'lucide-react';
 import './WishlistPage.css';
 
+// Local Storage Hook
+const useLocalStorage = (key, initialValue) => {
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error(error);
+      return initialValue;
+    }
+  });
+
+  const setValue = (value) => {
+    try {
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
+  return [storedValue, setValue];
+};
+
 const WishlistPage = () => {
-  // Mock wishlist data
-  const [wishlistItems, setWishlistItems] = useState([
+  // Get wishlist items from localStorage with fallback to initial data
+  const [wishlistItems, setWishlistItems] = useLocalStorage('ecommerceWishlistItems', [
     {
       id: 1,
       name: 'Premium Denim Jacket',
@@ -99,10 +124,15 @@ const WishlistPage = () => {
       }
     });
 
-  // Remove item from wishlist
+  // Remove item from wishlist - UPDATED
   const removeFromWishlist = (id) => {
     setWishlistItems(prev => prev.filter(item => item.id !== id));
     showNotification('Item removed from wishlist');
+    
+    // Also update localStorage to remove item from all tabs
+    const currentWishlist = JSON.parse(localStorage.getItem('ecommerceWishlistItems') || '[]');
+    const updatedWishlist = currentWishlist.filter(item => item.id !== id);
+    localStorage.setItem('ecommerceWishlistItems', JSON.stringify(updatedWishlist));
   };
 
   // Move all to cart
@@ -118,7 +148,30 @@ const WishlistPage = () => {
       showNotification('This item is out of stock', 'error');
       return;
     }
-    // Here you would add to cart logic
+    
+    // Add to cart logic
+    const cartItems = JSON.parse(localStorage.getItem('ecommerceCartItems') || '[]');
+    const defaultSize = item.sizes[0] || 'One Size';
+    const defaultColor = item.colors[0] || 'Default';
+    const itemId = `${item.id}-${defaultSize}-${defaultColor}`;
+    
+    const existingItemIndex = cartItems.findIndex(cartItem => cartItem.itemId === itemId);
+    
+    let updatedCart;
+    if (existingItemIndex >= 0) {
+      updatedCart = [...cartItems];
+      updatedCart[existingItemIndex].quantity += 1;
+    } else {
+      updatedCart = [...cartItems, {
+        ...item,
+        itemId,
+        quantity: 1,
+        size: defaultSize,
+        color: defaultColor
+      }];
+    }
+    
+    localStorage.setItem('ecommerceCartItems', JSON.stringify(updatedCart));
     showNotification('Item added to cart');
   };
 
