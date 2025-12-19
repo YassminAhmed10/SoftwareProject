@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import './Analytics.css'; // ضيف السطر ده
+import React, { useState, useEffect } from 'react';
+import './Analytics.css';
+import axios from 'axios';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -11,7 +12,8 @@ import {
   ArrowUp,
   ArrowDown,
   Crown,
-  Star
+  Star,
+  RefreshCw
 } from 'lucide-react';
 import { 
   LineChart, 
@@ -30,115 +32,120 @@ import {
 } from 'recharts';
 
 const Analytics = () => {
-  const [timeRange, setTimeRange] = useState('week');
+  const [timeRange, setTimeRange] = useState('month');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [analyticsData, setAnalyticsData] = useState(null);
 
-  // بيانات المبيعات
-  const salesData = [
-    { month: 'Jan', sales: 4000, orders: 240, revenue: 2400 },
-    { month: 'Feb', sales: 3000, orders: 198, revenue: 2210 },
-    { month: 'Mar', sales: 5000, orders: 300, revenue: 2290 },
-    { month: 'Apr', sales: 4500, orders: 280, revenue: 2000 },
-    { month: 'May', sales: 6000, orders: 350, revenue: 2181 },
-    { month: 'Jun', sales: 7000, orders: 420, revenue: 2500 },
-    { month: 'Jul', sales: 6500, orders: 390, revenue: 2100 },
-  ];
+  const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000/api';
 
-  // بيانات الفئات - فقط Men و Women
-  const categoryData = [
-    { name: 'Women Items', value: 650, color: '#ec4899' },
-    { name: 'Men Items', value: 450, color: '#3b82f6' },
-  ];
+  // Handle image errors
+  const handleImageError = (e) => {
+    e.target.src = `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNlNWU1ZTUiLz48cGF0aCBkPSJNNjYuNjY2NyAzMy4zMzMzSDMzLjMzMzNWNjYuNjY2N0g2Ni42NjY3VjMzLjMzMzNaTTMzLjMzMzMgMjZDNzIuNDQgMjYgNzIuNDQgMjYgNzMuMzMzMyAyNkM3NC4yMjY3IDI2IDc1IDI2Ljc3MzMgNzUgMjcuNjY2N1Y3Mi4zMzMzQzc1IDczLjIyNjcgNzQuMjI2NyA3NCA3My4zMzMzIDc0SDI2LjY2NjdDMjUuNzczMyA3NCAyNSA3My4yMjY3IDI1IDcyLjMzMzNWMjcuNjY2N0MyNSAyNi43NzMzIDI1Ljc3MzMgMjYgMjYuNjY2NyAyNkgyNy41NTY3QzI3LjU1NjcgMjYgNjUuNzc3OCAyNiA2Ni42NjY3IDI2WiIgZmlsbD0iIzk0OTQ5NCIvPjwvc3ZnPg==`;
+    e.target.alt = 'Product image not available';
+    e.target.onerror = null; // Prevent infinite loop
+  };
 
-  // بيانات الزوار
-  const visitorData = [
-    { day: 'Mon', visitors: 1200, newVisitors: 400 },
-    { day: 'Tue', visitors: 1900, newVisitors: 600 },
-    { day: 'Wed', visitors: 1500, newVisitors: 500 },
-    { day: 'Thu', visitors: 2100, newVisitors: 700 },
-    { day: 'Fri', visitors: 2500, newVisitors: 900 },
-    { day: 'Sat', visitors: 3000, newVisitors: 1200 },
-    { day: 'Sun', visitors: 2200, newVisitors: 800 },
-  ];
+  // Fetch analytics data
+  const fetchAnalyticsData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-  // إحصائيات سريعة
-  const quickStats = [
-    { 
-      title: 'Total Revenue', 
-      value: '$45,678', 
-      change: '+12.5%', 
-      isPositive: true,
-      icon: DollarSign,
-      color: 'blue'
-    },
-    { 
-      title: 'Total Orders', 
-      value: '1,234', 
-      change: '+8.2%', 
-      isPositive: true,
-      icon: ShoppingBag,
-      color: 'green'
-    },
-    { 
-      title: 'Total Visitors', 
-      value: '12,450', 
-      change: '+15.3%', 
-      isPositive: true,
-      icon: Users,
-      color: 'purple'
-    },
-    { 
-      title: 'Conversion Rate', 
-      value: '3.2%', 
-      change: '-2.1%', 
-      isPositive: false,
-      icon: TrendingUp,
-      color: 'orange'
-    },
-  ];
+      const token = localStorage.getItem('accessToken') || 
+                    localStorage.getItem('access') || 
+                    localStorage.getItem('access_token');
 
-  // بيانات Top Selling Products مع الصور
-  const topSellingProducts = [
-    { 
-      id: 1,
-      name: 'Hoodie Pink', 
-      category: 'Women Item', 
-      sales: 2334, 
-      revenue: 23400, 
-      trend: '+12%',
-      isTop: true,
-      image: '/src/assets/pinkHoodie.png'
-    },
-    { 
-      id: 2,
-      name: 'Hoodie Black', 
-      category: 'Men Item', 
-      sales: 189, 
-      revenue: 18900, 
-      trend: '+8%',
-      isTop: false,
-      image: '/src/assets/hoodie2.png'
-    },
-    { 
-      id: 3,
-      name: 'Leather Jacket', 
-      category: 'Women Item', 
-      sales: 156, 
-      revenue: 15600, 
-      trend: '-3%',
-      isTop: false,
-      image: '/src/assets/jacket.png'
-    },
-    { 
-      id: 4,
-      name: 'Sweatshirt White', 
-      category: 'Men Item', 
-      sales: 142, 
-      revenue: 14200, 
-      trend: '+15%',
-      isTop: false,
-      image: '/src/assets/hoodie3.png'
-    },
-  ];
+      if (!token) {
+        setError('No authentication token found');
+        setLoading(false);
+        return;
+      }
+
+      console.log('📊 Fetching analytics data for:', timeRange);
+
+      const response = await axios.get(`${API_URL}/orders/analytics/`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        params: {
+          range: timeRange
+        }
+      });
+
+      console.log('✅ Analytics response:', response.data);
+
+      if (response.data.success) {
+        setAnalyticsData(response.data);
+      } else {
+        setError(response.data.error || 'Failed to fetch analytics');
+      }
+
+      setLoading(false);
+    } catch (err) {
+      console.error('❌ Error fetching analytics:', err);
+      setError(err.response?.data?.error || err.message || 'Failed to fetch analytics');
+      setLoading(false);
+    }
+  };
+
+  // Fetch data on mount and when time range changes
+  useEffect(() => {
+    fetchAnalyticsData();
+  }, [timeRange]);
+
+  // Auto-refresh every 60 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('🔄 Auto-refreshing analytics...');
+      fetchAnalyticsData();
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [timeRange]);
+
+  // Map backend data to quick stats format
+  const getQuickStats = () => {
+    if (!analyticsData?.quick_stats) return [];
+
+    const stats = analyticsData.quick_stats;
+
+    return [
+      { 
+        title: 'Total Revenue', 
+        value: stats.total_revenue?.value || '$0.00', 
+        change: stats.total_revenue?.change || '+0%', 
+        isPositive: stats.total_revenue?.is_positive ?? true,
+        icon: DollarSign,
+        color: 'blue'
+      },
+      { 
+        title: 'Total Orders', 
+        value: stats.total_orders?.value || '0', 
+        change: stats.total_orders?.change || '+0%', 
+        isPositive: stats.total_orders?.is_positive ?? true,
+        icon: ShoppingBag,
+        color: 'green'
+      },
+      { 
+        title: 'Total Visitors', 
+        value: stats.total_visitors?.value || '0', 
+        change: stats.total_visitors?.change || '+0%', 
+        isPositive: stats.total_visitors?.is_positive ?? true,
+        icon: Users,
+        color: 'purple'
+      },
+      { 
+        title: 'Conversion Rate', 
+        value: stats.conversion_rate?.value || '0%', 
+        change: stats.conversion_rate?.change || '+0%', 
+        isPositive: stats.conversion_rate?.is_positive ?? true,
+        icon: TrendingUp,
+        color: 'orange'
+      },
+    ];
+  };
 
   const getStatColor = (color) => {
     const colors = {
@@ -150,11 +157,34 @@ const Analytics = () => {
     return colors[color] || colors.blue;
   };
 
-  // دالة للتعامل مع أخطاء الصور
-  const handleImageError = (e) => {
-    e.target.src = '/src/assets';
-    e.target.alt = 'Product image not available';
+  const handleRefresh = () => {
+    console.log('🔄 Manual refresh triggered');
+    fetchAnalyticsData();
   };
+
+  if (loading && !analyticsData) {
+    return (
+      <div className="analytics-container">
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '400px',
+          fontSize: '18px',
+          color: '#6b7280'
+        }}>
+          <RefreshCw className="spinning" size={24} style={{ marginRight: '12px' }} />
+          Loading analytics data...
+        </div>
+      </div>
+    );
+  }
+
+  const quickStats = getQuickStats();
+  const salesData = analyticsData?.sales_data || [];
+  const categoryData = analyticsData?.category_data || [];
+  const visitorData = analyticsData?.visitor_data || [];
+  const topProducts = analyticsData?.top_products || [];
 
   return (
     <div className="analytics-container">
@@ -173,23 +203,42 @@ const Analytics = () => {
           <button 
             className={timeRange === 'week' ? 'active' : ''}
             onClick={() => setTimeRange('week')}
+            disabled={loading}
           >
             Week
           </button>
           <button 
             className={timeRange === 'month' ? 'active' : ''}
             onClick={() => setTimeRange('month')}
+            disabled={loading}
           >
             Month
           </button>
           <button 
             className={timeRange === 'year' ? 'active' : ''}
             onClick={() => setTimeRange('year')}
+            disabled={loading}
           >
             Year
           </button>
+          
+          <button 
+            onClick={handleRefresh}
+            disabled={loading}
+            className="refresh-btn-analytics"
+          >
+            <RefreshCw size={16} className={loading ? 'spinning' : ''} />
+            Refresh
+          </button>
         </div>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="error-message">
+          <strong>Error:</strong> {error}
+        </div>
+      )}
 
       {/* Quick Stats */}
       <div className="quick-stats-grid">
@@ -214,78 +263,85 @@ const Analytics = () => {
         })}
       </div>
 
-      {/* Top Products Table مع الصور والأيقونات - تم نقله هنا */}
+      {/* Top Products Table */}
       <div className="top-products-card">
         <div className="chart-header">
           <h2>Top Selling Products</h2>
-          <p className="chart-subtitle">Best performing products this month</p>
+          <p className="chart-subtitle">Best performing products this {timeRange}</p>
         </div>
-        <table className="analytics-table">
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Product</th>
-              <th>Category</th>
-              <th>Sales</th>
-              <th>Revenue</th>
-              <th>Trend</th>
-            </tr>
-          </thead>
-          <tbody>
-            {topSellingProducts.map((product, index) => (
-              <tr key={product.id} className={product.isTop ? 'top-product' : ''}>
-                <td className="rank-cell">
-                  {product.isTop ? (
-                    <div className="top-rank">
-                      <Crown size={26} className="crown-icon" />
-                      <span className="rank-number">1</span>
-                    </div>
-                  ) : (
-                    <div className="normal-rank">
-                      <span className="rank-number">{index + 1}</span>
-                    </div>
-                  )}
-                </td>
-                <td className="product-cell">
-                  <div className="product-with-image">
-                    <img 
-                      src={product.image} 
-                      alt={product.name}
-                      className="product-table-image"
-                      onError={handleImageError}
-                    />
-                    <span className="product-name">{product.name}</span>
-                  </div>
-                </td>
-                <td>
-                  <span className={`category-badge ${product.category.includes('Women') ? 'women' : 'men'}`}>
-                    {product.category}
-                  </span>
-                </td>
-                <td>{product.sales}</td>
-                <td className="revenue">{product.revenue.toLocaleString()} LE</td>
-                <td className={`trend ${product.trend.includes('+') ? 'positive' : 'negative'}`}>
-                  {product.trend.includes('+') ? <TrendingUp size={34} /> : <TrendingDown size={34} />}
-                  {product.trend}
-                </td>
+        
+        {topProducts.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
+            No product data available yet
+          </div>
+        ) : (
+          <table className="analytics-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Sales</th>
+                <th>Revenue</th>
+                <th>Trend</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {topProducts.map((product, index) => (
+                <tr key={product.id} className={product.isTop ? 'top-product' : ''}>
+                  <td className="rank-cell">
+                    {product.isTop ? (
+                      <div className="top-rank">
+                        <Crown size={26} className="crown-icon" />
+                        <span className="rank-number">1</span>
+                      </div>
+                    ) : (
+                      <div className="normal-rank">
+                        <span className="rank-number">{index + 1}</span>
+                      </div>
+                    )}
+                  </td>
+                  <td className="product-cell">
+                    <div className="product-with-image">
+                      <img 
+                        src={product.image} 
+                        alt={product.name}
+                        className="product-table-image"
+                        onError={handleImageError}
+                      />
+                      <span className="product-name">{product.name}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span className={`category-badge ${product.category?.includes('Women') ? 'women' : 'men'}`}>
+                      {product.category || 'Uncategorized'}
+                    </span>
+                  </td>
+                  <td>{product.sales || 0}</td>
+                  <td className="revenue">{product.revenue ? product.revenue.toLocaleString() + ' LE' : '0 LE'}</td>
+                  <td className={`trend ${product.trend?.includes('+') ? 'positive' : 'negative'}`}>
+                    {product.trend?.includes('+') ? <TrendingUp size={34} /> : <TrendingDown size={34} />}
+                    {product.trend || '0%'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
-      {/* Charts Grid - تم نقله إلى الأسفل */}
+      {/* Charts Grid */}
       <div className="charts-grid">
         {/* Revenue Chart */}
         <div className="chart-card large">
           <div className="chart-header">
             <h2>Revenue Overview</h2>
-            <p className="chart-subtitle">Monthly revenue and sales performance</p>
+            <p className="chart-subtitle">Sales performance over time</p>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={salesData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="month" stroke="#6b7280" />
+              <XAxis dataKey="period" stroke="#6b7280" />
               <YAxis stroke="#6b7280" />
               <Tooltip 
                 contentStyle={{ 
@@ -295,13 +351,13 @@ const Analytics = () => {
                 }}
               />
               <Legend />
-              <Line type="monotone" dataKey="sales" stroke="#3b82f6" strokeWidth={2} name="Sales ($)" />
-              <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} name="Revenue ($)" />
+              <Line type="monotone" dataKey="sales" stroke="#3b82f6" strokeWidth={2} name="Sales (LE)" />
+              <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} name="Revenue (LE)" />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Category Distribution - فقط Men و Women */}
+        {/* Category Distribution */}
         <div className="chart-card">
           <div className="chart-header">
             <h2>Sales by Category</h2>
@@ -342,7 +398,7 @@ const Analytics = () => {
         <div className="chart-card large">
           <div className="chart-header">
             <h2>Visitor Analytics</h2>
-            <p className="chart-subtitle">Daily visitors and new visitors</p>
+            <p className="chart-subtitle">Visitor trends over time</p>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={visitorData}>
@@ -366,13 +422,13 @@ const Analytics = () => {
         {/* Orders Chart */}
         <div className="chart-card">
           <div className="chart-header">
-            <h2>Monthly Orders</h2>
-            <p className="chart-subtitle">Order trends over time</p>
+            <h2>Orders Over Time</h2>
+            <p className="chart-subtitle">Order trends</p>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={salesData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="month" stroke="#6b7280" />
+              <XAxis dataKey="period" stroke="#6b7280" />
               <YAxis stroke="#6b7280" />
               <Tooltip 
                 contentStyle={{ 
@@ -386,6 +442,18 @@ const Analytics = () => {
           </ResponsiveContainer>
         </div>
       </div>
+
+      {/* Last Updated */}
+      {analyticsData?.last_updated && (
+        <div style={{ 
+          textAlign: 'center', 
+          marginTop: '20px', 
+          color: '#9ca3af',
+          fontSize: '14px'
+        }}>
+          Last updated: {new Date(analyticsData.last_updated).toLocaleString()}
+        </div>
+      )}
     </div>
   );
 };

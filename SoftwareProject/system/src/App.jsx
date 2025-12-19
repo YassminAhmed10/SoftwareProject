@@ -21,6 +21,8 @@ import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import Home from './pages/Home';
 import ShoppingCart from './pages/ShoppingCart';
+import Checkout from './pages/Checkout'; // Add this import
+import OrderConfirmation from './pages/orderconfirmation'; // Add this import
 import Wishlist from './pages/Wishlist';
 import MenProducts from './pages/MenProducts';
 import WomenProducts from './pages/WomenProducts';
@@ -124,9 +126,9 @@ function App() {
             }
           />
 
-          {/* Shopping Cart/Checkout Route - للـ Customers */}
+          {/* Shopping Cart Route */}
           <Route 
-            path="/checkout"
+            path="/cart"
             element={
               <ProtectedRoute allowedRoles={['customer']}>
                 <ShoppingCart user={user} onLogout={logout} />
@@ -134,12 +136,22 @@ function App() {
             }
           />
 
-          {/* Shopping Cart Route - alternative path */}
+          {/* Checkout Route - UPDATED */}
           <Route 
-            path="/cart"
+            path="/checkout"
             element={
               <ProtectedRoute allowedRoles={['customer']}>
-                <ShoppingCart user={user} onLogout={logout} />
+                <Checkout user={user} onLogout={logout} />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Order Confirmation Route - NEW */}
+          <Route 
+            path="/order-confirmation"
+            element={
+              <ProtectedRoute allowedRoles={['customer']}>
+                <OrderConfirmation user={user} onLogout={logout} />
               </ProtectedRoute>
             }
           />
@@ -403,8 +415,8 @@ function LoginPageWrapper({ onLogin }) {
         navigate('/home'); // Customer goes to home page
       }
     } catch (error) {
-      alert(error.message || 'Login failed. Please check your credentials.');
-      throw error;
+      console.error('Login error:', error);
+      throw error; // Let LoginPage handle the error display
     }
   };
   
@@ -424,35 +436,70 @@ LoginPageWrapper.propTypes = {
 function SignUpPageWrapper({ onLogin }) {
   const navigate = useNavigate();
   
-  const handleSignUp = async (email, password, fullName) => {
+  const handleSignUp = async (username, email, password, confirmPassword) => {
     try {
-      const [firstName, ...lastNameParts] = fullName.split(' ');
-      const lastName = lastNameParts.join(' ');
-      const response = await api.signup(email, password, firstName, lastName);
-      onLogin(response.user, response.tokens);
-      const role = api.getUserRole(response.user.email);
-      // Route based on role
-      if (role === 'admin') {
-        navigate('/admin/dashboard');
-      } else if (role === 'employee') {
-        navigate('/employee/dashboard');
+      console.log('SignUpPageWrapper - Calling api.signup with:', { 
+        username, 
+        email, 
+        password, 
+        confirmPassword 
+      });
+      
+      // CALL API WITH OBJECT, NOT SEPARATE PARAMETERS
+      const response = await api.signup(username, email, password, confirmPassword);
+      
+      console.log('SignUpPageWrapper - Signup response:', response);
+      
+      // Check if response has user data
+      if (response.user && response.tokens) {
+        onLogin(response.user, response.tokens);
+        
+        const role = api.getUserRole(response.user.email);
+        console.log('SignUpPageWrapper - User role:', role);
+        
+        // Route based on role
+        if (role === 'admin') {
+          navigate('/admin/dashboard');
+        } else if (role === 'employee') {
+          navigate('/employee/dashboard');
+        } else {
+          navigate('/home');
+        }
       } else {
-        navigate('/home'); // Customer goes to home page
+        // Handle case where response structure is different
+        console.error('Unexpected response structure:', response);
+        throw new Error('Signup successful but unexpected response format');
       }
     } catch (error) {
-      alert(error.message || 'Signup failed. Please try again.');
-      throw error;
+      console.error('Signup error in wrapper:', error);
+      
+      // Try to parse the error message
+      try {
+        const errorData = JSON.parse(error.message);
+        if (errorData.username) {
+          throw new Error(`Username: ${errorData.username[0]}`);
+        }
+        if (errorData.email) {
+          throw new Error(`Email: ${errorData.email[0]}`);
+        }
+        if (errorData.password) {
+          throw new Error(`Password: ${errorData.password[0]}`);
+        }
+        throw new Error(error.message);
+      } catch (parseError) {
+        // If it's not JSON, use the original error
+        throw error;
+      }
     }
   };
   
   return (
     <SignUpPage 
       onNavigateToLogin={() => navigate('/login')}
-      onLogin={handleSignUp}
+      onSignup={handleSignUp}
     />
   );
 }
-
 SignUpPageWrapper.propTypes = {
   onLogin: PropTypes.func.isRequired
 };

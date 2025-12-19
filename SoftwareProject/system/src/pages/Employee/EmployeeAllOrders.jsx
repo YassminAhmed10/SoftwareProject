@@ -1,221 +1,241 @@
-import React, { useState } from 'react';
-import { Search, Filter, Download, Eye, Printer, Calendar } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Download, Eye, Printer, RefreshCw, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import './EmployeeAllOrders.css';
+
+const API_BASE = "http://127.0.0.1:8000/api";
 
 const AllOrders = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [dateRange, setDateRange] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [stats, setStats] = useState({
+    total: 0,
+    completed: 0,
+    pending: 0,
+    processing: 0,
+    canceled: 0
+  });
 
-  // بيانات الطلبات مع كل التفاصيل
-  const orders = [
-    { 
-      id: 'CUST001', 
-      customer: 'Yassmin Ahmed', 
-      date: '01-10-2025', 
-      status: 'completed', 
-      amount: '$99.99', 
-      category: 'Women Item', 
-      items: 2,
-      user: 'Yassmin Ahmed',
-      products: [
-        { name: 'Women Dress', quantity: 1, price: 89.99, color: 'Red', size: 'M', sku: 'WD001', category: 'Women Item' },
-        { name: 'Handbag', quantity: 1, price: 45.50, color: 'Black', size: 'One Size', sku: 'HB001', category: 'Accessories' }
-      ],
-      shipping: { address: 'ElSheikh Zaid, Giza, Egypt' },
-      customerDetails: { 
-        name: 'Yassmin Ahmed',
-        email: 'yassmin@example.com',
-        phone: '+20 101 342 7001',
-        address: 'El maadiy, Cairo, Egypt'
-      }
-    },
-    { 
-      id: 'CUST002', 
-      customer: 'Zeina Mohamed', 
-      date: '02-10-2025', 
-      status: 'pending', 
-      amount: '$149.99', 
-      category: 'Men Item', 
-      items: 1,
-      user: 'Zeina Mohamed',
-      products: [
-        { name: 'Men Shirt', quantity: 2, price: 29.99, color: 'Blue', size: 'L', sku: 'MS001', category: 'Men Item' },
-        { name: 'Jeans', quantity: 1, price: 59.99, color: 'Navy', size: '32', sku: 'JN001', category: 'Men Item' }
-      ],
-      shipping: { address: 'Nasr City, Cairo, Egypt' },
-      customerDetails: { 
-        name: 'Zeina Mohamed',
-        email: 'zeina@example.com',
-        phone: '+20 102 555 8888',
-        address: 'Nasr City, Cairo, Egypt'
-      }
-    },
-    { 
-      id: 'CUST003', 
-      customer: 'Ramy Kamal', 
-      date: '03-10-2025', 
-      status: 'process', 
-      amount: '$299.99', 
-      category: 'Women Item', 
-      items: 3,
-      user: 'Ramy Hassan',
-      products: [
-        { name: 'Blouse', quantity: 1, price: 39.99, color: 'White', size: 'S', sku: 'BL001', category: 'Women Item' },
-        { name: 'Skirt', quantity: 1, price: 34.99, color: 'Black', size: 'M', sku: 'SK001', category: 'Women Item' },
-        { name: 'Accessories', quantity: 3, price: 75.00, color: 'Various', size: 'One Size', sku: 'AC001', category: 'Accessories' }
-      ],
-      shipping: { address: 'Heliopolis, Cairo, Egypt' },
-      customerDetails: { 
-        name: 'Ramy Hassan',
-        email: 'ramy@example.com',
-        phone: '+20 100 111 2222',
-        address: 'Heliopolis, Cairo, Egypt'
-      }
-    },
-    { 
-      id: 'CUST004', 
-      customer: 'Youssef Khaled', 
-      date: '04-10-2025', 
-      status: 'completed', 
-      amount: '$199.99', 
-      category: 'Men Item', 
-      items: 2,
-      user: 'Youssef Ali',
-      products: [
-        { name: 'Men Jacket', quantity: 1, price: 129.99, color: 'Black', size: 'XL', sku: 'MJ001', category: 'Men Item' },
-        { name: 'T-Shirt', quantity: 2, price: 19.99, color: 'White', size: 'L', sku: 'TS001', category: 'Men Item' }
-      ],
-      shipping: { address: '6th October, Giza, Egypt' },
-      customerDetails: { 
-        name: 'Youssef Ali',
-        email: 'youssef@example.com',
-        phone: '+20 122 333 4444',
-        address: '6th October, Giza, Egypt'
-      }
-    },
-    { 
-      id: 'CUST005', 
-      customer: 'Sara Mostafa', 
-      date: '05-10-2025', 
-      status: 'pending', 
-      amount: '$159.99', 
-      category: 'Women Item', 
-      items: 1,
-      user: 'Sara Ibrahim',
-      products: [
-        { name: 'Shoes', quantity: 1, price: 79.99, color: 'Beige', size: '38', sku: 'SH001', category: 'Women Item' },
-        { name: 'Accessories', quantity: 2, price: 25.00, color: 'Gold', size: 'One Size', sku: 'AC002', category: 'Accessories' }
-      ],
-      shipping: { address: 'Zamalek, Cairo, Egypt' },
-      customerDetails: { 
-        name: 'Sara Ibrahim',
-        email: 'sara@example.com',
-        phone: '+20 106 777 8888',
-        address: 'Zamalek, Cairo, Egypt'
-      }
-    },
-    { 
-      id: 'CUST006', 
-      customer: 'Laila Mohamed', 
-      date: '06-10-2025', 
-      status: 'completed', 
-      amount: '$249.99', 
-      category: 'Men Item', 
-      items: 4,
-      user: 'Laila Mohamed',
-      products: [
-        { name: 'Suit', quantity: 1, price: 199.99, color: 'Navy', size: 'L', sku: 'ST001', category: 'Men Item' },
-        { name: 'Tie', quantity: 2, price: 15.00, color: 'Red', size: 'One Size', sku: 'TI001', category: 'Accessories' }
-      ],
-      shipping: { address: 'Maadi, Cairo, Egypt' },
-      customerDetails: { 
-        name: 'Laila Mohamed',
-        email: 'ahmed@example.com',
-        phone: '+20 111 999 0000',
-        address: 'Maadi, Cairo, Egypt'
-      }
-    },
-    { 
-      id: 'CUST007', 
-      customer: 'Mariam Mohamed', 
-      date: '07-10-2025', 
-      status: 'canceled', 
-      amount: '$89.99', 
-      category: 'Women Item', 
-      items: 1,
-      user: 'Mona Salem',
-      products: [
-        { name: 'Scarf', quantity: 1, price: 29.99, color: 'Blue', size: 'One Size', sku: 'SC001', category: 'Accessories' },
-        { name: 'Belt', quantity: 1, price: 19.99, color: 'Brown', size: 'M', sku: 'BT001', category: 'Accessories' }
-      ],
-      shipping: { address: 'New Cairo, Cairo, Egypt' },
-      customerDetails: { 
-        name: 'Mariam Mohamed',
-        email: 'mona@example.com',
-        phone: '+20 127 444 5555',
-        address: 'New Cairo, Cairo, Egypt'
-      }
-    },
-    { 
-      id: 'CUST008', 
-      customer: 'Omar Alansary', 
-      date: '08-10-2025', 
-      status: 'process', 
-      amount: '$179.99', 
-      category: 'Men Item', 
-      items: 2,
-      user: 'Omar Alansary',
-      products: [
-        { name: 'Hoodie', quantity: 1, price: 89.99, color: 'Gray', size: 'L', sku: 'HD001', category: 'Men Item' },
-        { name: 'Pants', quantity: 1, price: 59.99, color: 'Black', size: '34', sku: 'PN001', category: 'Men Item' }
-      ],
-      shipping: { address: 'Dokki, Giza, Egypt' },
-      customerDetails: { 
-        name: 'Omar Alansary',
-        email: 'omar@example.com',
-        phone: '+20 109 666 7777',
-        address: 'Dokki, Giza, Egypt'
-      }
-    },
-  ];
+  // Get authentication token
+  const getAuthToken = () => {
+    // Try different possible token storage locations
+    return localStorage.getItem('access_token') || 
+           localStorage.getItem('accessToken') || 
+           localStorage.getItem('token') ||
+           sessionStorage.getItem('access_token') ||
+           sessionStorage.getItem('accessToken') ||
+           sessionStorage.getItem('token');
+  };
 
-  // إحصائيات سريعة
-  const stats = [
-    { label: 'Total Orders', value: orders.length, color: 'blue' },
-    { label: 'Completed', value: orders.filter(o => o.status === 'completed').length, color: 'green' },
-    { label: 'Pending', value: orders.filter(o => o.status === 'pending').length, color: 'orange' },
-    { label: 'Processing', value: orders.filter(o => o.status === 'process').length, color: 'yellow' },
-  ];
+  // Fetch orders from backend
+  const fetchOrders = async (page = 1) => {
+    setLoading(true);
+    try {
+      console.log('📋 Fetching orders from backend...');
+      
+      // Get auth token
+      const token = getAuthToken();
+      console.log('🔑 Token available:', !!token);
+      
+      // Prepare headers
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Add authorization header if token exists
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      // Build query parameters
+      const params = new URLSearchParams({
+        search: searchTerm,
+        status: filterStatus !== 'all' ? filterStatus : '',
+        dateRange: dateRange !== 'all' ? dateRange : '',
+        page: page,
+        pageSize: 10
+      });
 
-  // فلترة الطلبات
+      console.log('🌐 API URL:', `${API_BASE}/orders/all/?${params}`);
+      
+      const response = await fetch(`${API_BASE}/orders/all/?${params}`, {
+        headers: headers,
+        credentials: 'include'  // Include cookies for session auth
+      });
+
+      console.log('📊 Response status:', response.status);
+      
+      if (!response.ok) {
+        // Check if it's an auth issue
+        if (response.status === 401) {
+          console.warn('⚠️ Authentication required or token expired');
+          // Try without auth token as a fallback (since view has AllowAny)
+          return await fetchOrdersWithoutAuth(page);
+        }
+        throw new Error(`API failed: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('📦 Response data:', data);
+      
+      if (data.success) {
+        console.log(`✅ Received ${data.orders?.length || 0} orders`);
+        setOrders(data.orders || []);
+        setStats(data.stats || {
+          total: 0,
+          completed: 0,
+          pending: 0,
+          processing: 0,
+          canceled: 0
+        });
+        setTotalPages(data.pagination?.totalPages || 1);
+        setCurrentPage(data.pagination?.page || 1);
+      } else {
+        console.error('❌ API returned error:', data.error);
+        // Fallback to empty data
+        useFallbackData();
+      }
+    } catch (error) {
+      console.error('❌ Error fetching orders:', error);
+      // Fallback to empty data
+      useFallbackData();
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  // Try without authentication as fallback
+  const fetchOrdersWithoutAuth = async (page = 1) => {
+    console.log('🔄 Trying without authentication...');
+    
+    try {
+      const params = new URLSearchParams({
+        search: searchTerm,
+        status: filterStatus !== 'all' ? filterStatus : '',
+        dateRange: dateRange !== 'all' ? dateRange : '',
+        page: page,
+        pageSize: 10
+      });
+
+      const response = await fetch(`${API_BASE}/orders/all/?${params}`, {
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error(`API failed without auth: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log(`✅ Received ${data.orders?.length || 0} orders (no auth)`);
+        setOrders(data.orders || []);
+        setStats(data.stats || {
+          total: 0,
+          completed: 0,
+          pending: 0,
+          processing: 0,
+          canceled: 0
+        });
+        setTotalPages(data.pagination?.totalPages || 1);
+        setCurrentPage(data.pagination?.page || 1);
+      } else {
+        throw new Error(data.error || 'Unknown error');
+      }
+    } catch (error) {
+      console.error('❌ Failed without auth:', error);
+      useFallbackData();
+    }
+  };
+
+  // Fallback to mock data if API fails
+  const useFallbackData = () => {
+    console.log('📱 Using fallback data');
+    // You can keep your mock data here if needed
+    setOrders([]);
+    setStats({
+      total: 0,
+      completed: 0,
+      pending: 0,
+      processing: 0,
+      canceled: 0
+    });
+    setTotalPages(1);
+    setCurrentPage(1);
+  };
+
+  // Fetch data on component mount and when filters change
+  useEffect(() => {
+    fetchOrders();
+  }, [searchTerm, filterStatus, dateRange]);
+
+  // Handle refresh
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchOrders(currentPage);
+  };
+
+  // Filter orders (client-side fallback)
   const filteredOrders = orders.filter(order => {
+    const customerName = typeof order.customer === 'string' 
+      ? order.customer 
+      : order.customer?.name || 
+        order.customer_name || 
+        order.user || 
+        order.customerDetails?.name || 
+        '';
+    
+    const orderId = order.order_id || order.order_number || order.id || '';
+    
     const matchesSearch = 
-      order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.id.toLowerCase().includes(searchTerm.toLowerCase());
+      customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      orderId.toLowerCase().includes(searchTerm.toLowerCase());
+    
     const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
+    
     return matchesSearch && matchesStatus;
   });
 
   const getStatusColor = (status) => {
     switch(status) {
-      case 'completed': return 'status-completed';
+      case 'completed': 
+      case 'delivered': return 'status-completed';
       case 'pending': return 'status-pending';
-      case 'process': return 'status-process';
-      case 'canceled': return 'status-canceled';
+      case 'process': 
+      case 'processing': 
+      case 'shipped': return 'status-process';
+      case 'canceled': 
+      case 'cancelled': return 'status-canceled';
       default: return '';
     }
   };
 
+  const formatStatus = (status) => {
+    switch(status) {
+      case 'process': 
+      case 'processing': 
+      case 'shipped': return 'Processing';
+      case 'cancelled': 
+      case 'canceled': return 'Canceled';
+      case 'delivered': return 'Completed';
+      case 'pending': return 'Pending';
+      default: return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+  };
+
   const handleViewOrder = (order) => {
-    console.log('👁️ Viewing order:', order.id);
-    // نقل البيانات كاملة للصفحة التانية
-    navigate(`/employee/order/${order.id}`, {
+    console.log('👁️ Viewing order:', order.id || order.order_id);
+    navigate(`/employee/order/${order.id || order.order_id || order.order_number}`, {
       state: { 
         order: order,
-        // إضافة البيانات بشكل واضح
         orderData: order
       }
     });
@@ -229,6 +249,73 @@ const AllOrders = () => {
     window.print();
   };
 
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      fetchOrders(newPage);
+    }
+  };
+
+  const formatAmount = (amount) => {
+    if (!amount) return '$0.00';
+    if (typeof amount === 'string') {
+      // If it's already formatted
+      return amount.includes('LE') ? amount : 
+             amount.includes('$') ? amount : 
+             `$${amount}`;
+    }
+    if (typeof amount === 'number') {
+      return `$${amount.toFixed(2)}`;
+    }
+    return amount;
+  };
+
+  const getDisplayCustomer = (order) => {
+    if (typeof order.customer === 'string') {
+      return order.customer;
+    }
+    return order.customer_name || 
+           order.customer?.name || 
+           order.user || 
+           order.customerDetails?.name || 
+           'Customer';
+  };
+
+  const getDisplayEmail = (order) => {
+    return order.email || 
+           order.customer_email || 
+           order.customer?.email || 
+           order.customerDetails?.email || 
+           'N/A';
+  };
+
+  const getOrderId = (order) => {
+    // Use order_number or id from backend
+    return order.order_id || 
+           order.order_number || 
+           order.id || 
+           'N/A';
+  };
+
+  const handleLoginRedirect = () => {
+    // Redirect to login page
+    navigate('/login');
+  };
+
+  if (loading && !orders.length) {
+    return (
+      <div className="all-orders-container">
+        <div className="loading-overlay">
+          <Loader2 size={32} className="spinning" />
+          <p>Loading orders from backend...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if we have any orders
+  const hasOrders = orders.length > 0;
+
   return (
     <div className="all-orders-container">
       {/* Header */}
@@ -240,29 +327,80 @@ const AllOrders = () => {
             <li>•</li>
             <li><a className="active" href="#">All Orders</a></li>
           </ul>
+          <div className="data-source-indicator">
+            <span className={`source-badge ${hasOrders ? 'live' : 'demo'}`}>
+              {hasOrders ? '📊 Live Data' : '📱 No Data'}
+            </span>
+          </div>
         </div>
 
         <div className="header-actions">
-          <button className="action-btn" onClick={handleExportOrders}>
+          <button className="action-btn refresh-btn" onClick={handleRefresh} disabled={refreshing}>
+            <RefreshCw size={18} className={refreshing ? 'spinning' : ''} />
+            {refreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
+          <button className="action-btn" onClick={handleExportOrders} disabled={!hasOrders}>
             <Download size={18} />
             Export
           </button>
-          <button className="action-btn" onClick={handlePrintOrders}>
+          <button className="action-btn" onClick={handlePrintOrders} disabled={!hasOrders}>
             <Printer size={18} />
             Print
           </button>
+          {!hasOrders && (
+            <button className="action-btn login-btn" onClick={handleLoginRedirect}>
+              🔑 Login
+            </button>
+          )}
         </div>
       </div>
 
       {/* إحصائيات سريعة */}
       <div className="orders-stats">
-        {stats.map((stat, index) => (
-          <div key={index} className={`stat-box stat-${stat.color}`}>
-            <h3>{stat.value}</h3>
-            <p>{stat.label}</p>
-          </div>
-        ))}
+        <div className="stat-box stat-blue">
+          <h3>{stats.total}</h3>
+          <p>Total Orders</p>
+        </div>
+        <div className="stat-box stat-green">
+          <h3>{stats.completed}</h3>
+          <p>Completed</p>
+        </div>
+        <div className="stat-box stat-orange">
+          <h3>{stats.pending}</h3>
+          <p>Pending</p>
+        </div>
+        <div className="stat-box stat-yellow">
+          <h3>{stats.processing}</h3>
+          <p>Processing</p>
+        </div>
+        <div className="stat-box stat-red">
+          <h3>{stats.canceled}</h3>
+          <p>Canceled</p>
+        </div>
       </div>
+
+      {/* Authentication Warning */}
+      {!hasOrders && orders.length === 0 && (
+        <div className="auth-warning">
+          <div className="warning-content">
+            <h3>🔐 Authentication Required</h3>
+            <p>The orders API requires authentication. Please make sure:</p>
+            <ul>
+              <li>You are logged into the system</li>
+              <li>Your session is still valid</li>
+              <li>You have the necessary permissions</li>
+            </ul>
+            <div className="warning-actions">
+              <button className="btn-primary" onClick={handleLoginRedirect}>
+                Go to Login
+              </button>
+              <button className="btn-secondary" onClick={handleRefresh}>
+                Retry Connection
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="orders-filters">
@@ -274,13 +412,23 @@ const AllOrders = () => {
               placeholder="Search by customer name or order ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  fetchOrders(1);
+                }
+              }}
+              disabled={!hasOrders}
             />
           </div>
 
           <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+            onChange={(e) => {
+              setFilterStatus(e.target.value);
+              setCurrentPage(1);
+            }}
             className="filter-select"
+            disabled={!hasOrders}
           >
             <option value="all">All Status</option>
             <option value="completed">Completed</option>
@@ -291,8 +439,12 @@ const AllOrders = () => {
 
           <select
             value={dateRange}
-            onChange={(e) => setDateRange(e.target.value)}
+            onChange={(e) => {
+              setDateRange(e.target.value);
+              setCurrentPage(1);
+            }}
             className="filter-select"
+            disabled={!hasOrders}
           >
             <option value="all">All Time</option>
             <option value="today">Today</option>
@@ -302,12 +454,27 @@ const AllOrders = () => {
         </div>
 
         <div className="results-count">
-          Showing {filteredOrders.length} of {orders.length} orders
+          {hasOrders ? (
+            <>
+              Showing {filteredOrders.length} of {stats.total} orders
+              {searchTerm && ` for "${searchTerm}"`}
+              {filterStatus !== 'all' && ` (${filterStatus})`}
+            </>
+          ) : (
+            'No orders available. Please check authentication.'
+          )}
         </div>
       </div>
 
       {/* Orders Table */}
       <div className="orders-table-card">
+        {refreshing && (
+          <div className="refreshing-overlay">
+            <Loader2 size={24} className="spinning" />
+            <span>Refreshing data...</span>
+          </div>
+        )}
+
         <div className="table-responsive">
           <table className="orders-table">
             <thead>
@@ -323,53 +490,131 @@ const AllOrders = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.map((order, index) => (
-                <tr key={index}>
-                  <td className="order-id">{order.id}</td>
-                  <td className="customer-cell">
-                    <div className="customer-avatar">
-                      {order.customer.charAt(0)}
+              {hasOrders ? (
+                filteredOrders.length > 0 ? (
+                  filteredOrders.map((order, index) => (
+                    <tr key={index}>
+                      <td className="order-id">{getOrderId(order)}</td>
+                      <td className="customer-cell">
+                        <div className="customer-avatar">
+                          {getDisplayCustomer(order).charAt(0)}
+                        </div>
+                        <div className="customer-info">
+                          <span className="customer-name">{getDisplayCustomer(order)}</span>
+                          <span className="customer-email">{getDisplayEmail(order)}</span>
+                        </div>
+                      </td>
+                      <td>{order.date}</td>
+                      <td>{order.items || 1} items</td>
+                      <td>
+                        <span className={`category-tag ${order.category === 'Women Item' ? 'women' : 'men'}`}>
+                          {order.category || 'General'}
+                        </span>
+                      </td>
+                      <td className="amount">{formatAmount(order.amount)}</td>
+                      <td>
+                        <span className={`status-badge ${getStatusColor(order.status)}`}>
+                          {formatStatus(order.status)}
+                        </span>
+                      </td>
+                      <td>
+                        <button 
+                          className="view-btn"
+                          onClick={() => handleViewOrder(order)}
+                          title="View Details"
+                        >
+                          <Eye size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="8" className="no-orders">
+                      <div className="empty-state">
+                        <Search size={48} />
+                        <h3>No orders match your filters</h3>
+                        <p>Try changing your search or filter criteria</p>
+                        <button 
+                          className="reset-filters-btn"
+                          onClick={() => {
+                            setSearchTerm('');
+                            setFilterStatus('all');
+                            setDateRange('all');
+                          }}
+                        >
+                          Reset Filters
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              ) : (
+                <tr>
+                  <td colSpan="8" className="no-data">
+                    <div className="empty-state">
+                      <div className="error-icon">🔒</div>
+                      <h3>No Orders Available</h3>
+                      <p>Unable to fetch orders. Please check your authentication or try again later.</p>
+                      <div className="action-buttons">
+                        <button className="btn-primary" onClick={handleLoginRedirect}>
+                          Login
+                        </button>
+                        <button className="btn-secondary" onClick={handleRefresh}>
+                          Retry Connection
+                        </button>
+                      </div>
                     </div>
-                    <span>{order.customer}</span>
-                  </td>
-                  <td>{order.date}</td>
-                  <td>{order.items} items</td>
-                  <td>
-                    <span className={`category-tag ${order.category === 'Women Item' ? 'women' : 'men'}`}>
-                      {order.category}
-                    </span>
-                  </td>
-                  <td className="amount">{order.amount}</td>
-                  <td>
-                    <span className={`status-badge ${getStatusColor(order.status)}`}>
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                    </span>
-                  </td>
-                  <td>
-                    <button 
-                      className="view-btn"
-                      onClick={() => handleViewOrder(order)}
-                      title="View Details"
-                    >
-                      <Eye size={16} />
-                    </button>
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
 
-        {/* Pagination */}
-        <div className="table-pagination">
-          <button className="pagination-btn" disabled>Previous</button>
-          <div className="pagination-pages">
-            <button className="page-btn active">1</button>
-            <button className="page-btn">2</button>
-            <button className="page-btn">3</button>
+        {/* Pagination - Only show if we have orders */}
+        {hasOrders && totalPages > 1 && (
+          <div className="table-pagination">
+            <button 
+              className="pagination-btn" 
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </button>
+            <div className="pagination-pages">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+
+                return (
+                  <button 
+                    key={i}
+                    className={`page-btn ${currentPage === pageNum ? 'active' : ''}`}
+                    onClick={() => handlePageChange(pageNum)}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+            <button 
+              className="pagination-btn" 
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </button>
           </div>
-          <button className="pagination-btn">Next</button>
-        </div>
+        )}
       </div>
     </div>
   );

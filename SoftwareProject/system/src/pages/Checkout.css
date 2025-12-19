@@ -653,3 +653,147 @@
     justify-content: center;
   }
 }
+.payment-methods {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.payment-method {
+  flex: 1;
+  min-width: 200px;
+  padding: 20px;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.payment-method:hover {
+  border-color: #333;
+  background: #f9f9f9;
+}
+
+.payment-method.active {
+  border-color: #333;
+  background: #333;
+  color: white;
+}
+
+.payment-method svg {
+  font-size: 20px;
+}
+
+/* Card Payment Form */
+.card-payment-form {
+  margin-top: 30px;
+}
+
+/* Cash on Delivery Info */
+.cod-payment-info {
+  margin-top: 30px;
+}
+
+.cod-info-box {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 40px;
+  border-radius: 16px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.cod-icon {
+  font-size: 60px;
+  margin-bottom: 20px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.cod-info-box h3 {
+  font-size: 28px;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.cod-info-box p {
+  font-size: 16px;
+  margin-bottom: 25px;
+  opacity: 0.95;
+}
+
+.cod-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.cod-features li {
+  padding: 10px 0;
+  font-size: 15px;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.cod-features li:last-child {
+  border-bottom: none;
+}
+
+.cod-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 20px;
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 10px;
+  color: #856404;
+  font-size: 14px;
+}
+
+.cod-note svg {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .payment-methods {
+    flex-direction: column;
+  }
+
+  .payment-method {
+    min-width: 100%;
+  }
+
+  .cod-info-box {
+    padding: 30px 20px;
+  }
+
+  .cod-icon {
+    font-size: 50px;
+  }
+
+  .cod-info-box h3 {
+    font-size: 24px;
+  }
+}

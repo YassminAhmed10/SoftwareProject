@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaTruck, FaMapMarkerAlt, FaHeadset, FaMobileAlt, FaStar, FaFire } from 'react-icons/fa';
 import Header from '../components/Header/Header';
 import './Home.css';
+import axios from 'axios';
 
 // ========== IMAGE IMPORTS ==========
 import img1 from '../assets/trending1.jpeg';
@@ -14,7 +15,24 @@ import tShirtImg from '../assets/tShirt.jpeg';
 import ryyzImage from '../assets/RYYZ.png'; // Import RYYZ image
 
 const Home = ({ darkMode, user, onLogout }) => {
+  const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000/api';
 
+  useEffect(() => {
+    const trackVisitor = async () => {
+      try {
+        await axios.post(`${API_URL}/visitor/track/`, {
+          page: window.location.pathname,
+          referrer: document.referrer
+        });
+        console.log('✅ Visitor tracked');
+      } catch (error) {
+        console.error('Error tracking visitor:', error);
+      }
+    };
+
+    trackVisitor();
+  }, []);
+  
   const handleImageError = (e, fallbackUrl) => {
     console.error("Image failed to load:", e.target.src);
     if (fallbackUrl) {
