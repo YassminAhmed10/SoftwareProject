@@ -590,4 +590,100 @@
   .orders-container {
     padding: 15px;
   }
+} 
+/* Add to existing MyOrders.css or update if already there */
+
+.item-discount-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 8px 0;
+}
+
+.original-price-line {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+
+.discount-amount {
+  font-size: 0.85rem;
+  color: #10b981;
+  font-weight: 600;
+}
+
+/* Remove the old button styles if they exist */
+.item-actions,
+.btn-view-product,
+.btn-add-to-cart {
+  display: none;
+}
+
+/* Ensure proper spacing without buttons */
+.item-details {
+  flex: 1;
+}
+
+.item-total {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #1e293b;
+  min-width: 100px;
+  text-align: right;
+}
+
+/* Update item card layout */
+.order-item-card {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  transition: background 0.3s ease;
+}
+
+.order-item-card:hover {
+  background: #f1f5f9;
+}
+
+.item-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+}
+
+.item-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
+
+.item-subtotal {
+  font-size: 0.95rem;
+  color: #2d3748;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.item-subtotal span {
+  color: #667eea;
+  font-size: 1.1rem;
 }

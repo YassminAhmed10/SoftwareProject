@@ -1,4 +1,4 @@
-// src/pages/ProductPage.jsx - CORRECTED T-SHIRT COLOR (UPDATED)
+// src/pages/ProductPage.jsx - UPDATED WITH EXPORTS
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Heart, Eye, Star, Search, Package, Truck, Shield } from 'lucide-react';
@@ -12,48 +12,8 @@ import hoddieImage from '../assets/hoddie.png';
 import tshirtImage from '../assets/tshirt.png';
 import pinkHoodieImage from '../assets/pinkHoodie.png';
 
-// Local Storage Hook
-const useLocalStorage = (key, initialValue) => {
-  const [storedValue, setStoredValue] = useState(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      if (!item) {
-        if (key === 'ecommerceWishlistItems') {
-          const oldData = window.localStorage.getItem('wishlistItems');
-          if (oldData) {
-            try {
-              const parsedOldData = JSON.parse(oldData);
-              window.localStorage.setItem(key, JSON.stringify(parsedOldData));
-              window.localStorage.removeItem('wishlistItems');
-              return parsedOldData;
-            } catch (e) {
-              console.error('Error migrating old wishlist data:', e);
-            }
-          }
-        }
-        return initialValue;
-      }
-      return JSON.parse(item);
-    } catch (error) {
-      console.error(error);
-      return initialValue;
-    }
-  });
-
-  const setValue = (value) => {
-    try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  return [storedValue, setValue];
-};
-
 // Price configuration by category (in L.E)
-const CATEGORY_PRICES = {
+export const CATEGORY_PRICES = {
   'T-Shirts': {
     basePrice: 400,
     discountPrice: 350,
@@ -77,7 +37,7 @@ const CATEGORY_PRICES = {
 };
 
 // Color mapping for consistent display
-const COLOR_MAP = {
+export const COLOR_MAP = {
   'Black': '#000000',
   'White': '#ffffff',
   'Blue': '#3b82f6',
@@ -89,7 +49,7 @@ const COLOR_MAP = {
 };
 
 // Mock products data - CORRECTED: Classic T-Shirt now has only Navy color
-const mockProducts = [
+export const mockProducts = [
   {
     id: 1,
     name: 'Leather Jacket',
@@ -188,6 +148,55 @@ const mockProducts = [
   },
 ];
 
+// Export utility functions
+export const formatPrice = (price) => {
+  return `${price.toLocaleString()} L.E`;
+};
+
+export const getProductById = (id) => {
+  return mockProducts.find(product => product.id === parseInt(id));
+};
+
+// Local Storage Hook
+const useLocalStorage = (key, initialValue) => {
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      if (!item) {
+        if (key === 'ecommerceWishlistItems') {
+          const oldData = window.localStorage.getItem('wishlistItems');
+          if (oldData) {
+            try {
+              const parsedOldData = JSON.parse(oldData);
+              window.localStorage.setItem(key, JSON.stringify(parsedOldData));
+              window.localStorage.removeItem('wishlistItems');
+              return parsedOldData;
+            } catch (e) {
+              console.error('Error migrating old wishlist data:', e);
+            }
+          }
+        }
+        return initialValue;
+      }
+      return JSON.parse(item);
+    } catch (error) {
+      console.error(error);
+      return initialValue;
+    }
+  });
+
+  const setValue = (value) => {
+    try {
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  return [storedValue, setValue];
+};
+
 // Get all unique colors from products
 const getAllProductColors = () => {
   const allColors = new Set();
@@ -228,11 +237,6 @@ const ProductPage = () => {
       setShowNotification(false);
     }, 3000);
   }, []);
-
-  // Format price in L.E
-  const formatPrice = (price) => {
-    return `${price.toLocaleString()} L.E`;
-  };
 
   // Get color hex code
   const getColorHex = (colorName) => {
@@ -439,6 +443,9 @@ const ProductPage = () => {
           </Link>
           <Link to="/wishlist" className="nav-link">
             <Heart size={18} /> Wishlist ({wishlistItems.length})
+          </Link>
+          <Link to="/my-orders" className="nav-link">
+            📦 My Orders
           </Link>
         </div>
       </div>

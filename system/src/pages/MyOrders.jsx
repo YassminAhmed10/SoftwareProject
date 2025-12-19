@@ -1,95 +1,175 @@
-// src/pages/MyOrders.jsx - UPDATED WITH PROPER IMPORT
-import React, { useState } from "react";
-import { Link } from 'react-router-dom';
+// src/pages/MyOrders.jsx - UPDATED: REMOVED BUTTONS & FIXED CALCULATIONS
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from 'react-router-dom';
 import "./MyOrders.css";
-import ShipmentTracking from "./ShipmentTracking"; // This should work now
+import ShipmentTracking from "./ShipmentTracking";
+import { mockProducts, formatPrice, getProductById } from "./ProductPage";
+import { getCartFromStorage, updateCartInStorage } from "./CartPage";
 
 const MyOrders = () => {
-  const [orders, setOrders] = useState([
-    {
-      id: "ORD-1001",
-      date: "2025-01-12",
-      total: 149.99,
-      status: "shipped",
-      tracking: "TRK93284723EG",
-      items: [
-        { name: "Nike Running Shoes", qty: 1, price: 99.99, image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop" },
-        { name: "Sports Socks", qty: 2, price: 25.00, image: "https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?w=400&h=400&fit=crop" }
-      ],
-      shippingAddress: "123 Main St, New York, NY 10001",
-      paymentMethod: "Visa **** 4242",
-      trackingEvents: [
-        { status: "Order Placed", location: "New York Warehouse", date: "2025-01-12", time: "10:30 AM" },
-        { status: "Confirmed", location: "Processing Center", date: "2025-01-12", time: "2:15 PM" },
-        { status: "Processing", location: "Quality Check", date: "2025-01-13", time: "9:00 AM" },
-        { status: "Shipped", location: "New York Hub", date: "2025-01-14", time: "3:45 PM" },
-        { status: "In Transit", location: "Chicago Distribution", date: "2025-01-15", time: "11:20 AM" }
-      ],
-      estimatedDelivery: "2025-01-18"
-    },
-    {
-      id: "ORD-1002",
-      date: "2025-01-18",
-      total: 89.00,
-      status: "delivered",
-      tracking: "TRK83472311EG",
-      items: [
-        { name: "Blue Hoodie", qty: 1, price: 89.00, image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400&h=400&fit=crop" }
-      ],
-      shippingAddress: "456 Oak Ave, Chicago, IL 60601",
-      paymentMethod: "Mastercard **** 8888",
-      trackingEvents: [
-        { status: "Order Placed", location: "Chicago Warehouse", date: "2025-01-18", time: "2:30 PM" },
-        { status: "Confirmed", location: "Processing Center", date: "2025-01-18", time: "4:45 PM" },
-        { status: "Processing", location: "Quality Check", date: "2025-01-19", time: "10:00 AM" },
-        { status: "Shipped", location: "Chicago Hub", date: "2025-01-19", time: "3:20 PM" },
-        { status: "In Transit", location: "Local Distribution", date: "2025-01-20", time: "9:15 AM" },
-        { status: "Out for Delivery", location: "Your Area", date: "2025-01-20", time: "1:30 PM" },
-        { status: "Delivered", location: "Front Door", date: "2025-01-20", time: "3:45 PM" }
-      ],
-      estimatedDelivery: "2025-01-20"
-    },
-    {
-      id: "ORD-1003",
-      date: "2025-01-22",
-      total: 234.50,
-      status: "processing",
-      tracking: "TRK99283746EG",
-      items: [
-        { name: "Leather Jacket", qty: 1, price: 189.99, image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=400&fit=crop" },
-        { name: "Baseball Cap", qty: 1, price: 24.99, image: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&h=400&fit=crop" },
-        { name: "Sunglasses", qty: 1, price: 19.52, image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop" }
-      ],
-      shippingAddress: "789 Pine Rd, Los Angeles, CA 90001",
-      paymentMethod: "PayPal",
-      trackingEvents: [
-        { status: "Order Placed", location: "LA Warehouse", date: "2025-01-22", time: "11:15 AM" },
-        { status: "Confirmed", location: "Processing Center", date: "2025-01-22", time: "3:00 PM" }
-      ],
-      estimatedDelivery: "2025-01-28"
-    },
-    {
-      id: "ORD-1004",
-      date: "2025-01-25",
-      total: 65.99,
-      status: "pending",
-      tracking: "TRK77482901EG",
-      items: [
-        { name: "White T-Shirt", qty: 2, price: 19.99, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop" },
-        { name: "Jeans", qty: 1, price: 45.99, image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=400&fit=crop" }
-      ],
-      shippingAddress: "321 Maple Blvd, Boston, MA 02101",
-      paymentMethod: "American Express **** 1234",
-      trackingEvents: [
-        { status: "Order Placed", location: "Boston Warehouse", date: "2025-01-25", time: "3:45 PM" }
-      ],
-      estimatedDelivery: "2025-02-01"
-    }
-  ]);
-
+  const navigate = useNavigate();
+  const [orders, setOrders] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [showTracking, setShowTracking] = useState({});
   const [activeFilter, setActiveFilter] = useState("all");
+
+  // Initialize with localStorage data
+  useEffect(() => {
+    // Load orders from localStorage or create sample orders
+    const savedOrders = localStorage.getItem('ecommerceOrders');
+    if (savedOrders) {
+      setOrders(JSON.parse(savedOrders));
+    } else {
+      // Create sample orders based on actual products
+      const sampleOrders = createSampleOrders();
+      setOrders(sampleOrders);
+      localStorage.setItem('ecommerceOrders', JSON.stringify(sampleOrders));
+    }
+
+    // Load cart items
+    setCartItems(getCartFromStorage());
+  }, []);
+
+  // Create sample orders using real product data with correct calculations
+  const createSampleOrders = () => {
+    const getRandomDate = (daysAgo) => {
+      const date = new Date();
+      date.setDate(date.getDate() - daysAgo);
+      return date.toISOString().split('T')[0];
+    };
+
+    const shippingAddresses = [
+      "123 Main St, New York, NY 10001",
+      "456 Oak Ave, Chicago, IL 60601",
+      "789 Pine Rd, Los Angeles, CA 90001",
+      "321 Maple Blvd, Boston, MA 02101"
+    ];
+    const paymentMethods = ["Visa **** 4242", "Mastercard **** 8888", "PayPal", "American Express **** 1234"];
+
+    // Order 1: Leather Jacket + 2 Classic T-Shirts
+    const order1Items = [
+      { 
+        productId: 1, 
+        name: "Leather Jacket", 
+        qty: 1, 
+        price: 700, // discount price
+        basePrice: 800,
+        image: mockProducts[0].image 
+      },
+      { 
+        productId: 2, 
+        name: "Classic T-Shirt", 
+        qty: 2, 
+        price: 350, // discount price
+        basePrice: 400,
+        image: mockProducts[1].image 
+      }
+    ];
+    const order1Subtotal = (700 * 1) + (350 * 2); // 700 + 700 = 1400
+    const order1Tax = order1Subtotal * 0.08; // 112
+    const order1Total = order1Subtotal + order1Tax; // 1512
+
+    // Order 2: Cloud White Hoodie
+    const order2Items = [
+      { 
+        productId: 5, 
+        name: "Cloud White Hoodie", 
+        qty: 1, 
+        price: 550, // discount price
+        basePrice: 600,
+        image: mockProducts[4].image 
+      }
+    ];
+    const order2Subtotal = 550 * 1; // 550
+    const order2Tax = order2Subtotal * 0.08; // 44
+    const order2Total = order2Subtotal + order2Tax; // 594
+
+    // Order 3: Leather Jacket + Rose Zip Hoodie
+    const order3Items = [
+      { 
+        productId: 1, 
+        name: "Leather Jacket", 
+        qty: 1, 
+        price: 700, // discount price
+        basePrice: 800,
+        image: mockProducts[0].image 
+      },
+      { 
+        productId: 6, 
+        name: "Rose Zip Hoodie", 
+        qty: 1, 
+        price: 600, // base price (no discount)
+        basePrice: 600,
+        image: mockProducts[5].image 
+      }
+    ];
+    const order3Subtotal = (700 * 1) + (600 * 1); // 700 + 600 = 1300
+    const order3Tax = order3Subtotal * 0.08; // 104
+    const order3Total = order3Subtotal + order3Tax; // 1404
+
+    return [
+      {
+        id: "ORD-1001",
+        date: getRandomDate(3),
+        subtotal: order1Subtotal,
+        tax: order1Tax,
+        total: order1Total,
+        status: "shipped",
+        tracking: "TRK93284723EG",
+        items: order1Items,
+        shippingAddress: shippingAddresses[0],
+        paymentMethod: paymentMethods[0],
+        trackingEvents: [
+          { status: "Order Placed", location: "New York Warehouse", date: "2025-01-12", time: "10:30 AM" },
+          { status: "Confirmed", location: "Processing Center", date: "2025-01-12", time: "2:15 PM" },
+          { status: "Processing", location: "Quality Check", date: "2025-01-13", time: "9:00 AM" },
+          { status: "Shipped", location: "New York Hub", date: "2025-01-14", time: "3:45 PM" },
+          { status: "In Transit", location: "Chicago Distribution", date: "2025-01-15", time: "11:20 AM" }
+        ],
+        estimatedDelivery: "2025-01-18"
+      },
+      {
+        id: "ORD-1002",
+        date: getRandomDate(7),
+        subtotal: order2Subtotal,
+        tax: order2Tax,
+        total: order2Total,
+        status: "delivered",
+        tracking: "TRK83472311EG",
+        items: order2Items,
+        shippingAddress: shippingAddresses[1],
+        paymentMethod: paymentMethods[1],
+        trackingEvents: [
+          { status: "Order Placed", location: "Chicago Warehouse", date: "2025-01-18", time: "2:30 PM" },
+          { status: "Confirmed", location: "Processing Center", date: "2025-01-18", time: "4:45 PM" },
+          { status: "Processing", location: "Quality Check", date: "2025-01-19", time: "10:00 AM" },
+          { status: "Shipped", location: "Chicago Hub", date: "2025-01-19", time: "3:20 PM" },
+          { status: "In Transit", location: "Local Distribution", date: "2025-01-20", time: "9:15 AM" },
+          { status: "Out for Delivery", location: "Your Area", date: "2025-01-20", time: "1:30 PM" },
+          { status: "Delivered", location: "Front Door", date: "2025-01-20", time: "3:45 PM" }
+        ],
+        estimatedDelivery: "2025-01-20"
+      },
+      {
+        id: "ORD-1003",
+        date: getRandomDate(1),
+        subtotal: order3Subtotal,
+        tax: order3Tax,
+        total: order3Total,
+        status: "processing",
+        tracking: "TRK99283746EG",
+        items: order3Items,
+        shippingAddress: shippingAddresses[2],
+        paymentMethod: paymentMethods[2],
+        trackingEvents: [
+          { status: "Order Placed", location: "LA Warehouse", date: "2025-01-22", time: "11:15 AM" },
+          { status: "Confirmed", location: "Processing Center", date: "2025-01-22", time: "3:00 PM" }
+        ],
+        estimatedDelivery: "2025-01-28"
+      },
+    ];
+  };
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -130,8 +210,41 @@ const MyOrders = () => {
   const handleReorder = (order) => {
     const confirmed = window.confirm(`Add ${order.items.length} item(s) from ${order.id} to your cart?`);
     if (confirmed) {
-      // In a real app, you would add items to cart here
-      alert(`Items from ${order.id} added to cart!`);
+      const updatedCart = [...cartItems];
+      let addedCount = 0;
+
+      order.items.forEach(orderItem => {
+        const product = getProductById(orderItem.productId);
+        if (product && product.inStock) {
+          const defaultSize = product.sizes[0] || 'One Size';
+          const defaultColor = product.colors[0] || 'Default';
+          const itemId = `${product.id}-${defaultSize}-${defaultColor}`;
+
+          const existingItemIndex = updatedCart.findIndex(item => item.itemId === itemId);
+
+          if (existingItemIndex >= 0) {
+            updatedCart[existingItemIndex].quantity += orderItem.qty;
+          } else {
+            updatedCart.push({
+              ...product,
+              itemId,
+              quantity: orderItem.qty,
+              size: defaultSize,
+              color: defaultColor
+            });
+          }
+          addedCount++;
+        }
+      });
+
+      if (addedCount > 0) {
+        setCartItems(updatedCart);
+        updateCartInStorage(updatedCart);
+        alert(`${addedCount} item(s) from ${order.id} added to cart!`);
+        navigate('/cart');
+      } else {
+        alert("No items from this order are currently in stock.");
+      }
     }
   };
 
@@ -240,6 +353,11 @@ const MyOrders = () => {
             >
               View All Orders
             </button>
+            <div style={{ marginTop: '20px' }}>
+              <Link to="/products" className="btn-secondary">
+                🛍️ Shop Now
+              </Link>
+            </div>
           </div>
         ) : (
           filteredOrders.map((order) => {
@@ -272,7 +390,7 @@ const MyOrders = () => {
                       </div>
                       <div className="order-meta">
                         <p className="order-date">Placed {formatDate(order.date)}</p>
-                        <p className="order-total-amount">${order.total.toFixed(2)}</p>
+                        <p className="order-total-amount">{formatPrice(order.total)}</p>
                       </div>
                     </div>
                   </div>
@@ -293,31 +411,42 @@ const MyOrders = () => {
 
                 {/* Order Items */}
                 <div className="order-items-modern">
-                  {order.items.map((item, index) => (
-                    <div className="order-item-card" key={index}>
-                      <img 
-                        src={item.image} 
-                        alt={item.name}
-                        className="item-image"
-                        onError={(e) => {
-                          e.target.src = "https://via.placeholder.com/80x80/e0e0e0/969696?text=No+Image";
-                        }}
-                      />
-                      <div className="item-details">
-                        <h4 className="item-name">{item.name}</h4>
-                        <div className="item-meta">
-                          <span className="item-qty">Quantity: {item.qty}</span>
-                          <span className="item-price">${item.price.toFixed(2)} each</span>
+                  {order.items.map((item, index) => {
+                    const itemTotal = item.price * item.qty;
+                    const hasDiscount = item.basePrice > item.price;
+                    
+                    return (
+                      <div className="order-item-card" key={index}>
+                        <img 
+                          src={item.image} 
+                          alt={item.name}
+                          className="item-image"
+                          onError={(e) => {
+                            e.target.src = "https://via.placeholder.com/80x80/e0e0e0/969696?text=No+Image";
+                          }}
+                        />
+                        <div className="item-details">
+                          <h4 className="item-name">{item.name}</h4>
+                          <div className="item-meta">
+                            <span className="item-qty">Quantity: {item.qty}</span>
+                            <span className="item-price">{formatPrice(item.price)} each</span>
+                          </div>
+                          {hasDiscount && (
+                            <div className="item-discount-info">
+                              <span className="original-price-line">Original: {formatPrice(item.basePrice)}</span>
+                              <span className="discount-amount">Save {formatPrice((item.basePrice - item.price) * item.qty)}</span>
+                            </div>
+                          )}
+                          <div className="item-subtotal">
+                            Subtotal: <span>{formatPrice(itemTotal)}</span>
+                          </div>
                         </div>
-                        <div className="item-subtotal">
-                          Subtotal: <span>${(item.price * item.qty).toFixed(2)}</span>
+                        <div className="item-total">
+                          <span>{formatPrice(itemTotal)}</span>
                         </div>
                       </div>
-                      <div className="item-total">
-                        <span>${(item.price * item.qty).toFixed(2)}</span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* Expanded Details */}
@@ -336,19 +465,19 @@ const MyOrders = () => {
                         <h4>📊 Order Summary</h4>
                         <div className="summary-row">
                           <span>Subtotal:</span>
-                          <span>${order.total.toFixed(2)}</span>
+                          <span>{formatPrice(order.subtotal)}</span>
                         </div>
                         <div className="summary-row">
                           <span>Shipping:</span>
                           <span>Free</span>
                         </div>
                         <div className="summary-row">
-                          <span>Tax:</span>
-                          <span>${(order.total * 0.08).toFixed(2)}</span>
+                          <span>Tax (8%):</span>
+                          <span>{formatPrice(order.tax)}</span>
                         </div>
                         <div className="summary-row total">
                           <span>Total:</span>
-                          <span>${(order.total * 1.08).toFixed(2)}</span>
+                          <span>{formatPrice(order.total)}</span>
                         </div>
                       </div>
                     </div>
@@ -384,7 +513,7 @@ const MyOrders = () => {
                         className="btn-secondary"
                         onClick={() => handleReorder(order)}
                       >
-                        🔄 Reorder
+                        🔄 Reorder All
                       </button>
                     )}
                     {(order.status === "pending" || order.status === "processing") && (

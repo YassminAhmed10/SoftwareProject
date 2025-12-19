@@ -1,26 +1,34 @@
-// src/pages/CartPage.jsx - UPDATED WITH L.E CURRENCY
+// src/pages/CartPage.jsx - UPDATED WITH EXPORTS
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Heart, ArrowLeft, Trash2, Plus, Minus, Tag, Truck, Shield, CreditCard } from 'lucide-react';
 import './CartPage.css';
 
+// Export utility function for formatting price
+export const formatPrice = (price) => {
+  return `${price.toLocaleString()} L.E`;
+};
+
+// Export function to get cart from localStorage
+export const getCartFromStorage = () => {
+  const savedCart = localStorage.getItem('ecommerceCartItems');
+  return savedCart ? JSON.parse(savedCart) : [];
+};
+
+// Export function to update cart in localStorage
+export const updateCartInStorage = (cartItems) => {
+  localStorage.setItem('ecommerceCartItems', JSON.stringify(cartItems));
+};
+
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState(() => {
-    const savedCart = localStorage.getItem('ecommerceCartItems');
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
+  const [cartItems, setCartItems] = useState(() => getCartFromStorage());
   const [couponCode, setCouponCode] = useState('');
   const [shippingMethod, setShippingMethod] = useState('free');
 
   // Sync with LocalStorage
   useEffect(() => {
-    localStorage.setItem('ecommerceCartItems', JSON.stringify(cartItems));
+    updateCartInStorage(cartItems);
   }, [cartItems]);
-
-  // Format price in L.E
-  const formatPrice = (price) => {
-    return `${price.toLocaleString()} L.E`;
-  };
 
   // Calculations
   const subtotal = cartItems.reduce((sum, item) => {
@@ -66,6 +74,9 @@ const CartPage = () => {
           </Link>
           <Link to="/wishlist" className="nav-link">
             <Heart size={18} /> Wishlist
+          </Link>
+          <Link to="/my-orders" className="nav-link">
+            📦 My Orders
           </Link>
         </div>
 
