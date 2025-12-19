@@ -1,3 +1,4 @@
+// src/components/Settings/Settings.jsx
 import React, { useState, useEffect } from 'react';
 import { User, MapPin, Save, Check, Plus, Trash2, Star } from 'lucide-react';
 import './Settings.css';
@@ -278,25 +279,46 @@ const Settings = () => {
                 <h2>My Profile</h2>
                 <p className="section-description">Manage your personal information and account details</p>
               </div>
-              <div className="save-status">
-                {saveStatus.profile === 'saving' && (
-                  <span className="saving-indicator">Saving...</span>
-                )}
-                {saveStatus.profile === 'saved' && (
-                  <span className="saved-indicator">
-                    <Check size={16} /> Saved!
-                  </span>
-                )}
-              </div>
             </div>
             
-            <div className="profile-card">
-              <div className="profile-avatar">
-                <div className="avatar-initial">
-                  {adminProfile.name?.charAt(0) || 'U'}
+            <div className="profile-section">
+              {/* Profile Avatar & Info */}
+              <div className="profile-header">
+                <div className="profile-avatar-large">
+                  <div className="avatar-initial">
+                    {adminProfile.name?.charAt(0) || 'U'}
+                  </div>
+                </div>
+                <div className="profile-summary">
+                  <h3>{adminProfile.name}</h3>
+                  <p className="email">{adminProfile.email}</p>
+                  <div className="profile-meta">
+                    <span className="meta-item">
+                      <strong>Member Since:</strong> {adminProfile.memberSince}
+                    </span>
+                    <span className="meta-item">
+                      <strong>Tier:</strong> <span className="tier-badge">{adminProfile.tier} Member</span>
+                    </span>
+                  </div>
                 </div>
               </div>
-              <div className="profile-form">
+
+              {/* Profile Form */}
+              <div className="profile-form-container">
+                <div className="form-header">
+                  <h4>Personal Information</h4>
+                  <div className="save-status">
+                    {saveStatus.profile === 'saving' && (
+                      <span className="saving-indicator">Saving...</span>
+                    )}
+                    {saveStatus.profile === 'saved' && (
+                      <span className="saved-indicator">
+                        <Check size={16} /> Saved!
+                      </span>
+                    )}
+                  </div>
+                </div>
+                
                 <form onSubmit={(e) => { e.preventDefault(); handleProfileUpdate(); }}>
                   <div className="form-row">
                     <div className="form-group">
@@ -339,28 +361,10 @@ const Settings = () => {
                       />
                     </div>
                     <div className="form-group">
-                      <label>Member Since</label>
-                      <input
-                        type="text"
-                        value={adminProfile.memberSince}
-                        disabled
-                        className="form-input disabled-input"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-row">
-                    <div className="form-group">
                       <label>Loyalty Points</label>
-                      <div className="points-display">
-                        <span className="points-value">{adminProfile.loyaltyPoints}</span>
-                        <span className="points-label">Points</span>
-                      </div>
-                    </div>
-                    <div className="form-group">
-                      <label>Tier</label>
-                      <div className="tier-badge">
-                        {adminProfile.tier} Member
+                      <div className="loyalty-display">
+                        <span className="loyalty-value">{adminProfile.loyaltyPoints}</span>
+                        <span className="loyalty-label">Points</span>
                       </div>
                     </div>
                   </div>
@@ -385,16 +389,6 @@ const Settings = () => {
               <div>
                 <h2>My Addresses</h2>
                 <p className="section-description">Manage your shipping and billing addresses</p>
-              </div>
-              <div className="save-status">
-                {saveStatus.address === 'saving' && (
-                  <span className="saving-indicator">Saving...</span>
-                )}
-                {saveStatus.address === 'saved' && (
-                  <span className="saved-indicator">
-                    <Check size={16} /> Saved!
-                  </span>
-                )}
               </div>
             </div>
             

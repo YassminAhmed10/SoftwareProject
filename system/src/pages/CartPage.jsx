@@ -1,5 +1,5 @@
-// src/pages/CartPage.jsx - UPDATED WITH NO EMPTY SPACE
-import React, { useState } from 'react';
+// src/pages/CartPage.jsx - UPDATED WITH L.E CURRENCY
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Heart, ArrowLeft, Trash2, Plus, Minus, Tag, Truck, Shield, CreditCard } from 'lucide-react';
 import './CartPage.css';
@@ -12,22 +12,33 @@ const CartPage = () => {
   const [couponCode, setCouponCode] = useState('');
   const [shippingMethod, setShippingMethod] = useState('free');
 
-  // Calculate totals
+  // Sync with LocalStorage
+  useEffect(() => {
+    localStorage.setItem('ecommerceCartItems', JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  // Format price in L.E
+  const formatPrice = (price) => {
+    return `${price.toLocaleString()} L.E`;
+  };
+
+  // Get the actual price (use basePrice instead of price)
+  const getProductPrice = (item) => {
+    return item.discountPrice || item.basePrice || item.price || 0;
+  };
+
+  // Calculations
   const subtotal = cartItems.reduce((sum, item) => {
-    const price = item.discountPrice || item.price;
+    const price = getProductPrice(item);
     return sum + (price * (item.quantity || 1));
   }, 0);
 
-  const shippingCost = shippingMethod === 'express' ? 15.99 : shippingMethod === 'standard' ? 7.99 : 0;
+  const shippingCost = shippingMethod === 'express' ? 60 : shippingMethod === 'standard' ? 30 : 0;
   const tax = subtotal * 0.08; // 8% tax
   const total = subtotal + shippingCost + tax;
 
   const updateQuantity = (itemId, newQuantity) => {
-    if (newQuantity < 1) {
-      removeItem(itemId);
-      return;
-    }
-    
+    if (newQuantity < 1) return;
     setCartItems(cartItems.map(item => 
       item.itemId === itemId ? { ...item, quantity: newQuantity } : item
     ));
@@ -38,27 +49,13 @@ const CartPage = () => {
   };
 
   const clearCart = () => {
-    setCartItems([]);
-    localStorage.removeItem('ecommerceCartItems');
-  };
-
-  const applyCoupon = () => {
-    if (couponCode.toUpperCase() === 'SAVE10') {
-      alert('Coupon applied! You saved 10%!');
-      setCouponCode('');
-    } else {
-      alert('Invalid coupon code. Try "SAVE10"');
+    if(window.confirm("Are you sure you want to clear your cart?")) {
+      setCartItems([]);
     }
   };
 
-  // Save cart to localStorage whenever it changes
-  React.useEffect(() => {
-    localStorage.setItem('ecommerceCartItems', JSON.stringify(cartItems));
-  }, [cartItems]);
-
   return (
     <div className="cart-page">
-      {/* Header */}
       <header className="cart-header">
         <div className="container">
           <h1><ShoppingCart size={32} /> Shopping Cart</h1>
@@ -66,9 +63,7 @@ const CartPage = () => {
         </div>
       </header>
 
-      {/* Main Content with centered container */}
       <div className="main-cart-content">
-        {/* Navigation */}
         <div className="simple-nav">
           <Link to="/products" className="nav-link">All Products</Link>
           <Link to="/cart" className="nav-link active">
@@ -83,106 +78,78 @@ const CartPage = () => {
         {cartItems.length === 0 ? (
           <div className="empty-cart">
             <div className="empty-cart-content">
-              <div className="empty-cart-icon">
-                <ShoppingCart size={64} />
-              </div>
+              <ShoppingCart size={64} className="empty-cart-icon" />
               <h3>Your cart is empty</h3>
-              <p>Looks like you haven't added any items yet</p>
-              <div className="empty-cart-actions">
-                <Link to="/products" className="continue-shopping-btn">
-                  <ArrowLeft size={18} /> Continue Shopping
-                </Link>
-                <Link to="/wishlist" className="view-wishlist-btn">
-                  <Heart size={18} /> View Wishlist
-                </Link>
-              </div>
+              <p>Looks like you haven't added anything yet!</p>
+              <Link to="/products" className="continue-shopping-btn">
+                <ArrowLeft size={18} /> Start Shopping
+              </Link>
             </div>
           </div>
         ) : (
           <div className="cart-layout">
-            {/* Cart Items Column - No empty space */}
             <div className="cart-items-column">
               <div className="cart-section-header">
-                <h2>Your Cart ({cartItems.length} item{cartItems.length !== 1 ? 's' : ''})</h2>
-                <div className="cart-header-actions">
-                  <button className="clear-cart-btn" onClick={clearCart}>
-                    <Trash2 size={16} /> Clear Cart
-                  </button>
-                  <Link to="/products" className="continue-shopping-link">
-                    <ArrowLeft size={16} /> Continue Shopping
-                  </Link>
-                </div>
+                <h2>Items ({cartItems.length})</h2>
+                <button className="clear-cart-btn" onClick={clearCart}>
+                  <Trash2 size={16} /> Clear
+                </button>
               </div>
 
               <div className="cart-items-list">
                 {cartItems.map(item => {
-                  const itemPrice = item.discountPrice || item.price;
+                  const itemPrice = getProductPrice(item);
                   const itemTotal = itemPrice * (item.quantity || 1);
                   
                   return (
                     <div key={item.itemId} className="cart-item-card">
                       <div className="cart-item-image">
                         <img src={item.image} alt={item.name} />
-                        {item.discountPrice && (
-                          <span className="cart-item-discount">
-                            -{Math.round(((item.price - item.discountPrice) / item.price) * 100)}%
-                          </span>
+                        {item.discountPrice && item.basePrice && (
+                          <div className="cart-item-discount">
+                            -{Math.round(((item.basePrice - item.discountPrice) / item.basePrice) * 100)}%
+                          </div>
                         )}
                       </div>
-                      
                       <div className="cart-item-info">
                         <div className="item-header">
                           <h3>{item.name}</h3>
-                          <button 
-                            className="remove-item-btn"
-                            onClick={() => removeItem(item.itemId)}
-                            title="Remove item"
-                          >
+                          <button onClick={() => removeItem(item.itemId)} className="remove-item-btn">
                             <Trash2 size={16} />
                           </button>
                         </div>
                         <p className="item-description">{item.description}</p>
-                        
                         <div className="item-attributes">
-                          <span className="attribute">
-                            Size: <strong>{item.selectedSize || item.sizes?.[0] || 'M'}</strong>
-                          </span>
-                          <span className="attribute">
-                            Color: <strong>{item.selectedColor || item.colors?.[0] || 'Default'}</strong>
-                          </span>
-                          <span className={`stock-status ${item.inStock ? 'in-stock' : 'out-of-stock'}`}>
-                            {item.inStock ? '✓ In Stock' : 'Out of Stock'}
-                          </span>
+                          <span className="attribute">Size: {item.size || 'M'}</span>
+                          <span className="attribute">Color: {item.color || 'Default'}</span>
                         </div>
-
+                        <div className="stock-status in-stock">In Stock</div>
                         <div className="quantity-controls">
                           <button 
-                            className="quantity-btn"
+                            className="quantity-btn" 
                             onClick={() => updateQuantity(item.itemId, (item.quantity || 1) - 1)}
-                            disabled={(item.quantity || 1) <= 1}
                           >
                             <Minus size={14} />
                           </button>
                           <span className="quantity-display">{item.quantity || 1}</span>
                           <button 
-                            className="quantity-btn"
+                            className="quantity-btn" 
                             onClick={() => updateQuantity(item.itemId, (item.quantity || 1) + 1)}
                           >
                             <Plus size={14} />
                           </button>
                         </div>
                       </div>
-
                       <div className="cart-item-pricing">
                         <div className="price-info">
-                          <span className="current-price">${itemPrice.toFixed(2)}</span>
-                          {item.discountPrice && (
-                            <span className="original-price">${item.price.toFixed(2)}</span>
+                          <span className="current-price">{formatPrice(itemTotal)}</span>
+                          {item.discountPrice && item.basePrice && (
+                            <span className="original-price">{formatPrice(item.basePrice * (item.quantity || 1))}</span>
                           )}
                         </div>
-                        <p className="item-total">
-                          Total: <strong>${itemTotal.toFixed(2)}</strong>
-                        </p>
+                        <div className="item-total">
+                          {item.quantity || 1} × {formatPrice(itemPrice)}
+                        </div>
                       </div>
                     </div>
                   );
@@ -190,15 +157,13 @@ const CartPage = () => {
               </div>
             </div>
 
-            {/* Order Summary Column - Compact and right next to items */}
-            <div className="order-summary-column">
+            <aside className="order-summary-column">
               <div className="order-summary-card">
-                <h2>Order Summary</h2>
+                <h2>Summary</h2>
                 
                 {/* Coupon Section */}
                 <div className="coupon-section">
                   <div className="coupon-input-group">
-                    <Tag size={18} />
                     <input
                       type="text"
                       placeholder="Enter coupon code"
@@ -206,18 +171,18 @@ const CartPage = () => {
                       onChange={(e) => setCouponCode(e.target.value)}
                       className="coupon-input"
                     />
-                    <button className="apply-coupon-btn" onClick={applyCoupon}>
-                      Apply
+                    <button className="apply-coupon-btn">
+                      <Tag size={16} /> Apply
                     </button>
                   </div>
-                  <p className="coupon-hint">Try code: <strong>SAVE10</strong></p>
+                  <p className="coupon-hint">Try: SAVE10 for 10% off</p>
                 </div>
 
                 {/* Shipping Section */}
                 <div className="shipping-section">
-                  <h3><Truck size={20} /> Shipping</h3>
+                  <h3><Truck size={18} /> Shipping</h3>
                   <div className="shipping-options">
-                    <label className="shipping-option">
+                    <label className={`shipping-option ${shippingMethod === 'free' ? 'selected' : ''}`}>
                       <input
                         type="radio"
                         name="shipping"
@@ -229,9 +194,9 @@ const CartPage = () => {
                         <strong>Free Shipping</strong>
                         <span>5-7 business days</span>
                       </div>
-                      <span className="shipping-price">$0.00</span>
+                      <span className="shipping-price">{formatPrice(0)}</span>
                     </label>
-                    <label className="shipping-option">
+                    <label className={`shipping-option ${shippingMethod === 'standard' ? 'selected' : ''}`}>
                       <input
                         type="radio"
                         name="shipping"
@@ -240,12 +205,12 @@ const CartPage = () => {
                         onChange={(e) => setShippingMethod(e.target.value)}
                       />
                       <div>
-                        <strong>Standard</strong>
+                        <strong>Standard Shipping</strong>
                         <span>3-5 business days</span>
                       </div>
-                      <span className="shipping-price">$7.99</span>
+                      <span className="shipping-price">{formatPrice(30)}</span>
                     </label>
-                    <label className="shipping-option">
+                    <label className={`shipping-option ${shippingMethod === 'express' ? 'selected' : ''}`}>
                       <input
                         type="radio"
                         name="shipping"
@@ -254,50 +219,51 @@ const CartPage = () => {
                         onChange={(e) => setShippingMethod(e.target.value)}
                       />
                       <div>
-                        <strong>Express</strong>
+                        <strong>Express Shipping</strong>
                         <span>1-2 business days</span>
                       </div>
-                      <span className="shipping-price">$15.99</span>
+                      <span className="shipping-price">{formatPrice(60)}</span>
                     </label>
                   </div>
                 </div>
 
-                {/* Summary Details - Compact */}
+                {/* Summary Details */}
                 <div className="summary-details">
                   <div className="summary-row">
                     <span>Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>{formatPrice(subtotal)}</span>
                   </div>
                   <div className="summary-row">
                     <span>Shipping</span>
-                    <span>${shippingCost.toFixed(2)}</span>
+                    <span>{formatPrice(shippingCost)}</span>
                   </div>
                   <div className="summary-row">
                     <span>Tax (8%)</span>
-                    <span>${tax.toFixed(2)}</span>
+                    <span>{formatPrice(tax)}</span>
                   </div>
                   <div className="summary-row total">
-                    <span><strong>Total</strong></span>
-                    <span><strong>${total.toFixed(2)}</strong></span>
+                    <span>Total</span>
+                    <span>{formatPrice(total)}</span>
                   </div>
                 </div>
 
                 <button className="checkout-btn">
-                  <CreditCard size={20} /> Proceed to Checkout
+                  <CreditCard size={20} /> Checkout
                 </button>
 
+                {/* Security Guarantee */}
                 <div className="security-guarantee">
                   <div className="security-item">
-                    <Shield size={16} />
+                    <Shield size={20} color="#667eea" />
                     <span>Secure Payment</span>
                   </div>
                   <div className="security-item">
-                    <Truck size={16} />
-                    <span>Free Returns</span>
+                    <Truck size={20} color="#667eea" />
+                    <span>Free Shipping</span>
                   </div>
                   <div className="security-item">
-                    <Tag size={16} />
-                    <span>Price Match</span>
+                    <Tag size={20} color="#667eea" />
+                    <span>30-Day Returns</span>
                   </div>
                 </div>
 
@@ -310,7 +276,7 @@ const CartPage = () => {
                   </Link>
                 </div>
               </div>
-            </div>
+            </aside>
           </div>
         )}
       </div>

@@ -43,7 +43,7 @@ const Layout = ({ children }) => {
   ];
 
   const isActive = (path) => {
-    return location.pathname === path;
+    return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
   // Group items by section

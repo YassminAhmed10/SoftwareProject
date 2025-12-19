@@ -1,15 +1,32 @@
-// src/pages/WishlistPage.jsx - UPDATED TO SYNC WITH LOCAL STORAGE
+// src/pages/WishlistPage.jsx - COMPLETELY UPDATED TO SYNC WITH PRODUCTPAGE
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, ShoppingCart, Eye, Trash2, Package, Tag, AlertCircle, ChevronRight, Star } from 'lucide-react';
+import { Heart, ShoppingCart, Eye, Trash2, Package, Tag, AlertCircle, ChevronRight, Star, Truck, Shield, CreditCard } from 'lucide-react';
 import './WishlistPage.css';
 
-// Local Storage Hook
+// Local Storage Hook - Same as ProductPage
 const useLocalStorage = (key, initialValue) => {
   const [storedValue, setStoredValue] = useState(() => {
     try {
       const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      if (!item) {
+        // Check for old wishlist data migration
+        if (key === 'ecommerceWishlistItems') {
+          const oldData = window.localStorage.getItem('wishlistItems');
+          if (oldData) {
+            try {
+              const parsedOldData = JSON.parse(oldData);
+              window.localStorage.setItem(key, JSON.stringify(parsedOldData));
+              window.localStorage.removeItem('wishlistItems');
+              return parsedOldData;
+            } catch (e) {
+              console.error('Error migrating old wishlist data:', e);
+            }
+          }
+        }
+        return initialValue;
+      }
+      return JSON.parse(item);
     } catch (error) {
       console.error(error);
       return initialValue;
@@ -29,81 +46,47 @@ const useLocalStorage = (key, initialValue) => {
   return [storedValue, setValue];
 };
 
-const WishlistPage = () => {
-  // Get wishlist items from localStorage with fallback to initial data
-  const [wishlistItems, setWishlistItems] = useLocalStorage('ecommerceWishlistItems', [
-    {
-      id: 1,
-      name: 'Premium Denim Jacket',
-      description: 'High-quality denim jacket with premium finish',
-      price: 89.99,
-      discountPrice: 79.99,
-      category: 'Jackets',
-      sizes: ['S', 'M', 'L', 'XL'],
-      colors: ['Blue', 'Black'],
-      image: 'https://images.unsplash.com/photo-1521223890158-f9f7c3d5d504?w=400&h=400&fit=crop',
-      rating: 4.5,
-      reviewCount: 128,
-      inStock: true,
-      isNew: true,
-      addedDate: '2025-01-15'
-    },
-    {
-      id: 2,
-      name: 'Classic White T-Shirt',
-      description: '100% cotton comfortable t-shirt for everyday wear',
-      price: 24.99,
-      discountPrice: 19.99,
-      category: 'T-Shirts',
-      sizes: ['XS', 'S', 'M', 'L', 'XL'],
-      colors: ['White', 'Black', 'Gray'],
-      image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop',
-      rating: 4.2,
-      reviewCount: 89,
-      inStock: true,
-      isNew: false,
-      addedDate: '2025-01-10'
-    },
-    {
-      id: 3,
-      name: 'Leather Boots',
-      description: 'Premium leather boots for all seasons',
-      price: 129.99,
-      discountPrice: null,
-      category: 'Shoes',
-      sizes: ['40', '41', '42', '43'],
-      colors: ['Black', 'Brown'],
-      image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400&h=400&fit=crop',
-      rating: 4.8,
-      reviewCount: 56,
-      inStock: false,
-      isNew: true,
-      addedDate: '2025-01-05'
-    },
-    {
-      id: 4,
-      name: 'Wool Scarf',
-      description: 'Warm wool scarf for winter season',
-      price: 34.99,
-      discountPrice: 29.99,
-      category: 'Accessories',
-      sizes: ['One Size'],
-      colors: ['Gray', 'Navy', 'Burgundy'],
-      image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400&h=400&fit=crop',
-      rating: 4.4,
-      reviewCount: 42,
-      inStock: true,
-      isNew: false,
-      addedDate: '2024-12-20'
-    }
-  ]);
+// Format price in L.E - Same as ProductPage
+const formatPrice = (price) => {
+  return `${price.toLocaleString()} L.E`;
+};
 
+// Price configuration by category (in L.E) - Same as ProductPage
+const CATEGORY_PRICES = {
+  'T-Shirts': {
+    basePrice: 400,
+    discountPrice: 350,
+    discountPercentage: 12
+  },
+  'Hoodies': {
+    basePrice: 600,
+    discountPrice: 550,
+    discountPercentage: 8
+  },
+  'Jackets': {
+    basePrice: 800,
+    discountPrice: 700,
+    discountPercentage: 12
+  },
+  'Sweaters': {
+    basePrice: 550,
+    discountPrice: 500,
+    discountPercentage: 9
+  }
+};
+
+const WishlistPage = () => {
+  // Get wishlist items from localStorage - same key as ProductPage
+  const [wishlistItems, setWishlistItems] = useLocalStorage('ecommerceWishlistItems', []);
+  const [cartItems, setCartItems] = useLocalStorage('ecommerceCartItems', []);
+  
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState('recent');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [notification, setNotification] = useState(null);
+  const [movedItems, setMovedItems] = useState([]);
 
-  // Get unique categories
+  // Get unique categories from wishlist items
   const categories = ['all', ...new Set(wishlistItems.map(item => item.category))];
 
   // Filter and sort wishlist items
@@ -112,67 +95,99 @@ const WishlistPage = () => {
     .sort((a, b) => {
       switch (sortBy) {
         case 'price-low':
-          return (a.discountPrice || a.price) - (b.discountPrice || b.price);
+          return (a.discountPrice || a.basePrice || a.price || 0) - 
+                 (b.discountPrice || b.basePrice || b.price || 0);
         case 'price-high':
-          return (b.discountPrice || b.price) - (a.discountPrice || a.price);
+          return (b.discountPrice || b.basePrice || b.price || 0) - 
+                 (a.discountPrice || a.basePrice || a.price || 0);
         case 'rating':
-          return b.rating - a.rating;
+          return (b.rating || 0) - (a.rating || 0);
         case 'name':
           return a.name.localeCompare(b.name);
         default: // recent
-          return new Date(b.addedDate) - new Date(a.addedDate);
+          return new Date(b.addedDate || 0) - new Date(a.addedDate || 0);
       }
     });
 
-  // Remove item from wishlist - UPDATED
+  // Remove item from wishlist
   const removeFromWishlist = (id) => {
-    setWishlistItems(prev => prev.filter(item => item.id !== id));
-    showNotification('Item removed from wishlist');
-    
-    // Also update localStorage to remove item from all tabs
-    const currentWishlist = JSON.parse(localStorage.getItem('ecommerceWishlistItems') || '[]');
-    const updatedWishlist = currentWishlist.filter(item => item.id !== id);
-    localStorage.setItem('ecommerceWishlistItems', JSON.stringify(updatedWishlist));
-  };
-
-  // Move all to cart
-  const moveAllToCart = () => {
-    const inStockItems = wishlistItems.filter(item => item.inStock);
-    // Here you would add to cart logic
-    showNotification(`${inStockItems.length} items moved to cart`);
+    const itemToRemove = wishlistItems.find(item => item.id === id);
+    if (itemToRemove) {
+      setWishlistItems(prev => prev.filter(item => item.id !== id));
+      showNotification(`${itemToRemove.name} removed from wishlist`, 'success');
+    }
   };
 
   // Add single item to cart
   const addToCart = (item) => {
     if (!item.inStock) {
-      showNotification('This item is out of stock', 'error');
+      showNotification('This item is currently out of stock', 'error');
       return;
     }
-    
-    // Add to cart logic
-    const cartItems = JSON.parse(localStorage.getItem('ecommerceCartItems') || '[]');
-    const defaultSize = item.sizes[0] || 'One Size';
-    const defaultColor = item.colors[0] || 'Default';
+
+    const defaultSize = item.sizes?.[0] || 'M';
+    const defaultColor = item.colors?.[0] || 'Default';
     const itemId = `${item.id}-${defaultSize}-${defaultColor}`;
+
+    setCartItems(prevCart => {
+      const existingItemIndex = prevCart.findIndex(cartItem => cartItem.itemId === itemId);
+
+      if (existingItemIndex >= 0) {
+        const updatedCart = [...prevCart];
+        updatedCart[existingItemIndex].quantity += 1;
+        showNotification(`${item.name} quantity updated in cart!`, 'success');
+        return updatedCart;
+      } else {
+        showNotification(`${item.name} added to cart!`, 'success');
+        return [...prevCart, {
+          ...item,
+          itemId,
+          quantity: 1,
+          size: defaultSize,
+          color: defaultColor
+        }];
+      }
+    });
+  };
+
+  // Move all to cart
+  const moveAllToCart = () => {
+    const inStockItems = wishlistItems.filter(item => item.inStock);
     
-    const existingItemIndex = cartItems.findIndex(cartItem => cartItem.itemId === itemId);
-    
-    let updatedCart;
-    if (existingItemIndex >= 0) {
-      updatedCart = [...cartItems];
-      updatedCart[existingItemIndex].quantity += 1;
-    } else {
-      updatedCart = [...cartItems, {
-        ...item,
-        itemId,
-        quantity: 1,
-        size: defaultSize,
-        color: defaultColor
-      }];
+    if (inStockItems.length === 0) {
+      showNotification('No in-stock items to move to cart', 'error');
+      return;
     }
+
+    // Track moved items to prevent duplicates
+    const newMovedItems = [...movedItems];
+    const updatedCart = [...cartItems];
     
-    localStorage.setItem('ecommerceCartItems', JSON.stringify(updatedCart));
-    showNotification('Item added to cart');
+    inStockItems.forEach(item => {
+      const defaultSize = item.sizes?.[0] || 'M';
+      const defaultColor = item.colors?.[0] || 'Default';
+      const itemId = `${item.id}-${defaultSize}-${defaultColor}`;
+      
+      const existingItemIndex = updatedCart.findIndex(cartItem => cartItem.itemId === itemId);
+      
+      if (existingItemIndex >= 0) {
+        updatedCart[existingItemIndex].quantity += 1;
+      } else {
+        updatedCart.push({
+          ...item,
+          itemId,
+          quantity: 1,
+          size: defaultSize,
+          color: defaultColor
+        });
+      }
+      
+      newMovedItems.push(item.id);
+    });
+
+    setCartItems(updatedCart);
+    setMovedItems(newMovedItems);
+    showNotification(`${inStockItems.length} items moved to cart!`, 'success');
   };
 
   // Show notification
@@ -185,7 +200,67 @@ const WishlistPage = () => {
   const totalItems = wishlistItems.length;
   const inStockItems = wishlistItems.filter(item => item.inStock).length;
   const totalValue = wishlistItems.reduce((sum, item) => 
-    sum + (item.discountPrice || item.price), 0);
+    sum + (item.discountPrice || item.basePrice || item.price || 0), 0);
+
+  // Check if item is in cart
+  const isInCart = (item) => {
+    const defaultSize = item.sizes?.[0] || 'M';
+    const defaultColor = item.colors?.[0] || 'Default';
+    const itemId = `${item.id}-${defaultSize}-${defaultColor}`;
+    return cartItems.some(cartItem => cartItem.itemId === itemId);
+  };
+
+  // Handle empty wishlist
+  if (wishlistItems.length === 0) {
+    return (
+      <div className="wishlist-page">
+        <header className="wishlist-header">
+          <div className="container">
+            <h1><Heart size={32} /> My Wishlist</h1>
+            <p>Save your favorite items for later</p>
+          </div>
+        </header>
+
+        {notification && (
+          <div className={`notification ${notification.type}`}>
+            {notification.message}
+          </div>
+        )}
+
+        <div className="container">
+          <div className="empty-wishlist">
+            <div className="empty-content">
+              <Heart size={64} className="empty-icon" />
+              <h2>Your wishlist is empty</h2>
+              <p>Save items you love by clicking the heart icon on any product</p>
+              <Link to="/products" className="browse-products-btn">
+                Browse Products
+              </Link>
+            </div>
+          </div>
+
+          {/* Features Section */}
+          <div className="features-section">
+            <div className="feature">
+              <Truck size={24} />
+              <h4>Free Shipping</h4>
+              <p>On orders over 500 L.E</p>
+            </div>
+            <div className="feature">
+              <Package size={24} />
+              <h4>Easy Returns</h4>
+              <p>30-day return policy</p>
+            </div>
+            <div className="feature">
+              <Shield size={24} />
+              <h4>Secure Payment</h4>
+              <p>100% secure & encrypted</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="wishlist-page">
@@ -232,7 +307,7 @@ const WishlistPage = () => {
               <Tag size={24} />
             </div>
             <div className="stat-content">
-              <span className="stat-value">${totalValue.toFixed(2)}</span>
+              <span className="stat-value">{formatPrice(totalValue)}</span>
               <span className="stat-label">Total Value</span>
             </div>
           </div>
@@ -250,7 +325,7 @@ const WishlistPage = () => {
               >
                 {categories.map(category => (
                   <option key={category} value={category}>
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                    {category === 'all' ? 'All Categories' : category}
                   </option>
                 ))}
               </select>
@@ -289,146 +364,139 @@ const WishlistPage = () => {
           </div>
         </div>
 
-        {/* Empty Wishlist State */}
-        {filteredItems.length === 0 ? (
-          <div className="empty-wishlist">
-            <div className="empty-content">
-              <Heart size={64} className="empty-icon" />
-              <h2>Your wishlist is empty</h2>
-              <p>Save items you love by clicking the heart icon</p>
-              <Link to="/products" className="browse-products-btn">
-                Browse Products
-              </Link>
-            </div>
-          </div>
-        ) : (
-          /* Wishlist Grid */
-          <div className="wishlist-grid">
-            {filteredItems.map(item => {
-              const discountPercentage = item.discountPrice 
-                ? Math.round(((item.price - item.discountPrice) / item.price) * 100)
-                : 0;
+        {/* Wishlist Grid */}
+        <div className="wishlist-grid">
+          {filteredItems.map(item => {
+            const discountPercentage = item.discountPrice && item.basePrice
+              ? Math.round(((item.basePrice - item.discountPrice) / item.basePrice) * 100)
+              : 0;
+            
+            const inCart = isInCart(item);
 
-              return (
-                <div key={item.id} className="wishlist-item-card">
-                  {/* Product Image */}
-                  <div className="wishlist-item-image">
-                    <Link to={`/product/${item.id}`}>
-                      <img src={item.image} alt={item.name} />
-                    </Link>
-                    
-                    {/* Badges */}
-                    <div className="item-badges">
-                      {item.discountPrice && (
-                        <span className="discount-badge">-{discountPercentage}%</span>
-                      )}
-                      {item.isNew && (
-                        <span className="new-badge">NEW</span>
-                      )}
-                      {!item.inStock && (
-                        <span className="out-of-stock-badge">OUT OF STOCK</span>
-                      )}
-                    </div>
-
-                    {/* Quick Actions */}
-                    <div className="item-actions">
-                      <button 
-                        onClick={() => removeFromWishlist(item.id)}
-                        className="remove-btn"
-                        aria-label="Remove from wishlist"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                      
-                      <Link 
-                        to={`/product/${item.id}`}
-                        className="view-btn"
-                        aria-label="View details"
-                      >
-                        <Eye size={18} />
-                      </Link>
-                    </div>
+            return (
+              <div key={item.id} className="wishlist-item-card">
+                {/* Product Image */}
+                <div className="wishlist-item-image">
+                  <Link to={`/product/${item.id}`}>
+                    <img src={item.image} alt={item.name} onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://via.placeholder.com/400x300/cccccc/ffffff?text=No+Image";
+                    }} />
+                  </Link>
+                  
+                  {/* Badges */}
+                  <div className="item-badges">
+                    {item.discountPrice && item.basePrice && discountPercentage > 0 && (
+                      <span className="discount-badge">-{discountPercentage}%</span>
+                    )}
+                    {item.isNew && (
+                      <span className="new-badge">NEW</span>
+                    )}
+                    {!item.inStock && (
+                      <span className="out-of-stock-badge">OUT OF STOCK</span>
+                    )}
                   </div>
 
-                  {/* Product Info */}
-                  <div className="wishlist-item-info">
-                    {/* Category */}
-                    <span className="item-category">{item.category}</span>
+                  {/* Quick Actions */}
+                  <div className="item-actions">
+                    <button 
+                      onClick={() => removeFromWishlist(item.id)}
+                      className="remove-btn"
+                      aria-label="Remove from wishlist"
+                    >
+                      <Trash2 size={18} />
+                    </button>
                     
-                    {/* Product Name */}
-                    <Link to={`/product/${item.id}`} className="item-name-link">
-                      <h3 className="item-name">{item.name}</h3>
+                    <Link 
+                      to={`/product/${item.id}`}
+                      className="view-btn"
+                      aria-label="View details"
+                    >
+                      <Eye size={18} />
                     </Link>
-                    
-                    {/* Description */}
-                    <p className="item-description">{item.description}</p>
-                    
-                    {/* Rating */}
+                  </div>
+                </div>
+
+                {/* Product Info */}
+                <div className="wishlist-item-info">
+                  {/* Category */}
+                  <span className="item-category">{item.category}</span>
+                  
+                  {/* Product Name */}
+                  <Link to={`/product/${item.id}`} className="item-name-link">
+                    <h3 className="item-name">{item.name}</h3>
+                  </Link>
+                  
+                  {/* Description */}
+                  <p className="item-description">{item.description}</p>
+                  
+                  {/* Rating */}
+                  {item.rating && (
                     <div className="item-rating">
                       <div className="stars">
                         {[...Array(5)].map((_, i) => (
                           <Star 
                             key={i} 
                             size={16} 
-                            fill={i < Math.floor(item.rating) ? "#fbbf24" : "none"}
-                            stroke={i < Math.floor(item.rating) ? "#fbbf24" : "#d1d5db"}
+                            fill={i < Math.floor(item.rating || 0) ? "#fbbf24" : "none"}
+                            stroke={i < Math.floor(item.rating || 0) ? "#fbbf24" : "#d1d5db"}
                           />
                         ))}
                       </div>
                       <span className="rating-text">
-                        {item.rating.toFixed(1)} ({item.reviewCount})
+                        {(item.rating || 0).toFixed(1)} ({item.reviewCount || 0} reviews)
                       </span>
                     </div>
-                    
-                    {/* Price */}
-                    <div className="item-price">
-                      {item.discountPrice ? (
-                        <>
-                          <span className="current-price">${item.discountPrice.toFixed(2)}</span>
-                          <span className="original-price">${item.price.toFixed(2)}</span>
-                        </>
-                      ) : (
-                        <span className="current-price">${item.price.toFixed(2)}</span>
-                      )}
-                    </div>
-                    
-                    {/* Stock Status */}
-                    <div className="item-stock">
-                      <span className={`stock-status ${item.inStock ? 'in-stock' : 'out-of-stock'}`}>
-                        {item.inStock ? '✓ In Stock' : 'Out of Stock'}
-                      </span>
-                      {!item.inStock && (
-                        <button className="notify-btn">
-                          <AlertCircle size={14} />
-                          Notify Me
-                        </button>
-                      )}
-                    </div>
-                    
-                    {/* Actions */}
-                    <div className="item-actions-bottom">
-                      <button 
-                        onClick={() => addToCart(item)}
-                        className={`add-to-cart-btn ${!item.inStock ? 'disabled' : ''}`}
-                        disabled={!item.inStock}
-                      >
-                        <ShoppingCart size={18} />
-                        Add to Cart
+                  )}
+                  
+                  {/* Price */}
+                  <div className="item-price">
+                    {item.discountPrice ? (
+                      <>
+                        <span className="current-price">{formatPrice(item.discountPrice)}</span>
+                        <span className="original-price">{formatPrice(item.basePrice || item.price)}</span>
+                      </>
+                    ) : (
+                      <span className="current-price">{formatPrice(item.basePrice || item.price || 0)}</span>
+                    )}
+                  </div>
+                  
+                  {/* Stock Status */}
+                  <div className="item-stock">
+                    <span className={`stock-status ${item.inStock ? 'in-stock' : 'out-of-stock'}`}>
+                      {item.inStock ? '✓ In Stock' : 'Out of Stock'}
+                    </span>
+                    {!item.inStock && (
+                      <button className="notify-btn">
+                        <AlertCircle size={14} />
+                        Notify Me
                       </button>
-                      
-                      <Link 
-                        to={`/product/${item.id}`}
-                        className="view-details-btn"
-                      >
-                        View Details
-                      </Link>
-                    </div>
+                    )}
+                  </div>
+                  
+                  {/* Actions */}
+                  <div className="item-actions-bottom">
+                    <button 
+                      onClick={() => addToCart(item)}
+                      className={`add-to-cart-btn ${!item.inStock ? 'disabled' : ''}`}
+                      disabled={!item.inStock}
+                    >
+                      <ShoppingCart size={18} />
+                      {inCart ? 'Add More' : 'Add to Cart'}
+                    </button>
+                    
+                    <Link 
+                      to={`/product/${item.id}`}
+                      className="view-details-btn"
+                    >
+                      View Details
+                    </Link>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
+              </div>
+            );
+          })}
+        </div>
 
         {/* Wishlist Tips */}
         <div className="wishlist-tips">
@@ -455,9 +523,21 @@ const WishlistPage = () => {
             <div className="tip-card">
               <Tag size={20} />
               <h4>Share List</h4>
-              <p>Share your wishlist with friends and family</p>
+              <p>Share your wishlist with friends and family for gift ideas</p>
             </div>
           </div>
+        </div>
+
+        {/* Navigation Links */}
+        <div className="navigation-links">
+          <Link to="/cart" className="nav-link-btn cart-link">
+            <ShoppingCart size={20} />
+            Go to Cart ({cartItems.length})
+          </Link>
+          <Link to="/products" className="nav-link-btn products-link">
+            Continue Shopping
+            <ChevronRight size={18} />
+          </Link>
         </div>
       </div>
     </div>
