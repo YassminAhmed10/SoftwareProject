@@ -1,7 +1,8 @@
+// src/pages/MyOrders.jsx - UPDATED WITH PROPER IMPORT
 import React, { useState } from "react";
 import { Link } from 'react-router-dom';
 import "./MyOrders.css";
-import ShipmentTracking from "./ShipmentTracking";
+import ShipmentTracking from "./ShipmentTracking"; // This should work now
 
 const MyOrders = () => {
   const [orders, setOrders] = useState([
@@ -190,13 +191,6 @@ const MyOrders = () => {
             <span className="stat-label">In Progress</span>
           </div>
         </div>
-      </div>
-
-      {/* Back to Dashboard Link */}
-      <div className="dashboard-back-link">
-        <Link to="/customer-dashboard" className="back-to-dashboard">
-          ← Back to Dashboard
-        </Link>
       </div>
 
       {/* Filter Tabs */}

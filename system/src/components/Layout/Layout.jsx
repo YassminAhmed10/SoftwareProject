@@ -1,10 +1,11 @@
-// src/components/Layout/Layout.jsx
+// src/components/Layout/Layout.jsx - UPDATED WITH MY ORDERS NAVIGATION
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Layout.css';
 
 const Layout = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     { 
@@ -26,6 +27,12 @@ const Layout = ({ children }) => {
       section: 'SHOPPING'
     },
     { 
+      path: '/my-orders', 
+      icon: '📦', 
+      label: 'My Orders',
+      section: 'ACCOUNT'
+    },
+    { 
       path: '/settings', 
       icon: '⚙️', 
       label: 'Settings',
@@ -35,6 +42,15 @@ const Layout = ({ children }) => {
 
   const isActive = (path) => {
     return location.pathname === path;
+  };
+
+  const handleLogout = () => {
+    if (window.confirm('Are you sure you want to logout?')) {
+      // Clear localStorage if needed
+      // localStorage.clear();
+      navigate('/');
+      window.location.reload(); // Refresh to reset state
+    }
   };
 
   const groupedItems = navItems.reduce((acc, item) => {
@@ -80,7 +96,7 @@ const Layout = ({ children }) => {
         <div className="nav-section logout-section">
           <ul className="nav-list">
             <li>
-              <button className="nav-link logout">
+              <button className="nav-link logout" onClick={handleLogout}>
                 <span className="nav-icon">→</span>
                 <span className="nav-label">Logout</span>
               </button>

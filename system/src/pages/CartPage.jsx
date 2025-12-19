@@ -67,7 +67,6 @@ const CartPage = () => {
           <Link to="/wishlist" className="nav-link">
             <Heart size={18} /> Wishlist
           </Link>
-          <Link to="/customer-dashboard" className="nav-link">My Account</Link>
         </div>
 
         {cartItems.length === 0 ? (

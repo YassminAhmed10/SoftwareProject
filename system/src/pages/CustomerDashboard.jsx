@@ -1,4 +1,4 @@
-// src/pages/CustomerDashboard.jsx - UPDATED WITH L.E CURRENCY
+// src/pages/CustomerDashboard.jsx - UPDATED WITH PROPER MY ORDERS LINK
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -13,7 +13,8 @@ import {
   CreditCard,
   Truck,
   Clock,
-  BarChart
+  BarChart,
+  ShoppingBasket // ADD THIS IMPORT
 } from 'lucide-react';
 import ProfileSection from '../components/Customer/ProfileSection';
 import OrdersSection from '../components/Customer/OrdersSection';
@@ -44,9 +45,9 @@ const CustomerDashboard = () => {
     { id: 'products', label: 'Products', icon: ShoppingBag, path: '/products' },
     { id: 'cart', label: 'Cart', icon: ShoppingCart, path: '/cart' },
     { id: 'wishlist', label: 'Wishlist', icon: Heart, path: '/wishlist' },
-    { id: 'profile', label: 'Profile', icon: User, path: '/customer-dashboard', internal: 'profile' },
     { id: 'addresses', label: 'Addresses', icon: MapPin, path: '/customer-dashboard', internal: 'addresses' },
-    { id: 'settings', label: 'Settings', icon: Settings, path: '/customer-dashboard', internal: 'settings' },
+    { id: 'settings', label: 'Settings', icon: Settings, path: '/settings' },
+    { id: 'orders', label: 'My Orders', icon: ShoppingBasket, path: '/my-orders' },
   ];
 
   const renderContent = () => {
@@ -122,25 +123,35 @@ const CustomerDashboard = () => {
             <div className="nav-section">
               <h4 className="nav-section-title">ACCOUNT</h4>
               <ul className="nav-list">
-                {navigationItems.slice(3, 6).map((item) => {
+                {navigationItems.slice(3, 6).map((item) => { // Updated slice range
                   const Icon = item.icon;
-                  const isActive = activeTab === item.internal;
+                  const isActive = activeTab === (item.internal || item.id);
                   return (
                     <li key={item.id}>
-                      <button
-                        className={`nav-link ${isActive ? 'active' : ''}`}
-                        onClick={() => handleNavigation(item)}
-                      >
-                        <Icon size={20} />
-                        <span>{item.label}</span>
-                      </button>
+                      {item.internal ? (
+                        <button
+                          className={`nav-link ${isActive ? 'active' : ''}`}
+                          onClick={() => handleNavigation(item)}
+                        >
+                          <Icon size={20} />
+                          <span>{item.label}</span>
+                        </button>
+                      ) : (
+                        <Link
+                          to={item.path}
+                          className={`nav-link ${isActive ? 'active' : ''}`}
+                          onClick={() => handleNavigation(item)}
+                        >
+                          <Icon size={20} />
+                          <span>{item.label}</span>
+                        </Link>
+                      )}
                     </li>
                   );
                 })}
               </ul>
             </div>
 
-            {/* REMOVED the "My Orders" section completely */}
             <div className="nav-section logout-section">
               <ul className="nav-list">
                 <li>

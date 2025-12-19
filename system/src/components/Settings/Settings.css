@@ -142,11 +142,48 @@
   margin-top: 32px;
 }
 
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 .profile-form h4 {
   font-size: 18px;
   font-weight: 600;
   color: #1a1a1a;
-  margin-bottom: 20px;
+  margin: 0;
+}
+
+.save-status {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.saving {
+  color: #f59e0b;
+  font-size: 14px;
+  font-weight: 500;
+  animation: pulse 1.5s infinite;
+}
+
+.saved {
+  color: #10b981;
+  font-size: 14px;
+  font-weight: 500;
+  animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
 }
 
 .form-row {
@@ -215,25 +252,36 @@
   color: #666;
 }
 
-.save-btn {
-  background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
-  color: white;
-  border: none;
-  padding: 14px 32px;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
+/* Tier Display (Read-only) */
+.tier-display {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 8px;
-  margin-top: 20px;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border: 2px solid #eaeaea;
+  border-radius: 8px;
+  font-size: 14px;
 }
 
-.save-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(74, 108, 247, 0.3);
+.tier-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #4a6cf7;
+}
+
+.tier-label {
+  color: #666;
+  font-size: 14px;
+}
+
+.auto-save-note {
+  font-size: 13px;
+  color: #94a3b8;
+  font-style: italic;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eaeaea;
 }
 
 /* Address Form */
@@ -287,9 +335,16 @@
   margin-top: 20px;
 }
 
-.add-address-btn:hover {
+.add-address-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(74, 108, 247, 0.3);
+}
+
+.add-address-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Addresses List */
@@ -312,6 +367,7 @@
   border-radius: 12px;
   padding: 20px;
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .address-card.default {
@@ -430,6 +486,15 @@
   font-weight: 600;
 }
 
+.address-saved {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #f0f0f0;
+  font-style: italic;
+}
+
 .no-addresses {
   text-align: center;
   padding: 60px 20px;
@@ -490,5 +555,11 @@
   .address-actions {
     width: 100%;
     justify-content: space-between;
+  }
+  
+  .form-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 }

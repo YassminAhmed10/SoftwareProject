@@ -1,37 +1,57 @@
 // src/components/Settings/Settings.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Settings.css';
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('profile');
-  const [profileData, setProfileData] = useState({
-    name: 'Ramy',
-    email: 'ramy@example.com',
-    phone: '+1 234 567 8900',
-    memberSince: 'January 2024',
-    loyaltyPoints: 450,
-    tier: 'Premium'
-  });
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSavedMessage, setShowSavedMessage] = useState(false);
 
-  const [addresses, setAddresses] = useState([
-    { 
-      id: 1, 
-      type: 'Home', 
-      name: 'Ramy', 
-      address: '123 Main St, New York, NY 10001', 
-      phone: '+1 234 567 8900', 
-      isDefault: true 
-    },
-    { 
-      id: 2, 
-      type: 'Work', 
-      name: 'Ramy Office', 
-      address: '456 Business Ave, Suite 300, NY 10002', 
-      phone: '+1 234 567 8901', 
-      isDefault: false 
+  // Load profile data from localStorage or use defaults
+  const loadProfileData = () => {
+    const savedProfile = localStorage.getItem('userProfile');
+    if (savedProfile) {
+      return JSON.parse(savedProfile);
     }
-  ]);
+    return {
+      name: 'Ramy',
+      email: 'ramy@example.com',
+      phone: '+1 234 567 8900',
+      memberSince: 'January 2024',
+      loyaltyPoints: 450,
+      tier: 'Premium'
+    };
+  };
 
+  // Load addresses from localStorage or use defaults
+  const loadAddresses = () => {
+    const savedAddresses = localStorage.getItem('userAddresses');
+    if (savedAddresses) {
+      return JSON.parse(savedAddresses);
+    }
+    return [
+      { 
+        id: 1, 
+        type: 'Home', 
+        name: 'Ramy', 
+        address: '123 Main St, New York, NY 10001', 
+        phone: '+1 234 567 8900', 
+        isDefault: true 
+      },
+      { 
+        id: 2, 
+        type: 'Work', 
+        name: 'Ramy Office', 
+        address: '456 Business Ave, Suite 300, NY 10002', 
+        phone: '+1 234 567 8901', 
+        isDefault: false 
+      }
+    ];
+  };
+
+  const [profileData, setProfileData] = useState(loadProfileData());
+  const [addresses, setAddresses] = useState(loadAddresses());
+  
   const [newAddress, setNewAddress] = useState({
     type: 'Home',
     name: '',
@@ -45,6 +65,44 @@ const Settings = () => {
     { id: 'addresses', icon: '📍', label: 'My Addresses' }
   ];
 
+  // Save profile data to localStorage
+  const saveProfileData = () => {
+    setIsSaving(true);
+    localStorage.setItem('userProfile', JSON.stringify(profileData));
+    
+    // Show saved message
+    setShowSavedMessage(true);
+    setIsSaving(false);
+    
+    // Hide message after 3 seconds
+    setTimeout(() => {
+      setShowSavedMessage(false);
+    }, 3000);
+  };
+
+  // Save addresses to localStorage
+  const saveAddresses = (updatedAddresses = addresses) => {
+    localStorage.setItem('userAddresses', JSON.stringify(updatedAddresses));
+  };
+
+  // Auto-save profile when it changes (with debounce)
+  useEffect(() => {
+    const saveTimeout = setTimeout(() => {
+      if (activeTab === 'profile') {
+        saveProfileData();
+      }
+    }, 1000);
+
+    return () => clearTimeout(saveTimeout);
+  }, [profileData, activeTab]);
+
+  // Save addresses when they change
+  useEffect(() => {
+    if (addresses.length > 0) {
+      saveAddresses();
+    }
+  }, [addresses]);
+
   const handleProfileChange = (field, value) => {
     setProfileData(prev => ({
       ...prev,
@@ -55,13 +113,14 @@ const Settings = () => {
   const handleAddAddress = (e) => {
     e.preventDefault();
     
-    if (!newAddress.name || !newAddress.address || !newAddress.phone) {
+    if (!newAddress.name.trim() || !newAddress.address.trim() || !newAddress.phone.trim()) {
       alert('Please fill all required fields');
       return;
     }
 
     let updatedAddresses = [...addresses];
     
+    // If setting as default, update all other addresses
     if (newAddress.isDefault) {
       updatedAddresses = updatedAddresses.map(addr => ({
         ...addr,
@@ -71,7 +130,7 @@ const Settings = () => {
 
     const newAddr = {
       ...newAddress,
-      id: Date.now()
+      id: Date.now() // Use timestamp for unique ID
     };
 
     updatedAddresses.push(newAddr);
@@ -85,6 +144,8 @@ const Settings = () => {
       phone: '',
       isDefault: false
     });
+
+    alert('Address added successfully!');
   };
 
   const handleRemoveAddress = (id) => {
@@ -92,11 +153,13 @@ const Settings = () => {
       const addressToRemove = addresses.find(addr => addr.id === id);
       let updatedAddresses = addresses.filter(addr => addr.id !== id);
       
+      // If removing default address, set first as default
       if (addressToRemove?.isDefault && updatedAddresses.length > 0) {
         updatedAddresses[0].isDefault = true;
       }
       
       setAddresses(updatedAddresses);
+      alert('Address removed successfully!');
     }
   };
 
@@ -107,6 +170,7 @@ const Settings = () => {
     }));
     
     setAddresses(updatedAddresses);
+    alert('Default address updated!');
   };
 
   const renderTabContent = () => {
@@ -140,7 +204,13 @@ const Settings = () => {
             </div>
 
             <div className="profile-form">
-              <h4>Personal Information</h4>
+              <div className="form-header">
+                <h4>Personal Information</h4>
+                <div className="save-status">
+                  {isSaving && <span className="saving">Saving...</span>}
+                  {showSavedMessage && <span className="saved">✓ Saved!</span>}
+                </div>
+              </div>
               
               <div className="form-row">
                 <div className="form-group">
@@ -182,9 +252,29 @@ const Settings = () => {
                 </div>
               </div>
 
-              <button className="save-btn">
-                <span>💾</span> Save Changes
-              </button>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Member Since</label>
+                  <input
+                    type="text"
+                    value={profileData.memberSince}
+                    onChange={(e) => handleProfileChange('memberSince', e.target.value)}
+                    className="form-input"
+                  />
+                </div>
+                {/* REMOVED Tier dropdown - only shows as read-only badge */}
+                <div className="form-group">
+                  <label>Account Tier</label>
+                  <div className="tier-display">
+                    <span className="tier-value">{profileData.tier}</span>
+                    <span className="tier-label">Member</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="auto-save-note">
+                Changes are saved automatically to your browser
+              </div>
             </div>
           </div>
         );
@@ -221,6 +311,7 @@ const Settings = () => {
                       onChange={(e) => setNewAddress(prev => ({ ...prev, name: e.target.value }))}
                       placeholder="Enter name"
                       className="form-input"
+                      required
                     />
                   </div>
                 </div>
@@ -233,6 +324,7 @@ const Settings = () => {
                     placeholder="Enter complete address"
                     rows={3}
                     className="form-textarea"
+                    required
                   />
                 </div>
 
@@ -245,6 +337,7 @@ const Settings = () => {
                       onChange={(e) => setNewAddress(prev => ({ ...prev, phone: e.target.value }))}
                       placeholder="+1 234 567 8900"
                       className="form-input"
+                      required
                     />
                   </div>
                   <div className="form-group">
@@ -259,7 +352,11 @@ const Settings = () => {
                   </div>
                 </div>
 
-                <button type="submit" className="add-address-btn">
+                <button 
+                  type="submit" 
+                  className="add-address-btn"
+                  disabled={!newAddress.name || !newAddress.address || !newAddress.phone}
+                >
                   <span>➕</span> Add Address
                 </button>
               </form>
@@ -315,6 +412,10 @@ const Settings = () => {
                           <span className="phone-number">{address.phone}</span>
                         </div>
                       </div>
+                      
+                      <div className="address-saved">
+                        Saved in your browser
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -337,6 +438,7 @@ const Settings = () => {
               key={tab.id}
               className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
               onClick={() => setActiveTab(tab.id)}
+              type="button"
             >
               <div className="tab-icon">
                 {tab.icon}

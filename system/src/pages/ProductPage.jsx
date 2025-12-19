@@ -1,4 +1,4 @@
-// src/pages/ProductPage.jsx - CORRECTED T-SHIRT COLOR
+// src/pages/ProductPage.jsx - CORRECTED T-SHIRT COLOR (UPDATED)
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Heart, Eye, Star, Search, Package, Truck, Shield } from 'lucide-react';
@@ -440,7 +440,6 @@ const ProductPage = () => {
           <Link to="/wishlist" className="nav-link">
             <Heart size={18} /> Wishlist ({wishlistItems.length})
           </Link>
-          <Link to="/customer-dashboard" className="nav-link">My Account</Link>
         </div>
       </div>
 
