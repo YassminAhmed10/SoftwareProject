@@ -1,4 +1,4 @@
-// src/pages/ProductPage.jsx - FULL UPDATED WITH WISHLIST SYNC
+// src/pages/ProductPage.jsx - CORRECTED T-SHIRT COLOR
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Heart, Eye, Star, Search, Package, Truck, Shield } from 'lucide-react';
@@ -18,9 +18,7 @@ const useLocalStorage = (key, initialValue) => {
     try {
       const item = window.localStorage.getItem(key);
       if (!item) {
-        // For wishlist, check if we have old format data
         if (key === 'ecommerceWishlistItems') {
-          // Try to migrate from old localStorage if exists
           const oldData = window.localStorage.getItem('wishlistItems');
           if (oldData) {
             try {
@@ -54,14 +52,50 @@ const useLocalStorage = (key, initialValue) => {
   return [storedValue, setValue];
 };
 
-// Mock products data
+// Price configuration by category (in L.E)
+const CATEGORY_PRICES = {
+  'T-Shirts': {
+    basePrice: 400,
+    discountPrice: 350,
+    discountPercentage: 12
+  },
+  'Hoodies': {
+    basePrice: 600,
+    discountPrice: 550,
+    discountPercentage: 8
+  },
+  'Jackets': {
+    basePrice: 800,
+    discountPrice: 700,
+    discountPercentage: 12
+  },
+  'Sweaters': {
+    basePrice: 550,
+    discountPrice: 500,
+    discountPercentage: 9
+  }
+};
+
+// Color mapping for consistent display
+const COLOR_MAP = {
+  'Black': '#000000',
+  'White': '#ffffff',
+  'Blue': '#3b82f6',
+  'Gray': '#6b7280',
+  'Brown': '#92400e',
+  'Navy': '#1e3a8a',
+  'Pink': '#ec4899',
+  'Beige': '#d1d5db'
+};
+
+// Mock products data - CORRECTED: Classic T-Shirt now has only Navy color
 const mockProducts = [
   {
     id: 1,
     name: 'Leather Jacket',
     description: 'Genuine leather jacket with asymmetrical zip and snap collar.',
-    price: 189.99,
-    discountPrice: 159.99,
+    basePrice: CATEGORY_PRICES.Jackets.basePrice,
+    discountPrice: CATEGORY_PRICES.Jackets.discountPrice,
     category: 'Jackets',
     sizes: ['S', 'M', 'L', 'XL'],
     colors: ['Black'],
@@ -70,30 +104,30 @@ const mockProducts = [
     reviewCount: 128,
     inStock: true,
     isNew: true,
-    discountPercentage: 16
+    discountPercentage: CATEGORY_PRICES.Jackets.discountPercentage
   },
   {
     id: 2,
     name: 'Classic T-Shirt',
     description: '100% cotton comfortable t-shirt for everyday wear',
-    price: 24.99,
-    discountPrice: 19.99,
+    basePrice: CATEGORY_PRICES['T-Shirts'].basePrice,
+    discountPrice: CATEGORY_PRICES['T-Shirts'].discountPrice,
     category: 'T-Shirts',
     sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    colors: ['White', 'Black', 'Gray'],
+    colors: ['Navy'], // CORRECTED: Now only Navy color
     image: tshirtImage,
     rating: 4.2,
     reviewCount: 89,
     inStock: true,
     isNew: false,
-    discountPercentage: 20
+    discountPercentage: CATEGORY_PRICES['T-Shirts'].discountPercentage
   },
   {
     id: 3,
     name: 'Ocean Striped Sweater',
     description: 'Navy and white striped cotton-blend sweater with raglan sleeves.',
-    price: 79.99,
-    discountPrice: null,
+    basePrice: CATEGORY_PRICES.Sweaters.basePrice,
+    discountPrice: CATEGORY_PRICES.Sweaters.discountPrice,
     category: 'Sweaters',
     sizes: ['S', 'M', 'L', 'XL'],
     colors: ['Navy', 'White'],
@@ -102,14 +136,14 @@ const mockProducts = [
     reviewCount: 56,
     inStock: true,
     isNew: true,
-    discountPercentage: 0
+    discountPercentage: CATEGORY_PRICES.Sweaters.discountPercentage
   },
   {
     id: 4,
     name: 'Black Pullover Hoodie',
     description: 'Heavyweight cotton pullover hoodie with front pocket.',
-    price: 59.99,
-    discountPrice: 49.99,
+    basePrice: CATEGORY_PRICES.Hoodies.basePrice,
+    discountPrice: CATEGORY_PRICES.Hoodies.discountPrice,
     category: 'Hoodies',
     sizes: ['S', 'M', 'L', 'XL', 'XXL'],
     colors: ['Black'],
@@ -118,14 +152,14 @@ const mockProducts = [
     reviewCount: 42,
     inStock: true,
     isNew: false,
-    discountPercentage: 17
+    discountPercentage: CATEGORY_PRICES.Hoodies.discountPercentage
   },
   {
     id: 5,
     name: 'Cloud White Hoodie',
     description: 'Thick, premium white hoodie with a smooth finish and drawstrings.',
-    price: 69.99,
-    discountPrice: 59.99,
+    basePrice: CATEGORY_PRICES.Hoodies.basePrice,
+    discountPrice: CATEGORY_PRICES.Hoodies.discountPrice,
     category: 'Hoodies',
     sizes: ['S', 'M', 'L'],
     colors: ['White', 'Beige'],
@@ -134,29 +168,13 @@ const mockProducts = [
     reviewCount: 75,
     inStock: true,
     isNew: true,
-    discountPercentage: 14
+    discountPercentage: CATEGORY_PRICES.Hoodies.discountPercentage
   },
   {
     id: 6,
-    name: 'Cobalt Blue T-Shirt',
-    description: 'Vibrant blue athletic tee with moisture-wicking technology.',
-    price: 39.99,
-    discountPrice: 34.99,
-    category: 'T-Shirts',
-    sizes: ['S', 'M', 'L', 'XL'],
-    colors: ['Blue'],
-    image: tshirtImage,
-    rating: 4.7,
-    reviewCount: 203,
-    inStock: true,
-    isNew: false,
-    discountPercentage: 12
-  },
-  {
-    id: 7,
     name: 'Rose Zip Hoodie',
     description: 'Light pink full-zip hoodie, perfect for layering.',
-    price: 64.99,
+    basePrice: CATEGORY_PRICES.Hoodies.basePrice,
     discountPrice: null,
     category: 'Hoodies',
     sizes: ['XS', 'S', 'M', 'L'],
@@ -170,9 +188,18 @@ const mockProducts = [
   },
 ];
 
+// Get all unique colors from products
+const getAllProductColors = () => {
+  const allColors = new Set();
+  mockProducts.forEach(product => {
+    product.colors.forEach(color => allColors.add(color));
+  });
+  return Array.from(allColors).sort();
+};
+
 const categories = ['All', 'Jackets', 'T-Shirts', 'Hoodies', 'Sweaters'];
 const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-const colors = ['Black', 'White', 'Blue', 'Gray', 'Brown', 'Navy', 'Pink'];
+const colors = getAllProductColors(); // Dynamic colors based on actual products
 
 const ProductPage = () => {
   const [allProducts] = useState(mockProducts);
@@ -180,7 +207,7 @@ const ProductPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [selectedColors, setSelectedColors] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 200]);
+  const [priceRange, setPriceRange] = useState([0, 1000]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState('featured');
   const [loading, setLoading] = useState(false);
@@ -201,6 +228,16 @@ const ProductPage = () => {
       setShowNotification(false);
     }, 3000);
   }, []);
+
+  // Format price in L.E
+  const formatPrice = (price) => {
+    return `${price.toLocaleString()} L.E`;
+  };
+
+  // Get color hex code
+  const getColorHex = (colorName) => {
+    return COLOR_MAP[colorName] || colorName.toLowerCase();
+  };
 
   // Add to Cart Function
   const addToCart = (product) => {
@@ -234,7 +271,7 @@ const ProductPage = () => {
     });
   };
 
-  // Toggle Wishlist Function - UPDATED FOR PROPER SYNC
+  // Toggle Wishlist Function
   const toggleWishlist = (product) => {
     setWishlistItems(prevWishlist => {
       const exists = prevWishlist.some(item => item.id === product.id);
@@ -242,21 +279,18 @@ const ProductPage = () => {
       let updatedWishlist;
       
       if (exists) {
-        // Remove from wishlist
         updatedWishlist = prevWishlist.filter(item => item.id !== product.id);
         displayNotification(`${product.name} removed from wishlist.`, 'success');
       } else {
-        // Add to wishlist
         const wishlistItem = {
           ...product,
-          addedDate: new Date().toISOString().split('T')[0], // Format: YYYY-MM-DD
+          addedDate: new Date().toISOString().split('T')[0],
           inWishlist: true
         };
         updatedWishlist = [...prevWishlist, wishlistItem];
         displayNotification(`${product.name} added to wishlist!`, 'success');
       }
       
-      // Force immediate localStorage update for cross-page sync
       localStorage.setItem('ecommerceWishlistItems', JSON.stringify(updatedWishlist));
       
       return updatedWishlist;
@@ -302,17 +336,17 @@ const ProductPage = () => {
       // Price filter
       const [minPrice, maxPrice] = priceRange;
       filtered = filtered.filter(product => {
-        const price = product.discountPrice || product.price;
+        const price = product.discountPrice || product.basePrice;
         return price >= minPrice && price <= maxPrice;
       });
 
       // Sorting
       switch (sortOption) {
         case 'price-low':
-          filtered.sort((a, b) => (a.discountPrice || a.price) - (b.discountPrice || b.price));
+          filtered.sort((a, b) => (a.discountPrice || a.basePrice) - (b.discountPrice || b.basePrice));
           break;
         case 'price-high':
-          filtered.sort((a, b) => (b.discountPrice || b.price) - (a.discountPrice || a.price));
+          filtered.sort((a, b) => (b.discountPrice || b.basePrice) - (a.discountPrice || a.basePrice));
           break;
         case 'rating':
           filtered.sort((a, b) => b.rating - a.rating);
@@ -364,7 +398,7 @@ const ProductPage = () => {
     setSelectedCategory('All');
     setSelectedSizes([]);
     setSelectedColors([]);
-    setPriceRange([0, 200]);
+    setPriceRange([0, 1000]);
     setSearchQuery('');
   };
 
@@ -372,7 +406,7 @@ const ProductPage = () => {
     (selectedCategory !== 'All' ? 1 : 0) +
     selectedSizes.length +
     selectedColors.length +
-    (priceRange[0] > 0 || priceRange[1] < 200 ? 1 : 0);
+    (priceRange[0] > 0 || priceRange[1] < 1000 ? 1 : 0);
     
   // Check if item is in wishlist for heart icon status
   const isWishlisted = (productId) => wishlistItems.some(item => item.id === productId);
@@ -491,8 +525,9 @@ const ProductPage = () => {
                         key={color}
                         className={`color-filter-button ${selectedColors.includes(color) ? 'selected' : ''}`}
                         onClick={() => handleColorClick(color)}
-                        style={{ backgroundColor: color.toLowerCase() }}
+                        style={{ backgroundColor: getColorHex(color) }}
                         title={color}
+                        aria-label={`Filter by ${color} color`}
                       />
                     ))}
                   </div>
@@ -500,20 +535,20 @@ const ProductPage = () => {
 
                 {/* Price Filter */}
                 <div className="filter-section">
-                  <h4 className="filter-title">Price Range</h4>
+                  <h4 className="filter-title">Price Range (L.E)</h4>
                   <div className="price-filter">
                     <input
                       type="range"
                       min="0"
-                      max="200"
-                      step="10"
+                      max="1000"
+                      step="50"
                       value={priceRange[1]}
                       onChange={handlePriceChange}
                       className="price-slider"
                     />
                     <div className="price-range-display">
-                      <span>$0</span>
-                      <span>${priceRange[1]}</span>
+                      <span>0 L.E</span>
+                      <span>{priceRange[1]} L.E</span>
                     </div>
                   </div>
                 </div>
@@ -577,8 +612,8 @@ const ProductPage = () => {
                 <div className="products-grid">
                   {filteredProducts.map(product => {
                     const discountPercentage = product.discountPrice
-                      ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
-                      : 0;
+                      ? Math.round(((product.basePrice - product.discountPrice) / product.basePrice) * 100)
+                      : product.discountPercentage || 0;
 
                     const wishlisted = isWishlisted(product.id);
 
@@ -613,7 +648,7 @@ const ProductPage = () => {
                             )}
                           </div>
 
-                          {/* Wishlist Heart Button - ALWAYS VISIBLE */}
+                          {/* Wishlist Heart Button */}
                           <div className="quick-actions">
                             <button
                               className={`wishlist-btn ${wishlisted ? 'active' : ''}`}
@@ -636,14 +671,6 @@ const ProductPage = () => {
                               <Eye size={18} />
                             </Link>
                           </div>
-
-                          {/* Wishlist Indicator Badge */}
-                          {wishlisted && (
-                            <div className="wishlist-indicator-badge">
-                              <Heart size={12} fill="#ef4444" color="#ef4444" />
-                              <span>Saved</span>
-                            </div>
-                          )}
                         </div>
 
                         {/* Product Info */}
@@ -673,15 +700,15 @@ const ProductPage = () => {
                             </span>
                           </div>
 
-                          {/* Price */}
+                          {/* Price in L.E */}
                           <div className="product-price">
                             {product.discountPrice ? (
                               <>
-                                <span className="current-price">${product.discountPrice.toFixed(2)}</span>
-                                <span className="original-price">${product.price.toFixed(2)}</span>
+                                <span className="current-price">{formatPrice(product.discountPrice)}</span>
+                                <span className="original-price">{formatPrice(product.basePrice)}</span>
                               </>
                             ) : (
-                              <span className="current-price">${product.price.toFixed(2)}</span>
+                              <span className="current-price">{formatPrice(product.basePrice)}</span>
                             )}
                           </div>
 
@@ -742,7 +769,7 @@ const ProductPage = () => {
           <div className="feature">
             <Truck size={24} />
             <h4>Free Shipping</h4>
-            <p>On orders over $50</p>
+            <p>On orders over 500 L.E</p>
           </div>
           <div className="feature">
             <Package size={24} />
