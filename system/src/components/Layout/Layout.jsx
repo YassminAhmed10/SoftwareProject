@@ -5,7 +5,6 @@ import {
   ShoppingBag, 
   ShoppingCart, 
   Heart,
-  User,
   Settings
 } from 'lucide-react';
 import './Layout.css';
@@ -13,9 +12,9 @@ import './Layout.css';
 const Layout = ({ children }) => {
   const location = useLocation();
 
-  // Navigation items - REMOVED "My Orders" completely
+  // Navigation items - Only SHOPPING section remains, ACCOUNT section removed
   const navItems = [
-    // SHOPPING section
+    // SHOPPING section only
     { 
       path: '/products', 
       icon: <ShoppingBag size={20} />, 
@@ -34,13 +33,7 @@ const Layout = ({ children }) => {
       label: 'Wishlist',
       section: 'SHOPPING'
     },
-    // ACCOUNT section
-    { 
-      path: '/customer-dashboard', 
-      icon: <User size={20} />, 
-      label: 'Customer Dashboard',
-      section: 'ACCOUNT'
-    },
+    // Only Settings remains in ACCOUNT section
     { 
       path: '/settings', 
       icon: <Settings size={20} />, 
