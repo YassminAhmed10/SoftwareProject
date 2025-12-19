@@ -1,4 +1,4 @@
-// src/pages/WishlistPage.jsx - COMPLETELY UPDATED TO SYNC WITH PRODUCTPAGE
+// src/pages/WishlistPage.jsx - COMPLETELY UPDATED TO SYNC WITH PRODUCTPAGE PRICING
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingCart, Eye, Trash2, Package, Tag, AlertCircle, ChevronRight, Star, Truck, Shield, CreditCard } from 'lucide-react';
@@ -48,6 +48,7 @@ const useLocalStorage = (key, initialValue) => {
 
 // Format price in L.E - Same as ProductPage
 const formatPrice = (price) => {
+  if (price === null || price === undefined) return '';
   return `${price.toLocaleString()} L.E`;
 };
 
@@ -75,6 +76,41 @@ const CATEGORY_PRICES = {
   }
 };
 
+// Helper function to get correct price for a product
+const getProductPrice = (item) => {
+  // First try to use the data from the item itself
+  if (item.discountPrice !== undefined && item.discountPrice !== null) {
+    return {
+      currentPrice: item.discountPrice,
+      originalPrice: item.basePrice || item.price || item.basePrice
+    };
+  } else if (item.basePrice !== undefined) {
+    return {
+      currentPrice: item.basePrice,
+      originalPrice: null
+    };
+  } else if (item.price !== undefined) {
+    return {
+      currentPrice: item.price,
+      originalPrice: null
+    };
+  }
+  
+  // If no price data in item, fall back to category prices
+  const categoryPrice = CATEGORY_PRICES[item.category];
+  if (categoryPrice) {
+    return {
+      currentPrice: categoryPrice.discountPrice || categoryPrice.basePrice,
+      originalPrice: categoryPrice.discountPrice ? categoryPrice.basePrice : null
+    };
+  }
+  
+  return {
+    currentPrice: 0,
+    originalPrice: null
+  };
+};
+
 const WishlistPage = () => {
   // Get wishlist items from localStorage - same key as ProductPage
   const [wishlistItems, setWishlistItems] = useLocalStorage('ecommerceWishlistItems', []);
@@ -93,13 +129,14 @@ const WishlistPage = () => {
   const filteredItems = wishlistItems
     .filter(item => selectedCategory === 'all' || item.category === selectedCategory)
     .sort((a, b) => {
+      const priceA = getProductPrice(a).currentPrice;
+      const priceB = getProductPrice(b).currentPrice;
+      
       switch (sortBy) {
         case 'price-low':
-          return (a.discountPrice || a.basePrice || a.price || 0) - 
-                 (b.discountPrice || b.basePrice || b.price || 0);
+          return priceA - priceB;
         case 'price-high':
-          return (b.discountPrice || b.basePrice || b.price || 0) - 
-                 (a.discountPrice || a.basePrice || a.price || 0);
+          return priceB - priceA;
         case 'rating':
           return (b.rating || 0) - (a.rating || 0);
         case 'name':
@@ -144,7 +181,11 @@ const WishlistPage = () => {
           itemId,
           quantity: 1,
           size: defaultSize,
-          color: defaultColor
+          color: defaultColor,
+          // Ensure price is included
+          price: getProductPrice(item).currentPrice,
+          basePrice: item.basePrice,
+          discountPrice: item.discountPrice
         }];
       }
     });
@@ -178,7 +219,11 @@ const WishlistPage = () => {
           itemId,
           quantity: 1,
           size: defaultSize,
-          color: defaultColor
+          color: defaultColor,
+          // Ensure price is included
+          price: getProductPrice(item).currentPrice,
+          basePrice: item.basePrice,
+          discountPrice: item.discountPrice
         });
       }
       
@@ -196,11 +241,11 @@ const WishlistPage = () => {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  // Calculate stats
+  // Calculate stats with correct prices
   const totalItems = wishlistItems.length;
   const inStockItems = wishlistItems.filter(item => item.inStock).length;
   const totalValue = wishlistItems.reduce((sum, item) => 
-    sum + (item.discountPrice || item.basePrice || item.price || 0), 0);
+    sum + getProductPrice(item).currentPrice, 0);
 
   // Check if item is in cart
   const isInCart = (item) => {
@@ -367,8 +412,11 @@ const WishlistPage = () => {
         {/* Wishlist Grid */}
         <div className="wishlist-grid">
           {filteredItems.map(item => {
-            const discountPercentage = item.discountPrice && item.basePrice
-              ? Math.round(((item.basePrice - item.discountPrice) / item.basePrice) * 100)
+            const { currentPrice, originalPrice } = getProductPrice(item);
+            
+            // Calculate discount percentage if applicable
+            const discountPercentage = originalPrice && currentPrice < originalPrice
+              ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
               : 0;
             
             const inCart = isInCart(item);
@@ -386,7 +434,7 @@ const WishlistPage = () => {
                   
                   {/* Badges */}
                   <div className="item-badges">
-                    {item.discountPrice && item.basePrice && discountPercentage > 0 && (
+                    {discountPercentage > 0 && (
                       <span className="discount-badge">-{discountPercentage}%</span>
                     )}
                     {item.isNew && (
@@ -449,15 +497,15 @@ const WishlistPage = () => {
                     </div>
                   )}
                   
-                  {/* Price */}
+                  {/* Price - Updated to match ProductPage */}
                   <div className="item-price">
-                    {item.discountPrice ? (
+                    {originalPrice && currentPrice < originalPrice ? (
                       <>
-                        <span className="current-price">{formatPrice(item.discountPrice)}</span>
-                        <span className="original-price">{formatPrice(item.basePrice || item.price)}</span>
+                        <span className="current-price">{formatPrice(currentPrice)}</span>
+                        <span className="original-price">{formatPrice(originalPrice)}</span>
                       </>
                     ) : (
-                      <span className="current-price">{formatPrice(item.basePrice || item.price || 0)}</span>
+                      <span className="current-price">{formatPrice(currentPrice)}</span>
                     )}
                   </div>
                   

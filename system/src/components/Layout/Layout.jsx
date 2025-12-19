@@ -1,52 +1,42 @@
 // src/components/Layout/Layout.jsx
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  ShoppingBag, 
-  ShoppingCart, 
-  Heart,
-  Settings
-} from 'lucide-react';
 import './Layout.css';
 
 const Layout = ({ children }) => {
   const location = useLocation();
 
-  // Navigation items - Only SHOPPING section remains, ACCOUNT section removed
   const navItems = [
-    // SHOPPING section only
     { 
       path: '/products', 
-      icon: <ShoppingBag size={20} />, 
+      icon: '🛍️', 
       label: 'Products',
       section: 'SHOPPING'
     },
     { 
       path: '/cart', 
-      icon: <ShoppingCart size={20} />, 
+      icon: '🛒', 
       label: 'Cart',
       section: 'SHOPPING'
     },
     { 
       path: '/wishlist', 
-      icon: <Heart size={20} />, 
+      icon: '❤️', 
       label: 'Wishlist',
       section: 'SHOPPING'
     },
-    // Only Settings remains in ACCOUNT section
     { 
       path: '/settings', 
-      icon: <Settings size={20} />, 
+      icon: '⚙️', 
       label: 'Settings',
       section: 'ACCOUNT'
     },
   ];
 
   const isActive = (path) => {
-    return location.pathname === path || location.pathname.startsWith(path + '/');
+    return location.pathname === path;
   };
 
-  // Group items by section
   const groupedItems = navItems.reduce((acc, item) => {
     if (!acc[item.section]) {
       acc[item.section] = [];
@@ -57,9 +47,7 @@ const Layout = ({ children }) => {
 
   return (
     <div className="app-layout">
-      {/* White Sidebar */}
       <aside className="sidebar">
-        {/* User Profile Section */}
         <div className="user-profile">
           <div className="avatar">R</div>
           <div className="user-info">
@@ -68,7 +56,6 @@ const Layout = ({ children }) => {
           </div>
         </div>
 
-        {/* Navigation */}
         <nav className="sidebar-nav">
           {Object.entries(groupedItems).map(([section, items]) => (
             <div key={section} className="nav-section">
@@ -90,7 +77,6 @@ const Layout = ({ children }) => {
           ))}
         </nav>
 
-        {/* Logout Button */}
         <div className="nav-section logout-section">
           <ul className="nav-list">
             <li>
@@ -102,7 +88,6 @@ const Layout = ({ children }) => {
           </ul>
         </div>
 
-        {/* Minimized Loyalty Points */}
         <div className="loyalty-card mini-loyalty">
           <div className="loyalty-header">
             <div className="loyalty-icon">⭐</div>
@@ -118,7 +103,6 @@ const Layout = ({ children }) => {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="main-content">
         {children}
       </main>

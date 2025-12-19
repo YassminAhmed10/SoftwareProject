@@ -1,5 +1,4 @@
 /* src/components/Layout/Layout.css */
-
 .app-layout {
   display: flex;
   min-height: 100vh;
@@ -136,15 +135,8 @@
   border-left: 3px solid #667eea;
 }
 
-.nav-link.active svg {
-  color: #667eea;
-}
-
 .nav-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
+  font-size: 20px;
 }
 
 .nav-label {
@@ -177,7 +169,6 @@
   color: white;
 }
 
-/* Minimized Loyalty Card */
 .loyalty-card.mini-loyalty {
   padding: 12px;
   margin: 15px 25px 20px;
