@@ -1,0 +1,222 @@
+/* src/pages/ProductDetails.css */
+.product-details-wrapper {
+  padding: 60px 0;
+  background-color: #fdfdfd;
+  min-height: 100vh;
+}
+
+.custom-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.back-navigation {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #64748b;
+  font-weight: 500;
+  margin-bottom: 30px;
+  transition: color 0.3s;
+}
+
+.back-navigation:hover { color: #667eea; }
+
+/* Fixed Grid System */
+.product-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+}
+
+/* IMAGE FIX: Constraint dimensions */
+.image-showcase {
+  position: sticky;
+  top: 40px;
+}
+
+.main-image-frame {
+  position: relative;
+  background: #f1f5f9;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-height: 650px; /* Constrain vertical growth */
+  aspect-ratio: 4 / 5;
+}
+
+.main-image-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Ensure the jacket isn't cropped or distorted */
+  padding: 20px;
+}
+
+.premium-tag {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: #667eea;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Info Section Styling */
+.category-label {
+  color: #667eea;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.8rem;
+}
+
+.product-main-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 8px 0 12px;
+}
+
+.rating-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.reviews-text { color: #94a3b8; font-size: 0.85rem; }
+
+.pricing-stack {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.current-price { font-size: 2.2rem; font-weight: 800; color: #1e293b; }
+.old-price { font-size: 1.3rem; color: #cbd5e1; text-decoration: line-through; }
+
+.product-description-text {
+  color: #64748b;
+  line-height: 1.7;
+  font-size: 1rem;
+  margin-bottom: 35px;
+}
+
+/* size-chips and button design */
+.size-chips { display: flex; gap: 10px; margin-top: 10px; margin-bottom: 35px; }
+
+.size-chip {
+  width: 50px;
+  height: 45px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.size-chip.active { border-color: #667eea; background: #667eea; color: white; }
+
+.interaction-row { display: flex; gap: 15px; margin-bottom: 35px; }
+
+.atc-button-premium {
+  flex: 1;
+  padding: 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.wishlist-btn-premium {
+  width: 55px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #64748b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Trust Badges Footer */
+.trust-footer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding-top: 25px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .product-main-grid { grid-template-columns: 1fr; }
+  .image-showcase { position: static; margin-bottom: 30px; }
+}
+/* src/pages/ProductDetails.css - ADD THESE STYLES */
+
+/* Existing styles remain, add these new ones */
+
+/* Disabled button style */
+.atc-button-premium.disabled {
+  background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+  cursor: not-allowed;
+}
+
+.atc-button-premium.success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+/* Additional tag positioning */
+.premium-tag:not(:first-of-type) {
+  margin-top: 40px;
+}
+
+/* Stock status */
+.stock-status {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stock-status.in-stock {
+  color: #10b981;
+}
+
+.stock-status.out-of-stock {
+  color: #ef4444;
+}

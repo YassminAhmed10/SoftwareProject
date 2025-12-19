@@ -1,4 +1,4 @@
-// src/pages/CustomerDashboard.jsx
+// src/pages/CustomerDashboard.jsx - UPDATED WITH L.E CURRENCY
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
@@ -24,6 +24,11 @@ import './CustomerDashboard.css';
 const CustomerDashboard = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'profile');
+
+  // Format price in L.E
+  const formatPrice = (price) => {
+    return `${price.toLocaleString()} L.E`;
+  };
 
   // Mock customer data
   const customerData = {
@@ -243,7 +248,7 @@ const CustomerDashboard = () => {
                     </div>
                     <div className="order-details">
                       <span className="order-items">{order.items} items</span>
-                      <span className="order-total">${order.total.toFixed(2)}</span>
+                      <span className="order-total">{formatPrice(order.total)}</span>
                       <span className={`order-status ${order.status.toLowerCase()}`}>
                         {order.status}
                       </span>

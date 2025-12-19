@@ -22,19 +22,14 @@ const CartPage = () => {
     return `${price.toLocaleString()} L.E`;
   };
 
-  // Get the actual price (use basePrice instead of price)
-  const getProductPrice = (item) => {
-    return item.discountPrice || item.basePrice || item.price || 0;
-  };
-
   // Calculations
   const subtotal = cartItems.reduce((sum, item) => {
-    const price = getProductPrice(item);
+    const price = item.discountPrice || item.price;
     return sum + (price * (item.quantity || 1));
   }, 0);
 
-  const shippingCost = shippingMethod === 'express' ? 60 : shippingMethod === 'standard' ? 30 : 0;
-  const tax = subtotal * 0.08; // 8% tax
+  const shippingCost = shippingMethod === 'express' ? 15.99 : shippingMethod === 'standard' ? 7.99 : 0;
+  const tax = subtotal * 0.08; 
   const total = subtotal + shippingCost + tax;
 
   const updateQuantity = (itemId, newQuantity) => {
@@ -97,184 +92,46 @@ const CartPage = () => {
               </div>
 
               <div className="cart-items-list">
-                {cartItems.map(item => {
-                  const itemPrice = getProductPrice(item);
-                  const itemTotal = itemPrice * (item.quantity || 1);
-                  
-                  return (
-                    <div key={item.itemId} className="cart-item-card">
-                      <div className="cart-item-image">
-                        <img src={item.image} alt={item.name} />
-                        {item.discountPrice && item.basePrice && (
-                          <div className="cart-item-discount">
-                            -{Math.round(((item.basePrice - item.discountPrice) / item.basePrice) * 100)}%
-                          </div>
-                        )}
+                {cartItems.map(item => (
+                  <div key={item.itemId} className="cart-item-card">
+                    <div className="cart-item-image">
+                      <img src={item.image} alt={item.name} />
+                    </div>
+                    <div className="cart-item-info">
+                      <div className="item-header">
+                        <h3>{item.name}</h3>
+                        <button onClick={() => removeItem(item.itemId)} className="remove-item-btn">
+                          <Trash2 size={16} />
+                        </button>
                       </div>
-                      <div className="cart-item-info">
-                        <div className="item-header">
-                          <h3>{item.name}</h3>
-                          <button onClick={() => removeItem(item.itemId)} className="remove-item-btn">
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                        <p className="item-description">{item.description}</p>
-                        <div className="item-attributes">
-                          <span className="attribute">Size: {item.size || 'M'}</span>
-                          <span className="attribute">Color: {item.color || 'Default'}</span>
-                        </div>
-                        <div className="stock-status in-stock">In Stock</div>
-                        <div className="quantity-controls">
-                          <button 
-                            className="quantity-btn" 
-                            onClick={() => updateQuantity(item.itemId, (item.quantity || 1) - 1)}
-                          >
-                            <Minus size={14} />
-                          </button>
-                          <span className="quantity-display">{item.quantity || 1}</span>
-                          <button 
-                            className="quantity-btn" 
-                            onClick={() => updateQuantity(item.itemId, (item.quantity || 1) + 1)}
-                          >
-                            <Plus size={14} />
-                          </button>
-                        </div>
+                      <div className="item-attributes">
+                        <span className="attribute">Size: {item.size || 'M'}</span>
+                        <span className="attribute">Color: {item.color || 'Default'}</span>
                       </div>
-                      <div className="cart-item-pricing">
-                        <div className="price-info">
-                          <span className="current-price">{formatPrice(itemTotal)}</span>
-                          {item.discountPrice && item.basePrice && (
-                            <span className="original-price">{formatPrice(item.basePrice * (item.quantity || 1))}</span>
-                          )}
-                        </div>
-                        <div className="item-total">
-                          {item.quantity || 1} × {formatPrice(itemPrice)}
-                        </div>
+                      <div className="quantity-controls">
+                        <button className="quantity-btn" onClick={() => updateQuantity(item.itemId, (item.quantity || 1) - 1)}><Minus size={14} /></button>
+                        <span className="quantity-display">{item.quantity || 1}</span>
+                        <button className="quantity-btn" onClick={() => updateQuantity(item.itemId, (item.quantity || 1) + 1)}><Plus size={14} /></button>
                       </div>
                     </div>
-                  );
-                })}
+                    <div className="cart-item-pricing">
+                      <span className="current-price">{formatPrice(((item.discountPrice || item.price) * (item.quantity || 1)))}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
             <aside className="order-summary-column">
               <div className="order-summary-card">
                 <h2>Summary</h2>
-                
-                {/* Coupon Section */}
-                <div className="coupon-section">
-                  <div className="coupon-input-group">
-                    <input
-                      type="text"
-                      placeholder="Enter coupon code"
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value)}
-                      className="coupon-input"
-                    />
-                    <button className="apply-coupon-btn">
-                      <Tag size={16} /> Apply
-                    </button>
-                  </div>
-                  <p className="coupon-hint">Try: SAVE10 for 10% off</p>
-                </div>
-
-                {/* Shipping Section */}
-                <div className="shipping-section">
-                  <h3><Truck size={18} /> Shipping</h3>
-                  <div className="shipping-options">
-                    <label className={`shipping-option ${shippingMethod === 'free' ? 'selected' : ''}`}>
-                      <input
-                        type="radio"
-                        name="shipping"
-                        value="free"
-                        checked={shippingMethod === 'free'}
-                        onChange={(e) => setShippingMethod(e.target.value)}
-                      />
-                      <div>
-                        <strong>Free Shipping</strong>
-                        <span>5-7 business days</span>
-                      </div>
-                      <span className="shipping-price">{formatPrice(0)}</span>
-                    </label>
-                    <label className={`shipping-option ${shippingMethod === 'standard' ? 'selected' : ''}`}>
-                      <input
-                        type="radio"
-                        name="shipping"
-                        value="standard"
-                        checked={shippingMethod === 'standard'}
-                        onChange={(e) => setShippingMethod(e.target.value)}
-                      />
-                      <div>
-                        <strong>Standard Shipping</strong>
-                        <span>3-5 business days</span>
-                      </div>
-                      <span className="shipping-price">{formatPrice(30)}</span>
-                    </label>
-                    <label className={`shipping-option ${shippingMethod === 'express' ? 'selected' : ''}`}>
-                      <input
-                        type="radio"
-                        name="shipping"
-                        value="express"
-                        checked={shippingMethod === 'express'}
-                        onChange={(e) => setShippingMethod(e.target.value)}
-                      />
-                      <div>
-                        <strong>Express Shipping</strong>
-                        <span>1-2 business days</span>
-                      </div>
-                      <span className="shipping-price">{formatPrice(60)}</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Summary Details */}
                 <div className="summary-details">
-                  <div className="summary-row">
-                    <span>Subtotal</span>
-                    <span>{formatPrice(subtotal)}</span>
-                  </div>
-                  <div className="summary-row">
-                    <span>Shipping</span>
-                    <span>{formatPrice(shippingCost)}</span>
-                  </div>
-                  <div className="summary-row">
-                    <span>Tax (8%)</span>
-                    <span>{formatPrice(tax)}</span>
-                  </div>
-                  <div className="summary-row total">
-                    <span>Total</span>
-                    <span>{formatPrice(total)}</span>
-                  </div>
+                  <div className="summary-row"><span>Subtotal</span><span>{formatPrice(subtotal)}</span></div>
+                  <div className="summary-row"><span>Shipping</span><span>{formatPrice(shippingCost)}</span></div>
+                  <div className="summary-row"><span>Tax</span><span>{formatPrice(tax)}</span></div>
+                  <div className="summary-row total"><span>Total</span><span>{formatPrice(total)}</span></div>
                 </div>
-
-                <button className="checkout-btn">
-                  <CreditCard size={20} /> Checkout
-                </button>
-
-                {/* Security Guarantee */}
-                <div className="security-guarantee">
-                  <div className="security-item">
-                    <Shield size={20} color="#667eea" />
-                    <span>Secure Payment</span>
-                  </div>
-                  <div className="security-item">
-                    <Truck size={20} color="#667eea" />
-                    <span>Free Shipping</span>
-                  </div>
-                  <div className="security-item">
-                    <Tag size={20} color="#667eea" />
-                    <span>30-Day Returns</span>
-                  </div>
-                </div>
-
-                <div className="cart-suggestions">
-                  <Link to="/products" className="continue-shopping-bottom">
-                    <ArrowLeft size={16} /> Continue Shopping
-                  </Link>
-                  <Link to="/wishlist" className="view-wishlist-bottom">
-                    <Heart size={16} /> View Wishlist
-                  </Link>
-                </div>
+                <button className="checkout-btn"><CreditCard size={20} /> Checkout</button>
               </div>
             </aside>
           </div>

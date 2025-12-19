@@ -4,10 +4,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { DarkModeProvider } from './contexts/DarkModeContext';
 import './App.css';
 import Layout from './components/Layout/Layout';
-import Dashboard from './pages/Dashboard';
+// ... other imports
 import ProductPage from './pages/ProductPage';
-import CustomerDashboard from './pages/CustomerDashboard';
-import CartPage from './pages/CartPage'; // Ensure this matches your filename
+import ProductDetails from './pages/ProductDetails'; // 1. Import the page
+import CartPage from './pages/CartPage';
 import WishlistPage from './pages/WishlistPage';
 
 function App() {
@@ -18,11 +18,13 @@ function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/products" replace />} />
             <Route path="/products" element={<Layout><ProductPage /></Layout>} />
+            
+            {/* 2. Add this specific route for product details */}
+            <Route path="/product/:productId" element={<Layout><ProductDetails /></Layout>} />
+            
             <Route path="/cart" element={<Layout><CartPage /></Layout>} />
             <Route path="/wishlist" element={<Layout><WishlistPage /></Layout>} />
-            <Route path="/customer-dashboard" element={<CustomerDashboard />} />
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/products" />} />
+            {/* ... other routes */}
           </Routes>
         </div>
       </Router>
