@@ -1,4 +1,4 @@
-// src/App.jsx - UPDATED WITH MYORDERS ROUTE
+// src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { DarkModeProvider } from './contexts/DarkModeContext';
@@ -9,8 +9,9 @@ import ProductPage from './pages/ProductPage';
 import ProductDetails from './pages/ProductDetails';
 import CartPage from './pages/CartPage';
 import WishlistPage from './pages/WishlistPage';
-import MyOrders from './pages/MyOrders'; // ADD THIS IMPORT
-import CustomerDashboard from './pages/CustomerDashboard'; // ADD THIS IMPORT
+import MyOrders from './pages/MyOrders';
+import CustomerDashboard from './pages/CustomerDashboard';
+import Checkout from './pages/Checkout'; // Import the Checkout component
 
 function App() {
   return (
@@ -23,12 +24,11 @@ function App() {
             <Route path="/product/:productId" element={<Layout><ProductDetails /></Layout>} />
             <Route path="/cart" element={<Layout><CartPage /></Layout>} />
             <Route path="/wishlist" element={<Layout><WishlistPage /></Layout>} />
-            {/* Add Settings route */}
             <Route path="/settings" element={<Layout><Settings /></Layout>} />
-            {/* Add MyOrders route */}
             <Route path="/my-orders" element={<Layout><MyOrders /></Layout>} />
-            {/* Add CustomerDashboard route */}
             <Route path="/customer-dashboard" element={<Layout><CustomerDashboard /></Layout>} />
+            {/* ADD THIS ROUTE */}
+            <Route path="/checkout" element={<Layout><Checkout /></Layout>} />
           </Routes>
         </div>
       </Router>

@@ -1,36 +1,31 @@
-// src/pages/CartPage.jsx - UPDATED WITH EXPORTS
+// src/pages/CartPage.jsx
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ShoppingCart, Heart, ArrowLeft, Trash2, Plus, Minus, Tag, Truck, Shield, CreditCard } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom'; // Added useNavigate
+import { ShoppingCart, Heart, ArrowLeft, Trash2, Plus, Minus, CreditCard } from 'lucide-react';
 import './CartPage.css';
 
-// Export utility function for formatting price
 export const formatPrice = (price) => {
   return `${price.toLocaleString()} L.E`;
 };
 
-// Export function to get cart from localStorage
 export const getCartFromStorage = () => {
   const savedCart = localStorage.getItem('ecommerceCartItems');
   return savedCart ? JSON.parse(savedCart) : [];
 };
 
-// Export function to update cart in localStorage
 export const updateCartInStorage = (cartItems) => {
   localStorage.setItem('ecommerceCartItems', JSON.stringify(cartItems));
 };
 
 const CartPage = () => {
+  const navigate = useNavigate(); // Initialize navigate hook
   const [cartItems, setCartItems] = useState(() => getCartFromStorage());
-  const [couponCode, setCouponCode] = useState('');
-  const [shippingMethod, setShippingMethod] = useState('free');
+  const [shippingMethod] = useState('free');
 
-  // Sync with LocalStorage
   useEffect(() => {
     updateCartInStorage(cartItems);
   }, [cartItems]);
 
-  // Calculations
   const subtotal = cartItems.reduce((sum, item) => {
     const price = item.discountPrice || item.price;
     return sum + (price * (item.quantity || 1));
@@ -39,6 +34,13 @@ const CartPage = () => {
   const shippingCost = shippingMethod === 'express' ? 15.99 : shippingMethod === 'standard' ? 7.99 : 0;
   const tax = subtotal * 0.08; 
   const total = subtotal + shippingCost + tax;
+
+  // Function to handle redirection
+  const handleProceedToCheckout = () => {
+    if (cartItems.length > 0) {
+      navigate('/checkout'); // Link to the new checkout route
+    }
+  };
 
   const updateQuantity = (itemId, newQuantity) => {
     if (newQuantity < 1) return;
@@ -141,7 +143,10 @@ const CartPage = () => {
                   <div className="summary-row"><span>Tax</span><span>{formatPrice(tax)}</span></div>
                   <div className="summary-row total"><span>Total</span><span>{formatPrice(total)}</span></div>
                 </div>
-                <button className="checkout-btn"><CreditCard size={20} /> Checkout</button>
+                {/* UPDATED BUTTON */}
+                <button className="checkout-btn" onClick={handleProceedToCheckout}>
+                  <CreditCard size={20} /> Checkout
+                </button>
               </div>
             </aside>
           </div>
