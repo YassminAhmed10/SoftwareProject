@@ -1,0 +1,85 @@
+.order-confirmation-page {
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.confirmation-container {
+  max-width: 600px;
+  margin: 80px auto;
+  padding: 60px 40px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.success-icon {
+  font-size: 80px;
+  color: #4caf50;
+  margin-bottom: 20px;
+}
+
+.confirmation-container h1 {
+  font-size: 32px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.confirmation-container p {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.order-details {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 30px 0;
+}
+
+.order-number {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px !important;
+}
+
+.confirmation-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.btn-home,
+.btn-orders {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 30px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-home {
+  background: #333;
+  color: white;
+}
+
+.btn-home:hover {
+  background: #555;
+}
+
+.btn-orders {
+  background: white;
+  color: #333;
+  border: 2px solid #333;
+}
+
+.btn-orders:hover {
+  background: #333;
+  color: white;
+}
