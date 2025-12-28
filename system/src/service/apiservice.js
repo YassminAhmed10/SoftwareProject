@@ -1,94 +1,84 @@
-// src/App.jsx
-import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+// src/service/apiservice.js
 
-import { DarkModeProvider } from "./Contexts/DarkModeContext";
-import Layout from "./components/Layout/Layout";
+const API_BASE_URL = "http://127.0.0.1:8000/api";
 
-import Dashboard from "./pages/Dashboard";
-import OrderDetails from "./pages/OrderDetails";
-import MyStore from "./pages/MyStore";
-import Analytics from "./pages/Analytics";
-import AllOrders from "./pages/AllOrders";
-import Finance from "./pages/Finance";
-import Settings from "./pages/Settings";
-import LoginPage from "./pages/LoginPage";
-import SignUpPage from "./pages/SignUpPage";
+// --------------------------
+// AUTH UTILITIES
+// --------------------------
+export const isAuthenticated = () => {
+  return !!localStorage.getItem("accessToken");
+};
 
-import { isAuthenticated } from "./service/apiservice";
+export const logoutUser = () => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+  localStorage.removeItem("user");
+};
 
-function App() {
-  const [authenticated, setAuthenticated] = useState(false);
+// --------------------------
+// REGISTER USER
+// --------------------------
+export const registerUser = async (fullName, email, password) => {
+  const username = fullName.split(" ")[0]; // Use first name as username
 
-  useEffect(() => {
-    setAuthenticated(isAuthenticated());
-  }, []);
+  const response = await fetch(`${API_BASE_URL}/signup/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, email, password, first_name: fullName }),
+  });
 
-  const handleLoginSuccess = () => setAuthenticated(true);
-  const handleSignupSuccess = () => setAuthenticated(true);
-  const handleLogout = () => setAuthenticated(false);
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Signup failed");
+  }
 
-  return (
-    <DarkModeProvider>
-      <Router>
-        <Routes>
-          {/* AUTH ROUTES */}
-          {!authenticated ? (
-            <>
-              <Route
-                path="/login"
-                element={<LoginPage onLoginSuccess={handleLoginSuccess} />}
-              />
-              <Route
-                path="/signup"
-                element={<SignUpPage onSignupSuccess={handleSignupSuccess} />}
-              />
-              <Route path="*" element={<Navigate to="/login" replace />} />
-            </>
-          ) : (
-            <>
-              {/* PROTECTED ROUTES */}
-              <Route
-                path="/"
-                element={<Navigate to="/dashboard" replace />}
-              />
-              <Route
-                path="/dashboard"
-                element={<Layout onLogout={handleLogout}><Dashboard /></Layout>}
-              />
-              <Route
-                path="/order/:orderId"
-                element={<Layout onLogout={handleLogout}><OrderDetails /></Layout>}
-              />
-              <Route
-                path="/my-store"
-                element={<Layout onLogout={handleLogout}><MyStore /></Layout>}
-              />
-              <Route
-                path="/analytics"
-                element={<Layout onLogout={handleLogout}><Analytics /></Layout>}
-              />
-              <Route
-                path="/orders"
-                element={<Layout onLogout={handleLogout}><AllOrders /></Layout>}
-              />
-              <Route
-                path="/finance"
-                element={<Layout onLogout={handleLogout}><Finance /></Layout>}
-              />
-              <Route
-                path="/settings"
-                element={<Layout onLogout={handleLogout}><Settings /></Layout>}
-              />
-              {/* Redirect auth pages */}
-              <Route path="/login" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/signup" element={<Navigate to="/dashboard" replace />} />
-            </>
-          )}
-        </Routes>
-      </Router>
-    </DarkModeProvider>
-  );
-}
+  const data = await response.json();
+  localStorage.setItem("accessToken", data.tokens.access);
+  localStorage.setItem("refreshToken", data.tokens.refresh);
+  localStorage.setItem("user", JSON.stringify(data.user));
 
-export default App;
+  return data;
+};
+
+// --------------------------
+// LOGIN USER
+// --------------------------
+export const loginUser = async (usernameOrEmail, password) => {
+  const response = await fetch(`${API_BASE_URL}/login/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: usernameOrEmail, password }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Login failed");
+  }
+
+  const data = await response.json();
+  localStorage.setItem("accessToken", data.tokens.access);
+  localStorage.setItem("refreshToken", data.tokens.refresh);
+  localStorage.setItem("user", JSON.stringify(data.user));
+
+  return data;
+};
+
+// --------------------------
+// GET USER PROFILE
+// --------------------------
+export const getUserProfile = async () => {
+  const token = localStorage.getItem("accessToken");
+  if (!token) throw new Error("User not authenticated");
+
+  const response = await fetch(`${API_BASE_URL}/profile/`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Failed to fetch profile");
+  }
+
+  return await response.json();
+};

@@ -1,87 +1,113 @@
-// src/components/Layout/Sidebar.jsx
-import { useState } from "react";
-import PropTypes from "prop-types";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FaTachometerAlt, FaUsers, FaShoppingBag, FaSync } from "react-icons/fa";
-import { BiSolidCategoryAlt } from "react-icons/bi";
-import { IoBagAddSharp, IoLogOutOutline } from "react-icons/io5";
-import { TbReportAnalytics } from "react-icons/tb";
-import { CiSettings } from "react-icons/ci";
-import "../Layout.css";
+import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { 
+  LayoutDashboard, 
+  ShoppingBag, 
+  PieChart, 
+  FileText,
+  DollarSign,
+  Settings, 
+  LogOut 
+} from 'lucide-react';
+import './Sidebar.css';
 
-function Sidebar({ sidebarHidden, toggleSidebar }) {
-  const location = useLocation();
+const Sidebar = ({ hide, darkMode }) => {
   const navigate = useNavigate();
-  const [settingsMenu, setSettingsMenu] = useState(false);
+  const location = useLocation();
 
-  const isSettingsActive = [
-    "/setting/profile",
-    "/setting/changepassword",
-    "/setting/settingdelete",
-  ].includes(location.pathname);
+  const menuItems = [
+    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard', section: 'top' },
+    { id: 'store', icon: ShoppingBag, label: 'My Store', path: '/my-store', section: 'top' },
+    { id: 'analytics', icon: PieChart, label: 'Analytics', path: '/analytics', section: 'top' },
+    { id: 'orders', icon: FileText, label: 'All Orders', path: '/orders', section: 'top' },
+    { id: 'finance', icon: DollarSign, label: 'Finance', path: '/finance', section: 'top' },
+    { id: 'settings', icon: Settings, label: 'Settings', path: '/settings', section: 'bottom' },
 
-  const toggleSettingsMenu = () => setSettingsMenu(!settingsMenu);
-  const handleLogout = () => navigate("/login", { replace: true });
+    // LOGOUT — redirects to /login
+    { id: 'logout', icon: LogOut, label: 'Logout', path: '/login', section: 'bottom', isLogout: true }
+  ];
 
-  const getNavLinkClassName = (path) => location.pathname === path ? "active" : "";
+  const topMenuItems = menuItems.filter(item => item.section === 'top');
+  const bottomMenuItems = menuItems.filter(item => item.section === 'bottom');
+
+  const isActive = (path) => {
+    if (path === '/dashboard' && location.pathname === '/') return true;
+    return location.pathname === path;
+  };
+
+  const handleNavigation = (item) => {
+    if (item.isLogout) {
+      if (window.confirm('Are you sure you want to logout?')) {
+        navigate('/login'); // FIXED → goes to login page
+      }
+    } else {
+      navigate(item.path);
+    }
+  };
 
   return (
-    <div id="sidebar" className={sidebarHidden ? "hide" : ""}>
-      <Link to="/" className="logo">
-        <img
-          src="https://cdn.staticcrate.com/stock-hd/effects/footagecrate-black-bright-streak-uphd-gai7y1f5-Thumb.png"
-          alt="Logo"
+    <section id="sidebar" className={hide ? 'hide' : ''}>
+      <div className="brand">
+        <img 
+          src="/src/assets/logoo.png"
+          alt="AdminHub"
+          className="sidebar-logo"
+          onError={(e) => {
+            e.target.src = 'https://via.placeholder.com/120x40?text=LOGO';
+          }}
         />
-      </Link>
+      </div>
 
-      <ul className="list">
-        <li className={getNavLinkClassName("/")}>
-          <Link to="/"><FaTachometerAlt /> Dashboard</Link>
-        </li>
-        <li className={getNavLinkClassName("/customer")}>
-          <Link to="/customer"><FaUsers /> Customers</Link>
-        </li>
-        <li className={getNavLinkClassName("/category")}>
-          <Link to="/category"><BiSolidCategoryAlt /> Category</Link>
-        </li>
-        <li className={getNavLinkClassName("/addproduct")}>
-          <Link to="/addproduct"><IoBagAddSharp /> Add Product</Link>
-        </li>
-        <li className={getNavLinkClassName("/manageproducts")}>
-          <Link to="/manageproducts"><FaShoppingBag /> Manage Products</Link>
-        </li>
-        <li className={getNavLinkClassName("/sales")}>
-          <Link to="/sales"><FaSync /> Sales</Link>
-        </li>
-        <li className={getNavLinkClassName("/analytics")}>
-          <Link to="/analytics"><TbReportAnalytics /> Analytics</Link>
-        </li>
-        <li className={isSettingsActive ? "active" : ""}>
-          <Link onClick={toggleSettingsMenu}><CiSettings /> Settings</Link>
-          {settingsMenu && (
-            <div className="dropdown">
-              <Link to="/setting/profile">Profile</Link>
-              <Link to="/setting/changepassword">Change Password</Link>
-              <Link to="/setting/settingdelete">Delete Account</Link>
-            </div>
-          )}
-        </li>
+      {/* Top Menu */}
+      <ul className="side-menu top">
+        {topMenuItems.map(item => {
+          const Icon = item.icon;
+
+          return (
+            <li key={item.id} className={isActive(item.path) ? 'active' : ''}>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavigation(item);
+                }}
+              >
+                <div className="menu-icon">
+                  <Icon size={20} />
+                </div>
+                <span className="text">{item.label}</span>
+              </a>
+            </li>
+          );
+        })}
       </ul>
 
-      <button className="logout" onClick={handleLogout}>
-        <IoLogOutOutline /> Logout
-      </button>
+      {/* Bottom Menu */}
+      <ul className="side-menu bottom">
+        {bottomMenuItems.map(item => {
+          const Icon = item.icon;
 
-      <button className="toggle-sidebar" onClick={toggleSidebar}>
-        {sidebarHidden ? "Open" : "Close"}
-      </button>
-    </div>
+          return (
+            <li key={item.id} className={isActive(item.path) ? 'active' : ''}>
+              <a
+                href="#"
+                className={item.isLogout ? 'logout' : ''}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavigation(item);
+                }}
+              >
+                <div className="menu-icon">
+                  <Icon size={20} />
+                </div>
+                <span className="text">{item.label}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
-}
-
-Sidebar.propTypes = {
-  sidebarHidden: PropTypes.bool.isRequired,
-  toggleSidebar: PropTypes.func.isRequired,
 };
 
 export default Sidebar;
