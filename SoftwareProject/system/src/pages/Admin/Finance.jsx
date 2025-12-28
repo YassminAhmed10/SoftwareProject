@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 import { 
   DollarSign, 
@@ -30,12 +31,74 @@ import './Finance.css';
 
 const Finance = () => {
   const [selectedDate, setSelectedDate] = useState({
-    year: 2024,
-    month: 6,
-    day: 15
+    year: new Date().getFullYear(),
+    month: new Date().getMonth() + 1,
+    day: new Date().getDate()
   });
 
-  // Generate dynamic data based on selected date
+  const [salesData, setSalesData] = useState([]);
+  const [productsData, setProductsData] = useState([]);
+  const [expensesData, setExpensesData] = useState([]);
+  const [employeesData, setEmployeesData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const WEEKS_TEMPLATE = [
+  { week: 'Week 1', revenue: 0, expenses: 0, profit: 0, orders: 0, shipping: 0 },
+  { week: 'Week 2', revenue: 0, expenses: 0, profit: 0, orders: 0, shipping: 0 },
+  { week: 'Week 3', revenue: 0, expenses: 0, profit: 0, orders: 0, shipping: 0 },
+  { week: 'Week 4', revenue: 0, expenses: 0, profit: 0, orders: 0, shipping: 0 }
+];
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchFinanceData = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('accessToken') || 
+                     localStorage.getItem('access') || 
+                     localStorage.getItem('access_token');
+
+        const response = await axios.get('http://127.0.0.1:8000/api/orders/analytics/', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          params: {
+            year: selectedDate.year,
+            month: selectedDate.month,
+            day: selectedDate.day,
+            range: 'month'
+          }
+        });
+
+        if (response.data.success) {
+          // Transform sales data to match expected format
+          const transformedSalesData = (response.data.weekly_sales || response.data.sales_data || []).map(week => ({
+            week: week.period || week.week,
+            revenue: week.revenue || week.sales || 0,
+            expenses: week.expenses || (week.revenue * 0.6) || (week.sales * 0.6) || 0,
+            profit: week.profit || ((week.revenue || week.sales || 0) - (week.expenses || 0)),
+            orders: week.orders || 0,
+            shipping: week.shipping || 0
+          }));
+
+          setSalesData(transformedSalesData);
+          setProductsData(response.data.products_distribution || response.data.category_data || []);
+          setExpensesData(response.data.expenses_breakdown || []);
+          setEmployeesData(response.data.employees || []);
+        }
+      } catch (error) {
+        console.error('Error fetching finance data:', error);
+        // Use default data if API fails
+        setSalesData(generateSalesData());
+        setProductsData(generateProductsData());
+        setExpensesData(generateExpensesData());
+        setEmployeesData(generateEmployeesData());
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFinanceData();
+  }, [selectedDate.year, selectedDate.month, selectedDate.day]);
+
+  // Fallback data generators (keep for when API fails)
   const generateSalesData = () => {
     const baseRevenue = 40000 + (selectedDate.month * 2000) + (selectedDate.day * 100);
     const baseExpenses = 25000 + (selectedDate.month * 1000) + (selectedDate.day * 50);
@@ -77,7 +140,6 @@ const Finance = () => {
     ];
   };
 
-  // Products data - only Men and Women categories
   const generateProductsData = () => {
     const total = 100;
     const womenPercentage = 60 + (selectedDate.month % 3) * 5;
@@ -89,7 +151,6 @@ const Finance = () => {
     ];
   };
 
-  // Expenses data with dynamic values
   const generateExpensesData = () => {
     const baseAmount = 30000 + (selectedDate.month * 1000) + (selectedDate.day * 10);
     const shipping = 4500 + (selectedDate.day * 15);
@@ -128,7 +189,6 @@ const Finance = () => {
     ];
   };
 
-  // Employee performance data
   const generateEmployeesData = () => {
     const baseOrders = 30 + selectedDate.day;
     return [
@@ -149,17 +209,17 @@ const Finance = () => {
     ];
   };
 
-  // Calculate main statistics based on generated data
-  const salesData = generateSalesData();
-  const productsData = generateProductsData();
-  const expensesData = generateExpensesData();
-  const employeesData = generateEmployeesData();
+  // Use API data if available, otherwise use generated data
+  const finalSalesData = salesData.length > 0 ? salesData : generateSalesData();
+  const finalProductsData = productsData.length > 0 ? productsData : generateProductsData();
+  const finalExpensesData = expensesData.length > 0 ? expensesData : generateExpensesData();
+  const finalEmployeesData = employeesData.length > 0 ? employeesData : generateEmployeesData();
 
-  const totalRevenue = salesData.reduce((sum, week) => sum + week.revenue, 0);
-  const totalExpenses = salesData.reduce((sum, week) => sum + week.expenses, 0);
-  const totalProfit = salesData.reduce((sum, week) => sum + week.profit, 0);
-  const totalOrders = salesData.reduce((sum, week) => sum + week.orders, 0);
-  const totalShipping = salesData.reduce((sum, week) => sum + week.shipping, 0);
+  const totalRevenue = finalSalesData.reduce((sum, week) => sum + week.revenue, 0);
+  const totalExpenses = finalSalesData.reduce((sum, week) => sum + week.expenses, 0);
+  const totalProfit = finalSalesData.reduce((sum, week) => sum + week.profit, 0);
+  const totalOrders = finalSalesData.reduce((sum, week) => sum + week.orders, 0);
+  const totalShipping = finalSalesData.reduce((sum, week) => sum + week.shipping, 0);
 
   // Main statistics
   const mainStats = [
@@ -204,6 +264,16 @@ const Finance = () => {
   const getDaysInMonth = (month, year) => {
     return new Date(year, month, 0).getDate();
   };
+
+  if (loading) {
+    return (
+      <div className="finance-page">
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+          <div>Loading financial data...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="finance-page">
@@ -290,7 +360,7 @@ const Finance = () => {
             <p>Weekly performance for {selectedDate.month}/{selectedDate.year}</p>
           </div>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={salesData}>
+            <BarChart data={finalSalesData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="week" />
               <YAxis />
@@ -310,7 +380,7 @@ const Finance = () => {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={productsData}
+                data={finalProductsData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
@@ -319,7 +389,7 @@ const Finance = () => {
                 fill="#8884d8"
                 dataKey="value"
               >
-                {productsData.map((entry, index) => (
+                {finalProductsData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
@@ -327,7 +397,7 @@ const Finance = () => {
             </PieChart>
           </ResponsiveContainer>
           <div className="chart-legend">
-            {productsData.map((product, index) => (
+            {finalProductsData.map((product, index) => (
               <div key={index} className="legend-item">
                 <div className="legend-color" style={{ backgroundColor: product.color }}></div>
                 <span>{product.name}</span>
@@ -347,7 +417,7 @@ const Finance = () => {
             <p>Order management efficiency</p>
           </div>
           <div className="employees-list">
-            {employeesData.map((employee, index) => (
+            {finalEmployeesData.map((employee, index) => (
               <div key={index} className="employee-item">
                 <div className="employee-info">
                   <div className="employee-avatar">
@@ -395,7 +465,7 @@ const Finance = () => {
             </div>
           </div>
           <div className="expenses-list">
-            {expensesData.map((expense, index) => (
+            {finalExpensesData.map((expense, index) => (
               <div key={index} className="expense-item">
                 <div className="expense-info">
                   <div className="expense-color" style={{ backgroundColor: expense.color }}></div>
@@ -430,7 +500,7 @@ const Finance = () => {
             <p>Weekly profit analysis</p>
           </div>
           <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={salesData}>
+            <LineChart data={finalSalesData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="week" />
               <YAxis />
@@ -447,7 +517,7 @@ const Finance = () => {
           <div className="profit-summary">
             <div className="summary-item">
               <span>Avg Weekly Profit</span>
-              <strong>{formatCurrency(totalProfit / salesData.length)}</strong>
+              <strong>{formatCurrency(totalProfit / finalSalesData.length)}</strong>
             </div>
             <div className="summary-item">
               <span>Total Monthly Profit</span>

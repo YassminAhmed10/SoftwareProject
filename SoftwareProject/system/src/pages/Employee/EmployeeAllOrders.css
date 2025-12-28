@@ -8,7 +8,176 @@
   gap: 12px;
   
 }
+/* Add these styles to EmployeeAllOrders.css */
 
+/* Loading and refreshing states */
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: #6b7280;
+}
+
+.refreshing-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 12px;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Data source indicator */
+.data-source-indicator {
+  margin-top: 8px;
+}
+
+.source-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.source-badge.live {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.source-badge.demo {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* Refresh button */
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Customer info with email */
+.customer-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.customer-name {
+  font-weight: 500;
+  color: #111827;
+}
+
+.customer-email {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #6b7280;
+}
+
+.empty-state h3 {
+  margin: 16px 0 8px 0;
+  color: #374151;
+}
+
+.empty-state p {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.reset-filters-btn {
+  padding: 8px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.reset-filters-btn:hover {
+  background: #2563eb;
+}
+
+/* Status colors */
+.stat-red {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #991b1b;
+}
+
+/* Responsive table */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.no-orders {
+  text-align: center;
+  padding: 40px !important;
+}
+
+/* Pagination improvements */
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-btn.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+/* Filter improvements */
+.search-filter-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.search-box {
+  flex: 1;
+}
+
+.filter-select {
+  min-width: 120px;
+}
+
+/* Results count */
+.results-count {
+  margin-top: 12px;
+  color: #6b7280;
+  font-size: 14px;
+}
 .action-btn {
   display: flex;
   align-items: center;

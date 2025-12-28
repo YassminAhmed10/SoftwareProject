@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaUser, FaSearch } from 'react-icons/fa'; 
+import { FaUser, FaSearch, FaShoppingCart, FaHeart } from 'react-icons/fa'; 
+import { useCart } from '../Contexts/CartContext';
 // Ensure logo.png is in your src/assets folder
 import logo from '../assets/ryyz.jpg'; 
 
@@ -38,12 +39,15 @@ const actionButtonStyle = {
 
 // --- COMPONENT ---
 const Header = ({ user, onLogout }) => { 
+  const { cart } = useCart();
+  const cartItemsCount = cart.reduce((total, item) => total + item.quantity, 0);
+
   return (
     <nav style={navStyle}>
       {/* 1. LEFT SECTION: Logo Integration */}
       <div style={{ display: 'flex', alignItems: 'center', flex: 1, justifyContent: 'flex-start' }}>
         <Link 
-          to="/" 
+          to="/home" 
           style={{ textDecoration: 'none', color: 'black', display: 'flex', alignItems: 'center', gap: '8px' }}
         >
           {/* IMAGE LOGO INTEGRATION */}
@@ -66,9 +70,9 @@ const Header = ({ user, onLogout }) => {
           padding: '0 20px' 
         }}
       >
-        <Link to="/" style={linkStyle}>Home</Link>
-        <Link to="/shop" style={linkStyle}>Shop</Link>
-        <Link to="/dashboard" style={{ ...linkStyle, color: '#007bff' }}>Admin Panel</Link>
+        <Link to="/home" style={linkStyle}>Home</Link>
+        <Link to="/women" style={linkStyle}>Women</Link>
+        <Link to="/men" style={linkStyle}>Men</Link>
       </div>
 
       {/* 3. RIGHT SECTION: Search and Conditional Auth Buttons */}
@@ -79,10 +83,39 @@ const Header = ({ user, onLogout }) => {
           <input type="text" placeholder="Search" style={{ border: 'none', outline: 'none', padding: '0 5px', width: '120px' }} />
           <FaSearch style={{ color: '#555' }} />
         </div>
+
+        {/* Wishlist Icon */}
+        <Link to="/wishlist" style={{ position: 'relative', color: '#555', fontSize: '22px' }}>
+          <FaHeart />
+        </Link>
+
+        {/* Shopping Cart Icon */}
+        <Link to="/cart" style={{ position: 'relative', color: '#555', fontSize: '22px' }}>
+          <FaShoppingCart />
+          {cartItemsCount > 0 && (
+            <span style={{
+              position: 'absolute',
+              top: '-8px',
+              right: '-10px',
+              background: '#e63946',
+              color: 'white',
+              borderRadius: '50%',
+              width: '20px',
+              height: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '12px',
+              fontWeight: 'bold'
+            }}>
+              {cartItemsCount}
+            </span>
+          )}
+        </Link>
         
         {/* Auth Buttons */}
         {user ? (
-          <Link to="/dashboard/profile">
+          <Link to="/my-account">
             <button style={{ ...actionButtonStyle, background: '#f5f5f5' }}>
               <FaUser /> My Account
             </button>

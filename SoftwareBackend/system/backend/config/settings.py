@@ -25,6 +25,9 @@ INSTALLED_APPS = [
 
     # Local apps
     'accounts',
+    'orders',
+    'track_visitor',
+    'tasks',
 ]
 
 MIDDLEWARE = [
@@ -87,6 +90,10 @@ AUTH_USER_MODEL = 'accounts.User'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        
+    ),
+     "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
     ),
 }
 
@@ -101,3 +108,16 @@ SIMPLE_JWT = {
 # CORS FIX -------------------------------
 CORS_ALLOW_ALL_ORIGINS = True  # <==== FIXED (important)
 CORS_ALLOW_CREDENTIALS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'ryyzfashionbrand@gmail.com'
+EMAIL_HOST_PASSWORD = 'hhdc mbyv hepy oxbj'  # Your Gmail App Password
+DEFAULT_FROM_EMAIL = 'RYYZ <ryyzfashionbrand@gmail.com>'
+EMAIL_USE_SSL = False
+EMAIL_USE_TLS = True
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

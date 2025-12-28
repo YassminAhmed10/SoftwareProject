@@ -752,3 +752,161 @@ body.dark .date-selector select option {
 .dark-mode-toggle:hover {
   transform: scale(1.1);
 }
+/* Add these to your existing Finance.css */
+
+.finance-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  animation: spin 2s linear infinite;
+  color: #667eea;
+  margin-bottom: 20px;
+}
+
+.loading-steps {
+  margin-top: 30px;
+  max-width: 300px;
+}
+
+.loading-step {
+  padding: 10px;
+  margin: 5px 0;
+  background: #f1f5f9;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.loading-step.completed {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.finance-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  padding: 20px;
+}
+
+.error-content {
+  max-width: 500px;
+  text-align: center;
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.error-icon {
+  width: 60px;
+  height: 60px;
+  color: #f59e0b;
+  margin-bottom: 20px;
+}
+
+.error-list {
+  text-align: left;
+  margin: 20px 0;
+  padding-left: 20px;
+}
+
+.error-list li {
+  margin: 10px 0;
+  color: #666;
+}
+
+.retry-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 20px;
+}
+
+.data-source {
+  margin-top: 10px;
+}
+
+.source-badge {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.refresh-btn:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+.debug-info {
+  margin-top: 30px;
+  padding: 15px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.debug-info summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #475569;
+}
+
+.debug-info pre {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+  font-size: 12px;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.chart-card {
+  width: 100%;
+  min-height: 360px;
+}
+
+.main-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+

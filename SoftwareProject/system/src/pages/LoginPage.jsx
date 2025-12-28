@@ -99,8 +99,8 @@ function LoginPage({ onNavigateToSignup, onLogin }) {
                 </svg>
               </span>
               <input
-                type="email"
-                placeholder="Email (e.g., yassmin@admin.com)"
+                type="text"
+                placeholder="Email or Username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyPress={handleKeyPress}
