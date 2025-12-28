@@ -1,0 +1,123 @@
+/* src/components/OrderCard/OrderCard.css - Employee System */
+.order-card {
+  background: var(--card-bg);
+  border-radius: var(--border-radius-lg);
+  padding: 22px;
+  border: 2px solid var(--border-color);
+  transition: all 0.3s ease;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
+}
+
+.order-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-color);
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.order-id {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-color);
+  font-family: 'Courier New', monospace;
+}
+
+.order-status {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.order-card-body {
+  margin-bottom: 20px;
+}
+
+.customer-info, .order-details {
+  margin-bottom: 12px;
+}
+
+.customer-name, .customer-email, .order-date, .order-total {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.customer-name .label, .customer-email .label, 
+.order-date .label, .order-total .label {
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+.amount {
+  font-weight: 700;
+  color: var(--primary-color);
+  font-size: 17px;
+}
+
+.order-card-footer {
+  display: flex;
+  gap: 14px;
+  padding-top: 18px;
+  border-top: 2px solid var(--border-color);
+}
+
+.order-card-footer button {
+  flex: 1;
+  padding: 12px 18px;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: var(--font-primary);
+}
+
+.btn-view {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+}
+
+.btn-view:hover {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-process {
+  background: var(--primary-color);
+  color: white;
+}
+
+.btn-process:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+}
+
+@media (max-width: 768px) {
+  .order-card {
+    padding: 16px;
+  }
+  
+  .order-card-footer {
+    flex-direction: column;
+  }
+}
