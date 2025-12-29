@@ -1,0 +1,174 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+li {
+  list-style: none;
+}
+
+/* Employee System Theme - Professional Corporate Colors */
+:root {
+  /* Primary Brand Colors - Employee System Blue */
+  --primary-color: #1e40af;
+  --primary-dark: #1e3a8a;
+  --primary-light: #3b82f6;
+  --primary-bg: #f8fafc;
+  
+  /* Surface Colors */
+  --surface: #ffffff;
+  --surface-alt: #f1f5f9;
+  --card-bg: #ffffff;
+  --hover-bg: #f1f5f9;
+  
+  /* Border & Divider */
+  --border: #e2e8f0;
+  --border-color: #e2e8f0;
+  --grey: #f1f5f9;
+
+  /* Text Colors */
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  /* Accent Colors - Employee Dashboard */
+  --blue: #1e40af;
+  --light-blue: #dbeafe;
+  --green: #10b981;
+  --light-green: #d1fae5;
+  --orange: #f97316;
+  --light-orange: #fed7aa;
+  --red: #ef4444;
+  --light-red: #fee2e2;
+  --yellow: #eab308;
+  --light-yellow: #fef3c7;
+  --purple: #8b5cf6;
+  --light-purple: #ede9fe;
+  
+  /* Shadows */
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Border Radius */
+  --border-radius: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  
+  /* Transition */
+  --transition: 0.3s ease-in-out;
+  
+  /* Fonts */
+  --font-primary: 'Inter', sans-serif;
+  --font-secondary: 'Roboto', sans-serif;
+}
+
+/* Dark Mode - Employee System */
+.dark,
+body.dark,
+.dark-mode,
+body.dark-mode {
+  --primary-color: #3b82f6;
+  --primary-dark: #2563eb;
+  --primary-light: #60a5fa;
+  --primary-bg: #0f172a;
+  
+  --surface: #1e293b;
+  --surface-alt: #334155;
+  --card-bg: #1e293b;
+  --hover-bg: #334155;
+  
+  --border: #334155;
+  --border-color: #334155;
+  --grey: #1e293b;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+
+  --blue: #3b82f6;
+  --light-blue: rgba(59, 130, 246, 0.15);
+  --green: #10b981;
+  --light-green: rgba(16, 185, 129, 0.15);
+  --orange: #f97316;
+  --light-orange: rgba(249, 115, 22, 0.15);
+  --red: #ef4444;
+  --light-red: rgba(239, 68, 68, 0.15);
+  --yellow: #eab308;
+  --light-yellow: rgba(234, 179, 8, 0.15);
+  --purple: #8b5cf6;
+  --light-purple: rgba(139, 92, 246, 0.15);
+  
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* Legacy Support */
+:root {
+  --poppins: var(--font-primary);
+  --lato: var(--font-secondary);
+  --light: var(--surface);
+  --dark: var(--text-primary);
+  --dark-grey: var(--text-secondary);
+}
+
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--primary-bg);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  font-family: var(--font-primary);
+  transition: background 0.3s ease, color 0.3s ease;
+  line-height: 1.6;
+}
+
+.app {
+  display: flex;
+  min-height: 100vh;
+  background: var(--primary-bg);
+}
+
+/* Scrollbar Styling - Employee System */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-alt);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Selection Color */
+::selection {
+  background: var(--primary-color);
+  color: white;
+}
+
+::-moz-selection {
+  background: var(--primary-color);
+  color: white;
+}
+

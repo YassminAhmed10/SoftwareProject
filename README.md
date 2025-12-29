@@ -222,12 +222,21 @@ RYYZ-Store-Project/
 
 ### **The RYYZ Dream Team**
 
+<<<<<<< HEAD
 | Name | ID | Role |
 |------|-----|------|
 | **Ramy Mohamed Kamal** | 231000792 | 🎯 Team Lead & Backend Developer |
 | **Yassmin Ahmed Hassan** | 231001654 | 💻 Frontend Developer |
 | **Youssef Khaled Gaber** | 231000968 | 🎨 UI/UX & Frontend Developer |
 | **Zeina Mohamed Bahget** | 231001039 | 🔧 Full-Stack Developer |
+=======
+| Name | ID | 
+|------|-----|
+| **Ramy Mohamed Kamal** | 231000792 | 
+| **Yassmin Ahmed Hassan** | 231001654 | 
+| **Youssef Khaled Gaber** | 231000968 | 
+| **Zeina Mohamed Bahget** | 231001039 |
+>>>>>>> 4a1cfadff3fc860cfb92486a2c9e8334a4e91d8f
 
 *Four passionate developers united by a vision to transform retail management* ✨
 
@@ -238,13 +247,17 @@ RYYZ-Store-Project/
 ## 📚 Documentation
 
 - [Integration Guide](INTEGRATION_GUIDE.md) - Complete integration documentation
+<<<<<<< HEAD
 - [Testing Documentation](TESTING.md) - Comprehensive testing strategy and guidelines
 - [Test Report](TEST_REPORT.md) - Testing results and coverage reports
+=======
+>>>>>>> 4a1cfadff3fc860cfb92486a2c9e8334a4e91d8f
 - [Chatbot Setup](SoftwareProject/new-folder/CHATBOT_QUICKSTART.md) - AI chatbot implementation guide
 - [Architecture Diagrams](SoftwareProject/new-folder/ARCHITECTURE_DIAGRAMS.md) - System architecture overview
 
 ---
 
+<<<<<<< HEAD
 ## 🧪 Testing
 
 RYYZ Store implements comprehensive testing across all layers:
@@ -325,5 +338,9 @@ For questions, suggestions, or support:
 **Made with 💻 and ☕ by the RYYZ Team**
 
 *© 2025 RYYZ Store Management System. All rights reserved.*
+=======
+
+
+>>>>>>> 4a1cfadff3fc860cfb92486a2c9e8334a4e91d8f
 
 </div>

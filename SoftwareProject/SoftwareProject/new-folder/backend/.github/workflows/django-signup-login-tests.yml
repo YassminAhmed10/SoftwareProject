@@ -1,0 +1,50 @@
+name: Django — Signup & Login Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    name: Run Django tests for accounts (signup & login)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.11]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install dependencies
+        run: |
+          if [ -f system/backend/requirements.txt ]; then
+            python -m pip install -r system/backend/requirements.txt
+          else
+            python -m pip install Django djangorestframework djangorestframework-simplejwt
+          fi
+
+      - name: Run migrations
+        working-directory: system/backend
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings
+        run: |
+          python manage.py migrate --noinput
+
+      - name: Run accounts tests (signup & login)
+        working-directory: system/backend
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings
+        run: |
+          # Run only the accounts app tests to focus on signup/login
+          python manage.py test accounts -v 2
